@@ -1,12 +1,11 @@
 !> Calculates the euclidean distance between two nodes
-!! @param[in] this The reference node
-!! @param[in] that The node to calculate distance from
+!! @param[in] that The node to calculate distance from          
 !!
 !! @return The euclidean distance between two nodes
 function eucDist(this, that) result(dist)
     class(node), intent(in) :: this
-    class(node), intent(in) :: that
-    real(kind=real64) :: dist
+    type(node), intent(in)  :: that
+    real(kind=real64)       :: dist
     if (.not. allocated(this%coords) .or. .not. allocated(that%coords)) then
         error stop "coords not allocated"
     else if ((size(this%coords).eq. 0) .or. (size(that%coords) .eq. 0)) then 
@@ -42,3 +41,4 @@ recursive subroutine printNode(this, depth)
     if (associated(this%leftChild))  call this%leftChild%printNode(depth + 1)
     if (associated(this%rightChild)) call this%rightChild%printNode(depth + 1)
 end subroutine printNode
+

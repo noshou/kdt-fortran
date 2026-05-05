@@ -1,4 +1,3 @@
-
 !> Returns the dimension (number of splitting axis) of the tree
 function getDim(this) result(k)
     class(tree), intent(in) :: this
@@ -51,6 +50,10 @@ subroutine build(this, coords, data)
     allocate(indices(this%pop))
     indices = [(i, i=1, this%pop)]
 
+    ! initialize tree id
+    this%treeId = nextTreeId + 1
+    nextTreeId = nextTreeId + 1
+    
     ! build tree
     call buildSubtree(this, this%root, 0, indices, 1, this%pop)
 
@@ -65,7 +68,7 @@ recursive subroutine buildSubtree(this, root, depth, indices, lowerIdx, upperIdx
     integer, intent(inout)             :: indices(:)
     integer, intent(in)                :: lowerIdx, upperIdx, depth
     integer                            :: axis, median, middleBounds(2), targetIdx
-
+        
     ! base case: we are at a leaf (or tree is empty)
     if (lowerIdx > upperIdx) then 
         root => null()
@@ -83,9 +86,11 @@ recursive subroutine buildSubtree(this, root, depth, indices, lowerIdx, upperIdx
         )    
         root => this%nodePool(indices(median))
         root%splitAxis = axis
+        root%treeId = this%treeId
         call buildSubtree(this, root%leftChild,  depth+1, indices, lowerIdx, median-1)
         call buildSubtree(this, root%rightChild, depth+1, indices, median+1, upperIdx)
     end if  
+    
 end subroutine buildSubtree
 
 subroutine printTree(this)
@@ -97,13 +102,31 @@ subroutine printTree(this)
     end if
 end subroutine printTree
 
+include "radialSearch.inc"
+
+!> Checks if a target node is a member of this tree instance
+!! @param[in] target the target node to check
+!!
+!! @return true if a member, false if not
+function isMember(this, target) result(res)
+    class(tree), intent(in)         :: this
+    type(node), pointer, intent(in) :: target
+    logical                         :: res
+    if (.not. associated(target)) then 
+        res = .false.
+    else 
+        res = this%treeId .eq. target%treeId
+    end if
+end function isMember
+
 !> Frees the node pool and resets tree state.
 subroutine destroy(this)
     class(tree), intent(inout) :: this
     if (associated(this%nodePool)) deallocate(this%nodePool)
-    this%root => null()
-    this%dim = 0
-    this%pop = 0
+    this%root   => null()
+    this%dim    = 0
+    this%pop    = 0
+    this%treeId = 0
 end subroutine destroy
 
 ! frees up tree when it goes out of scope
