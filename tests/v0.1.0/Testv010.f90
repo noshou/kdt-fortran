@@ -1,4 +1,4 @@
-program TestTree
+program Testv010
     use KdTree
     use iso_fortran_env, only: real64
     implicit none
@@ -291,4 +291,4 @@ program TestTree
             write(*, *)
         end subroutine duplicatesFourAxis
 
-end program TestTree
+end program Testv010

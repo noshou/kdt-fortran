@@ -18,7 +18,7 @@ BUILD_DIR = _build
 # ============================================================================
 .PHONY: all clean
 
-all: $(BUILD_DIR)/TestTree
+all: $(BUILD_DIR)/Testv010
 
 $(BUILD_DIR):
 	mkdir -p $@
@@ -29,7 +29,7 @@ $(BUILD_DIR)/KdTree.o: KdTree.f90 | $(BUILD_DIR)
 $(BUILD_DIR)/KdTree.a: $(BUILD_DIR)/KdTree.o
 	ar rcs $@ $^
 
-$(BUILD_DIR)/TestTree: tests/TestTree.f90 $(BUILD_DIR)/KdTree.a | $(BUILD_DIR)
+$(BUILD_DIR)/$(BUILD_DIR)/Testv010: tests/v0.1.0/Testv010.f90 $(BUILD_DIR)/KdTree.a | $(BUILD_DIR)
 	$(FC) $(FCFLAGS) -Itree -Inode -I$(BUILD_DIR) -J$(BUILD_DIR) $< $(BUILD_DIR)/KdTree.a -o $@ $(LDFLAGS)
 
 clean:
