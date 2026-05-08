@@ -1,5 +1,5 @@
 module KdNodeModule
-    use iso_fortran_env, only: real64
+    use iso_fortran_env, only: real64, output_unit
     private 
     public :: Node, NodePtr 
 
@@ -12,6 +12,7 @@ module KdNodeModule
         contains    
             procedure                   :: eucDist
             procedure                   :: printNode
+            procedure                   :: printNodeSingle
     end type Node
 
     !> pointer to a Node
@@ -41,28 +42,54 @@ module KdNodeModule
         end function eucDist
 
         !> Recursively prints this Node and its subtree in pre-order.
-        !! @param[in] this the Node and its subtree to print
         !! @param[in] depth the depth of this Node
-        recursive subroutine printNode(this, depth)
-            class(Node), intent(in) :: this
-            integer,     intent(in) :: depth
-            integer :: i
+        !! @param[in] unit  optional output unit (defaults to stdout)
+        recursive subroutine printNode(this, depth, unit)
+            class(Node), intent(in)       :: this
+            integer,     intent(in)       :: depth
+            integer, intent(in), optional :: unit
+            integer :: i, u
+
+            u = output_unit
+            if (present(unit)) u = unit
 
             ! indentation: 2 spaces per depth level
             do i = 1, depth
-                write(*, '(A)', advance='no') '  '
+                write(u, '(A)', advance='no') '  '
             end do
 
             ! print this Node's coords and split axis
-            write(*, '(A,I0,A)', advance='no') '[axis=', this%splitAxis, '] ('
+            write(u, '(A,I0,A)', advance='no') '[axis=', this%splitAxis, '] ('
             do i = 1, size(this%coords)
-                if (i > 1) write(*, '(A)', advance='no') ', '
-                write(*, '(G0.4)', advance='no') this%coords(i)
+                if (i > 1) write(u, '(A)', advance='no') ', '
+                write(u, '(G0.4)', advance='no') this%coords(i)
             end do
-            write(*, '(A)') ')'
+            write(u, '(A)') ')'
 
-            if (associated(this%leftChild))  call this%leftChild%printNode(depth + 1)
-            if (associated(this%rightChild)) call this%rightChild%printNode(depth + 1)
+            if (associated(this%leftChild))  call this%leftChild%printNode(depth + 1, unit)
+            if (associated(this%rightChild)) call this%rightChild%printNode(depth + 1, unit)
         end subroutine printNode
+
+        !> Prints the current node, but not its subtree
+        !!
+        !! Use: printNode(depth) for the full subtree
+        !! @param[in] unit  optional output unit (defaults to stdout)
+        subroutine printNodeSingle(this, unit)
+            class(Node), intent(in)       :: this
+            integer, intent(in), optional :: unit
+            integer                       :: i, u
+
+            u = output_unit
+            if (present(unit)) u = unit
+
+            ! print this Node's coords and split axis
+            write(u, '(A,I0,A)', advance='no') '[axis=', this%splitAxis, '] ('
+            do i = 1, size(this%coords)
+                if (i > 1) write(u, '(A)', advance='no') ', '
+                write(u, '(G0.4)', advance='no') this%coords(i)
+            end do
+            write(u, '(A)') ')'
+
+        end subroutine printNodeSingle
 
 end module KdNodeModule

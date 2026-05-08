@@ -1,0 +1,31 @@
+program Testv010_COLLINEAR_TWO_AXIS_I_AXIS_III 
+    use KdTree
+    use iso_fortran_env, only: real64
+    implicit none
+
+    call collinearTwo_AxisIAxisIII()
+    contains
+        !> Builds a 3D tree where all points share both axis-1 and axis-3
+        !! values, leaving axis 2 as the only discriminating dimension.
+        !! Set comparison absorbs sibling-order ambiguity.
+        subroutine collinearTwo_AxisIAxisIII()
+            type(Tree)   :: t
+            real(real64) :: coords(3, 6) = reshape(  &
+                [5.0_real64,  2.0_real64,    4.0_real64, &
+                5.0_real64,  1.0_real64,    4.0_real64, &
+                5.0_real64, -131.0_real64,  4.0_real64, &
+                5.0_real64,  31313.0_real64,4.0_real64, &
+                5.0_real64, -31.0_real64,   4.0_real64, &
+                5.0_real64,  432.419_real64,4.0_real64], [3, 6])
+            character(len=*), parameter :: expected(*) = [character(len=64) :: &
+                '[axis=1] (5.000, -131.0, 4.000)',              &
+                '  [axis=2] (5.000, 1.000, 4.000)',             &
+                '    [axis=3] (5.000, 2.000, 4.000)',           &
+                '  [axis=2] (5.000, 432.4, 4.000)',             &
+                '    [axis=3] (5.000, -31.00, 4.000)',          &
+                '    [axis=3] (5.000, 0.3131E+5, 4.000)']
+
+            call t%build(coords)
+            call t%assert('collinearTwo_AxisIAxisIII', expected)
+        end subroutine collinearTwo_AxisIAxisIII
+end program Testv010_COLLINEAR_TWO_AXIS_I_AXIS_III
