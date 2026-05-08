@@ -25,7 +25,7 @@ program Testv010
 
 
         subroutine empty()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(2, 0)
 
             write(*, '(A)') '--- empty ---'
@@ -35,7 +35,7 @@ program Testv010
         end subroutine empty
 
         subroutine onePoint()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(2, 1) = reshape([1.0_real64, 2.0_real64], [2, 1])
 
             write(*, '(A)') '--- onePoint ---'
@@ -45,7 +45,7 @@ program Testv010
         end subroutine onePoint
 
         subroutine twoPoints()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(2, 2) = reshape( &
                 [1.0_real64, 5.0_real64,    &
                 3.0_real64, 2.0_real64], [2, 2])
@@ -57,7 +57,7 @@ program Testv010
         end subroutine twoPoints
 
         subroutine oneAxisArray()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(1, 7) = reshape( &
                 [3.0_real64, 1.0_real64, 4.0_real64, 1.0_real64, &
                 5.0_real64, 9.0_real64, 2.0_real64], [1, 7])
@@ -69,7 +69,7 @@ program Testv010
         end subroutine oneAxisArray
 
         subroutine twoAxisArray()
-            type(tree) :: t
+            type(Tree)   :: t
             real(real64) :: coords(2, 7) = reshape( &
                 [3.0_real64, 1.0_real64, &
                 1.0_real64, 4.0_real64, &
@@ -86,7 +86,7 @@ program Testv010
         end subroutine twoAxisArray
 
         subroutine threeAxisArray()
-            type(tree) :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 7) = reshape(         &
                 [3.0_real64, 1.0_real64, -13.31_real64,     &
                 1.0_real64, 4.0_real64,  34.14_real64,     &
@@ -103,7 +103,7 @@ program Testv010
         end subroutine threeAxisArray
 
         subroutine fourAxisArray()
-            type(tree) :: t
+            type(Tree)   :: t
             real(real64) :: coords(4, 7) = reshape(                                &
                 [3.0_real64, 1.0_real64, -13.31_real64,        0.92_real64,         &
                 1.0_real64, 4.0_real64,  34.14_real64,       92.0_real64,          &
@@ -120,7 +120,7 @@ program Testv010
         end subroutine fourAxisArray
 
         subroutine collinearOne_AxisI()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(             &
                 [5.0_real64, 1.0_real64,  0.92_real64,          &
                 5.0_real64, 2.0_real64,  0.42_real64,          &
@@ -136,7 +136,7 @@ program Testv010
         end subroutine collinearOne_AxisI
 
         subroutine collinearOne_AxisII()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(           &
                 [  1.0_real64, 4.0_real64,  0.92_real64,      &
                 52.0_real64, 4.0_real64,  0.42_real64,      &
@@ -152,7 +152,7 @@ program Testv010
         end subroutine collinearOne_AxisII
 
         subroutine collinearOne_AxisIII()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(             &
                 [  1.0_real64,  0.92_real64,       4.0_real64,  &
                 52.0_real64,  0.42_real64,       4.0_real64,  &
@@ -168,7 +168,7 @@ program Testv010
         end subroutine collinearOne_AxisIII
 
         subroutine collinearTwo_AxisIAxisII()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(  &
                 [5.0_real64, 4.0_real64,  2.0_real64,    &
                 5.0_real64, 4.0_real64,  1.0_real64,    &
@@ -184,7 +184,7 @@ program Testv010
         end subroutine collinearTwo_AxisIAxisII
 
         subroutine collinearTwo_AxisIAxisIII()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(  &
                 [5.0_real64,  2.0_real64,    4.0_real64, &
                 5.0_real64,  1.0_real64,    4.0_real64, &
@@ -200,7 +200,7 @@ program Testv010
         end subroutine collinearTwo_AxisIAxisIII
 
         subroutine collinearTwo_AxisIIAxisIII()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 6) = reshape(  &
                 [  2.0_real64,    5.0_real64, 4.0_real64, &
                 1.0_real64,    5.0_real64, 4.0_real64, &
@@ -216,7 +216,7 @@ program Testv010
         end subroutine collinearTwo_AxisIIAxisIII
 
         subroutine duplicatesOneAxis()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(1, 9) = reshape( &
                 [5.0_real64, &
                 5.0_real64, &
@@ -235,7 +235,7 @@ program Testv010
         end subroutine duplicatesOneAxis
 
         subroutine duplicatesTwoAxis()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(2, 9) = reshape( &
                 [5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, &
@@ -254,7 +254,7 @@ program Testv010
         end subroutine duplicatesTwoAxis
 
         subroutine duplicatesThreeAxis()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(3, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, 5.0_real64, &
@@ -273,7 +273,7 @@ program Testv010
         end subroutine duplicatesThreeAxis
 
         subroutine duplicatesFourAxis()
-            type(tree)   :: t
+            type(Tree)   :: t
             real(real64) :: coords(4, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &

@@ -48,6 +48,7 @@
 
 # build dir
 _build/
+build/
 
 ## OS-SPECIFIC ##
 # macOS

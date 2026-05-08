@@ -5,7 +5,7 @@ submodule(KdTreeModule) BuildSubmod
         module procedure build 
             
             integer, allocatable :: indices(:)
-            integer              :: i
+            integer              :: i, id
             
             ! initialize dimension and population size
             this%dim = size(coords, 1)
@@ -36,9 +36,10 @@ submodule(KdTreeModule) BuildSubmod
             ! initialize tree id 
             ! must use: -fopenmp for gfortran or -qopenmp for ifort for thread saftey
             !$OMP ATOMIC CAPTURE
-            this%treeId = nextTreeId + 1
             nextTreeId = nextTreeId + 1
+            id = nextTreeId
             !$OMP END ATOMIC
+            this%treeId = id
 
             ! build tree
             call buildSubtree(this, this%root, 0, indices, 1, this%pop)

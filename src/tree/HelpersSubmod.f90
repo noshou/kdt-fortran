@@ -7,7 +7,6 @@ submodule(KdTreeModule) HelpersSubmod
         end procedure getDim
 
         module procedure getPop
-            integer                 :: n
             n = this%pop
         end procedure getPop
 

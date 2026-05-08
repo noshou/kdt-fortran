@@ -1,11 +1,11 @@
 module KdTreeModule 
     
     use iso_fortran_env, only: real64
-    use KdNodeModule, only: Node, NodePtr
+    use KdNodeModule,    only: Node, NodePtr
     implicit none
     private
-    public :: Tree, Node, NodePtr
-    integer, save :: nextTreeId = 0
+    public              :: Tree, Node, NodePtr
+    integer, save       :: nextTreeId = 0
 
     type :: Tree
     private
@@ -17,7 +17,8 @@ module KdTreeModule
             procedure    :: getPop
             procedure    :: build
             procedure    :: printTree
-            procedure    :: radialSearch
+            procedure    :: rNN_Node
+            procedure    :: rNN_Centroid
             procedure    :: isMember
             procedure    :: destroy
             final        :: finalizer
@@ -41,7 +42,6 @@ module KdTreeModule
         
         !> Returns the number of nodes in the tree
         module function getPop(this) result(n)
-            import :: Tree
             class(Tree), intent(in) :: this
         end function getPop
 
@@ -57,8 +57,7 @@ module KdTreeModule
         
         !> Frees the node pool and resets tree state.
         module subroutine destroy(this)
-            import                    :: Tree
-            type(Tree), intent(inout) :: this
+            class(Tree), intent(inout) :: this
         end subroutine destroy
         
         !> Frees tree automatically   when it goes out of scope
@@ -73,10 +72,10 @@ module KdTreeModule
         !=======================================================!
 
         !> Builds a balanced Kd-Tree from a set of points.
-        !! @param[in]    coords A (k, n) array where n is the number of points 
-        !!                      and k is the dimensionality of the splitting axes.
-        !! @param[in]    data   (Optional) A rank-1 array of size n, where each 
-        !!                      element is the data associated with a point in coords.
+        !! @param[in] coords A (k, n) array where n is the number of points 
+        !!                   and k is the dimensionality of the splitting axes.
+        !! @param[in] data   (Optional) A rank-1 array of size n, where each 
+        !!                   element is the data associated with a point in coords.
         module subroutine build(this, coords, data)
             class(tree), intent(inout)      :: this
             real(kind=real64), intent(in)   :: coords(:,:)
@@ -89,24 +88,63 @@ module KdTreeModule
         !================== SearchSubmod.f90  ==================!
         !=======================================================!
         
-        !> Searches for nodes within a given radius of target node
+        !> Performs radius nearest neighbour search on a target node
+        !!
+        !! Searches for nodes within a given radius of target node
         !! @param[in] target      the target node 
         !! @param[in] radius      the search radius 
         !! @param[in] initialSize optional initial array size; defaults to 1000
         !!
         !! @return list of nodes within the search radius
-        module function radialSearch(this, target, radius, initialSize) result(res)
+        module function rNN_Node(this, target, radius, initialSize) result(res)
             class(tree), intent(in)          :: this
             type(node), pointer, intent(in)  :: target
             real(kind=real64)                :: radius
-            type(nodePtr), allocatable       :: res(:)
             integer, intent(in), optional    :: initialSize
-        end function radialSearch
+            type(nodePtr), allocatable       :: res(:)
+        end function rNN_Node
+
+        !> Performs radius nearest neighbour search on a centroid
+        !! 
+        !! Searches for nodes within a given radius of the centroid
+        !! @param[in] centroid    the center of the search sphere  
+        !! @param[in] radius      the search radius 
+        !! @param[in] initialSize optional initial array size; defaults to 1000
+        !!
+        !! @return list of nodes within the search radius
+        module function rNN_Centroid(this, centroid, radius, initialSize) result(res)
+            class(tree), intent(in)          :: this
+            real(kind=real64)                :: centroid(:)
+            real(kind=real64)                :: radius
+            integer, intent(in), optional    :: initialSize
+            type(nodePtr), allocatable       :: res(:)
+        end function rNN_Centroid
 
         !=======================================================!
 
-        ! add: KNN, DBSCAN
-        
+        ! module procedure rNN_Centroid
+!     ! Use a local variable with TARGET instead of allocating a pointer
+!     type(node), target :: dummyNode 
+!     integer            :: is, arrSize
+    
+!     ! ... (dimension/radius checks) ...
+
+!     ! Only need to allocate the components, not the node itself
+!     allocate(dummyNode%coords(this%dim), source=centroid)
+    
+!     is = merge(initialSize, 1000, present(initialSize))
+!     arrSize = 0 
+!     allocate(res(is))
+
+!     ! Passing 'dummyNode' works if the dummy in rNN is POINTER, INTENT(IN)
+!     call rNN(dummyNode, this%root, radius, res, arrSize)
+
+!     ! ... (resizing logic) ...
+
+!     deallocate(dummyNode%coords)
+!     ! No deallocate(dummyNode) needed - it's on the stack!
+! end procedure rNN_Centroid
+
     end interface
     
 

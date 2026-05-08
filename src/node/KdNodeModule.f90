@@ -4,14 +4,14 @@ module KdNodeModule
     public :: Node, NodePtr 
 
     type :: Node
-    class(*), allocatable           :: data
-    real(kind=real64), allocatable  :: coords(:)
-    integer                         :: splitAxis ! tracks which index in coords is the splitting plane
-    type(Node), pointer             :: leftChild => null(), rightChild => null()
-    integer                         :: treeId
-    contains    
-        procedure                   :: eucDist
-        procedure                   :: printNode
+        class(*), allocatable           :: data
+        real(kind=real64), allocatable  :: coords(:)
+        integer                         :: splitAxis ! tracks which index in coords is the splitting plane
+        type(Node), pointer             :: leftChild => null(), rightChild => null()
+        integer                         :: treeId
+        contains    
+            procedure                   :: eucDist
+            procedure                   :: printNode
     end type Node
 
     !> pointer to a Node
@@ -30,11 +30,11 @@ module KdNodeModule
             type(Node), intent(in)  :: that
             real(kind=real64)       :: dist
             if (.not. allocated(this%coords) .or. .not. allocated(that%coords)) then
-                error stop "coords not allocated"
+                error stop "eucDist: coords not allocated"
             else if ((size(this%coords).eq. 0) .or. (size(that%coords) .eq. 0)) then 
-                error stop "axis size must be g.t zero"
+                error stop "eucDist: axis size must be g.t zero"
             else if (size(this%coords) .ne. size(that%coords)) then  
-                error stop "axis size mismatch"
+                error stop "eucDist: axis size mismatch"
             else 
                 dist = sqrt(sum((that%coords - this%coords)**2))
             end if
