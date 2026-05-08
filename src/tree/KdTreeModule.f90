@@ -20,6 +20,7 @@ module KdTreeModule
             procedure    :: rNN_Node
             procedure    :: rNN_Centroid
             procedure    :: isMember
+            procedure    :: assert
             procedure    :: destroy
             final        :: finalizer
     end type Tree
@@ -30,8 +31,11 @@ module KdTreeModule
         !================== HelpersSubmod.f90 ==================!
         !=======================================================!
 
-        module subroutine printTree(this)
-            class(Tree), intent(in) :: this
+        !> Prints the entire tree in post-order.
+        !! @param[in] unit  optional output unit (defaults to stdout)
+        module subroutine printTree(this, unit)
+            class(Tree), intent(in)       :: this
+            integer, intent(in), optional :: unit
         end subroutine printTree
         
         !> Returns the dimension (number of splitting axis) of the tree
@@ -55,6 +59,18 @@ module KdTreeModule
             logical                         :: res
         end function isMember
         
+        !> Compares t%printTree output against expected as a sorted
+        !! multiset of coord-tuples (indent and `[axis=N]` prefix stripped).
+        !! Looseness is required: with ties on a split axis, points can
+        !! swap siblings or change depth across runs.
+        !! @param[in] testName diagnostic label
+        !! @param[in] expected per-node lines in printNode format
+        module subroutine assert(this, testName, expected)
+            class(Tree),      intent(in) :: this 
+            character(len=*), intent(in) :: testName
+            character(len=*), intent(in) :: expected(:)
+        end subroutine assert
+
         !> Frees the node pool and resets tree state.
         module subroutine destroy(this)
             class(Tree), intent(inout) :: this
@@ -66,7 +82,7 @@ module KdTreeModule
         end subroutine finalizer
 
         !=======================================================!
-        
+
         !=======================================================!
         !=================== BuildSubmod.f90 ===================!
         !=======================================================!
@@ -122,30 +138,6 @@ module KdTreeModule
 
         !=======================================================!
 
-        ! module procedure rNN_Centroid
-!     ! Use a local variable with TARGET instead of allocating a pointer
-!     type(node), target :: dummyNode 
-!     integer            :: is, arrSize
-    
-!     ! ... (dimension/radius checks) ...
-
-!     ! Only need to allocate the components, not the node itself
-!     allocate(dummyNode%coords(this%dim), source=centroid)
-    
-!     is = merge(initialSize, 1000, present(initialSize))
-!     arrSize = 0 
-!     allocate(res(is))
-
-!     ! Passing 'dummyNode' works if the dummy in rNN is POINTER, INTENT(IN)
-!     call rNN(dummyNode, this%root, radius, res, arrSize)
-
-!     ! ... (resizing logic) ...
-
-!     deallocate(dummyNode%coords)
-!     ! No deallocate(dummyNode) needed - it's on the stack!
-! end procedure rNN_Centroid
-
     end interface
     
-
 end module KdTreeModule
