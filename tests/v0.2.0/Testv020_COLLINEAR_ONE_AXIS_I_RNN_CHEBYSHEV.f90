@@ -10,12 +10,12 @@ program Testv020_COLLINEAR_ONE_AXIS_I_RNN_CHEBYSHEV
         !! P3=(5,3,0.00003): dist=1 in. Others: dist>1.5. Expect 3.
         subroutine collinearOne_AxisI_rNN_Chebyshev()
             type(Tree)                 :: t
-            real(real64)               :: coords(3, 6) = reshape(             &
-                [5.0_real64, 1.0_real64,  0.92_real64,          &
-                5.0_real64, 2.0_real64,  0.42_real64,          &
-                5.0_real64, 3.0_real64,  0.00003_real64,       &
-                5.0_real64, 4.0_real64,  93291.0_real64,       &
-                5.0_real64, 5.0_real64, -93131913.0_real64,    &
+            real(real64)               :: coords(3, 6) = reshape( &
+                [5.0_real64, 1.0_real64,  0.92_real64,            &
+                5.0_real64, 2.0_real64,  0.42_real64,             &
+                5.0_real64, 3.0_real64,  0.00003_real64,          &
+                5.0_real64, 4.0_real64,  93291.0_real64,          &
+                5.0_real64, 5.0_real64, -93131913.0_real64,       &
                 5.0_real64, 6.0_real64,  0.0_real64], [3, 6])
             type(NodePtr), allocatable :: res(:)
 

@@ -256,19 +256,21 @@ module KdTree
         !> Performs radius nearest neighbour search on a target node
         !!
         !! Searches for nodes within a given radius of target node;
-        !! defaults to euclidean metric. 
-        !! @param[in] target      the target node 
-        !! @param[in] radius      the search radius 
-        !! @param[in] initialSize optional initial array size; defaults to 1000
-        !! @param[in] metric      optional metric (euclidean, chebyshev, manhattan)
+        !! defaults to euclidean metric, and including target node in results.
+        !! @param[in] target        the target node 
+        !! @param[in] radius        the search radius 
+        !! @param[in] initialSize   optional initial array size; defaults to 1000
+        !! @param[in] metric        optional metric (euclidean, chebyshev, manhattan)
+        !! @param[in] excludeTarget option to exclude target node when returning search 
         !!
         !! @return list of nodes within the search radius
-        module function rNN_Node(this, target, radius, initialSize, metric) result(res)
+        module function rNN_Node(this, target, radius, initialSize, metric, excludeTarget) result(res)
             class(tree), intent(in)                :: this
             type(node), pointer, intent(in)        :: target
             real(kind=real64), intent(in)          :: radius
             integer, intent(in), optional          :: initialSize
             character(len=*), intent(in), optional :: metric 
+            logical, intent(in), optional          :: excludeTarget
             type(nodePtr), allocatable             :: res(:)
         end function rNN_Node
 

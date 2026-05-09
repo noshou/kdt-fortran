@@ -32,7 +32,7 @@ submodule (KdTree) SearchSubmod
     contains 
         module procedure rNN_Node
             
-            integer          :: arrSize, is
+            integer          :: arrSize, is, i
             character(len=9) :: m
 
             if (.not. associated(this%root)) error stop "rNN_Node: tree is empty (call build first?)"
@@ -76,13 +76,30 @@ submodule (KdTree) SearchSubmod
                 res = res(1:arrSize)
             end if 
 
+            ! remove target node from list of found nodes
+            if (present(excludeTarget) .and. excludeTarget) then
+                do i = 1, arrSize
+                    if (associated(res(i)%p, target)) then
+                        res(i:arrSize-1) = res(i+1:arrSize)
+                        arrSize = arrSize - 1
+                        exit
+                    end if
+                end do
+                if (arrSize .eq. 0) then
+                    deallocate(res)
+                    allocate(res(0))
+                else
+                    res = res(1:arrSize)
+                end if
+            end if
+
         end procedure rNN_Node
 
 
         module procedure rNN_Centroid
 
-            integer          :: arrSize, is
-            character(len=9) :: m
+            integer            :: arrSize, is
+            character(len=9)   :: m
             type(node), target :: dummyNode
 
             if (.not. associated(this%root))    error stop "rNN_Centroid: tree is empty (call build first?)"
