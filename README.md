@@ -33,6 +33,7 @@ Gap analysis against the public API after v0.2.0 shipped.
   the `rNN_Node` result? Document the contract and test it explicitly.
 
 Suggested names:
+
 - `Testv021_RNN_EMPTY_RESULT`
 - `Testv021_RNN_RADIUS_ZERO_NODE`
 - `Testv021_RNN_RADIUS_ZERO_CENTROID`
@@ -47,7 +48,7 @@ allocation the buffer must grow correctly. This is the most likely place for a
 silent regression.
 
 - Build a tree with > 1000 points and query with a radius that captures all of
-  them. Assert `size(res) == n`.
+  them. Assert `size(res).eq.n`.
 
 Suggested name: `Testv021_RNN_INITIAL_SIZE_OVERFLOW`
 
@@ -61,6 +62,7 @@ Currently unexercised by any test.
 - After `destroy`: both must return 0 again.
 
 Suggested names:
+
 - `Testv021_ACCESSORS_PRE_BUILD`
 - `Testv021_ACCESSORS_POST_BUILD`
 - `Testv021_ACCESSORS_AFTER_DESTROY`
@@ -75,6 +77,7 @@ stops in `rNN_Node`. It needs direct coverage as a logical function.
 - A null/disassociated pointer — document and pin the contract.
 
 Suggested names:
+
 - `Testv021_ISMEMBER_TRUE`
 - `Testv021_ISMEMBER_FALSE`
 - `Testv021_ISMEMBER_NULL` (likely `WILL_FAIL` if contract is error stop)
@@ -89,6 +92,7 @@ Suggested names:
   `destroy`. Best verified under valgrind; at minimum assert no crash.
 
 Suggested names:
+
 - `Testv021_REBUILD_SAME_TREE`
 - `Testv021_DOUBLE_DESTROY`
 
@@ -108,12 +112,13 @@ has never been exercised by any test. Minimum required coverage:
   the returned `NodePtr` array; assert each result's `getData()` is allocated
   and correct. Catches bugs where pruning or pool reuse silently clears the
   payload.
-- **Data length mismatch** — `size(data) /= size(coords, 2)` must error stop.
+- **Data length mismatch** — `size(data) .ne. size(coords, 2)` must error stop.
 - **Rebuild replaces data** — `build` with payload A, then `build` again with
   payload B on the same `Tree`; old payload must not leak, new payload must be
   retrievable.
 
 Suggested names:
+
 - `Testv021_BUILD_WITH_INT_DATA`
 - `Testv021_BUILD_WITH_REAL_DATA`
 - `Testv021_DATA_SURVIVES_REORDERING`
@@ -128,12 +133,13 @@ in bounds-pruning" class. A brute-force oracle costs ~5 lines and covers that
 entire class.
 
 **Pattern:**
+
 ```fortran
 ! reference: collect every point within radius the dumb way
 do i = 1, n
     if (norm2(coords(:,i) - centroid) <= radius) refCount = refCount + 1
 end do
-if (size(res) /= refCount) stop 1
+if (size(res) .ne. refCount) stop 1
 ```
 
 Replace `norm2` with `sum(abs(...))` for Manhattan and `maxval(abs(...))` for
@@ -151,6 +157,7 @@ call random_seed(put=[42, 42, ...])  ! deterministic
 ```
 
 Suggested names:
+
 - `Testv021_BRUTE_FORCE_EUCLIDEAN`
 - `Testv021_BRUTE_FORCE_MANHATTAN`
 - `Testv021_BRUTE_FORCE_CHEBYSHEV`

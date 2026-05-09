@@ -29,7 +29,7 @@ submodule(KdTree) TreeUtils
             character(len=64)            :: t
             integer                      :: pos
             pos = index(s, '(')
-            if (pos == 0) then
+            if (pos.eq.0) then
                 t = adjustl(s)
             else
                 t = s(pos:)
@@ -44,8 +44,8 @@ submodule(KdTree) TreeUtils
             do i = 2, size(arr)
                 tmp = arr(i)
                 j = i - 1
-                do while (j >= 1)
-                    if (.not. (arr(j) > tmp)) exit
+                do while (j .ge. 1)
+                    if (.not. (arr(j) .gt. tmp)) exit
                     arr(j+1) = arr(j)
                     j = j - 1
                 end do
@@ -77,12 +77,12 @@ submodule(KdTree) TreeUtils
             rewind(u)
             do
                 read(u, '(A)', iostat=ios) line
-                if (ios /= 0) exit
+                if (ios .ne. 0) exit
                 actual = [actual, stripPrefix(line)]
             end do
             close(u)
 
-            if (size(actual) /= size(expected)) then
+            if (size(actual) .ne. size(expected)) then
                 write(*, '(A,I0,A,I0)') '--- ' // testName // ' FAILED: node count mismatch &
                     &— expected ', size(expected), ', got ', size(actual)
                 call dumpLines('  expected:', expected)
@@ -100,7 +100,7 @@ submodule(KdTree) TreeUtils
             call sortLines(expCopy)
 
             do i = 1, size(actual)
-                if (trim(actual(i)) /= trim(expCopy(i))) then
+                if (trim(actual(i)) .ne. trim(expCopy(i))) then
                     write(*, '(A)') '--- ' // testName // ' FAILED: node set mismatch'
                     call dumpLines('  expected (coords, sorted):', expCopy)
                     call dumpLines('  got      (coords, sorted):', actual)

@@ -16,7 +16,7 @@ submodule(KdTree) NodeUtils
             ! print this Node's coords and split axis
             write(u, '(A,I0,A)', advance='no') '[axis=', this%splitAxis, '] ('
             do i = 1, size(this%coords)
-                if (i > 1) write(u, '(A)', advance='no') ', '
+                if (i .gt. 1) write(u, '(A)', advance='no') ', '
                 write(u, '(G0.4)', advance='no') this%coords(i)
             end do
             write(u, '(A)') ')'
@@ -34,7 +34,7 @@ submodule(KdTree) NodeUtils
             ! print this Node's coords and split axis
             write(u, '(A,I0,A)', advance='no') '[axis=', this%splitAxis, '] ('
             do i = 1, size(this%coords)
-                if (i > 1) write(u, '(A)', advance='no') ', '
+                if (i .gt. 1) write(u, '(A)', advance='no') ', '
                 write(u, '(G0.4)', advance='no') this%coords(i)
             end do
             write(u, '(A)') ')'

@@ -1,0 +1,3 @@
+add_kdtest(Testv010_EMPTY)
+add_kdtest(Testv010_ONE_POINT)
+add_kdtest(Testv010_TWO_POINTS)

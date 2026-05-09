@@ -1,0 +1,4 @@
+add_kdtest(Testv010_ONE_AXIS_ARRAY)
+add_kdtest(Testv010_TWO_AXIS_ARRAY)
+add_kdtest(Testv010_THREE_AXIS_ARRAY)
+add_kdtest(Testv010_FOUR_AXIS_ARRAY)

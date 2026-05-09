@@ -1,0 +1,4 @@
+add_kdtest(Testv010_DUPLICATES_ONE_AXIS)
+add_kdtest(Testv010_DUPLICATES_TWO_AXIS)
+add_kdtest(Testv010_DUPLICATES_THREE_AXIS)
+add_kdtest(Testv010_DUPLICATES_FOUR_AXIS)

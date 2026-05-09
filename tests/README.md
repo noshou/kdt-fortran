@@ -4,11 +4,15 @@ Tests are organized by version. Every version directory is an independent CMake 
 
 ## Build and run
 
+Tests are not built by default. Pass `-DBUILD_TESTS=ON` to enable them:
+
 ```bash
-cmake -S . -B build
+cmake -B build -DBUILD_TESTS=ON
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
+
+Note: toggling `BUILD_TESTS` on an existing build directory leaves stale `CTestTestfile.cmake` files — do a clean configure (`rm -rf build`) when switching from ON to OFF.
 
 To run only one version's tests:
 
@@ -29,6 +33,34 @@ Each call creates a standalone executable from `TestName.f90`, links it against 
 
 `WILL_FAIL` is used for tests that verify error guards — the program is expected to call `error stop`. CTest inverts the pass/fail logic: the test passes only when the program exits non-zero.
 
+## Directory structure
+
+Each version directory contains subdirectories, one per unit under test. Each subdirectory has its own `CMakeLists.txt` and holds all the `.f90` files for that unit:
+
+```
+tests/
+├── v0.1.0/
+│   ├── Testv010_SIMPLE/          # empty, one-point, two-point trees
+│   ├── Testv010_MULTI_AXIS/      # trees built from multi-axis arrays
+│   ├── Testv010_COLLINEAR/       # collinear point geometries
+│   └── Testv010_DUPLICATES/      # duplicate point geometries
+├── v0.2.0/
+│   ├── Testv020_NODE_QUERY/      # distance functions queried by node
+│   ├── Testv020_POINT_QUERY/     # distance functions queried by point
+│   ├── Testv020_EMPTY_TREE/      # rNN on an empty tree
+│   ├── Testv020_NON_MEMBER/      # rNN with a non-member query point
+│   ├── Testv020_SINGLE_NODE_QUERY/ # rNN on a single-node tree
+│   ├── Testv020_ASSERTIONS/      # error guards (negative radius, null target)
+│   ├── Testv020_DUPLICATES/      # rNN on duplicate-point geometries
+│   ├── Testv020_COLLINEAR_ONE/   # rNN on one-axis collinear geometries
+│   └── Testv020_COLLINEAR_TWO/   # rNN on two-axis collinear geometries
+└── v0.2.1/
+    ├── Testv021_EMPTY_RESULT_POPULATED_TREE/  # rNN returns empty on populated tree
+    └── Testv021_ZERO_RADIUS_POPULATED_TREE/   # rNN with zero radius
+```
+
+The subdirectory name matches the common prefix of all test files within it.
+
 ## Conventions
 
 **One assertion per file.** Each test file has exactly one `stop 1` path (or one `error stop` for WILL_FAIL tests). This makes failures unambiguous — a failing test name tells you exactly which assertion broke.
@@ -42,5 +74,5 @@ Each call creates a standalone executable from `TestName.f90`, links it against 
 | Directory | Tests | What is covered |
 |-----------|-------|-----------------|
 | `v0.1.0`  | 17    | Tree build: empty, single, two-point, axis arrays, collinear, duplicate geometries |
-| `v0.2.0`  | 80+   | Node/point distance functions (euclidean, manhattan, chebyshev); rNN_Centroid and rNN_Node with all metrics and all error guards; same build geometry suite as v0.1.0 extended with per-metric rNN count checks |
-| `v0.2.1`  | TBD   | Planned (see `v0.2.1/TestRecs.md`) |
+| `v0.2.0`  | 77    | Node/point distance functions (euclidean, manhattan, chebyshev); rNN_Centroid and rNN_Node with all metrics and all error guards; same build geometry suite as v0.1.0 extended with per-metric rNN count checks |
+| `v0.2.1`  | 16    | rNN returning empty results on a populated tree; rNN with zero radius |
