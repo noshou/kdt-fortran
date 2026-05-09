@@ -11,11 +11,12 @@ submodule (KdTree) SearchSubmod
         !> Radius Nearest Neighbour search. Walks the kd-tree from curr,
         !! appending matching nodes to res and pruning subtrees whose
         !! splitting hyperplane lies further than radius from target.
-        !! @param[in] target  the target node
-        !! @param[in] curr    the root of the current subtree
-        !! @param[in] res     the list of nodes within the search radius
-        !! @param[in] arrSize the number of nodes found within the search radius
-        !! @param[in] metric  'euclidean', 'manhattan', 'chebyshev'
+        !! @param[in]    target  the query node (used as the search centre)
+        !! @param[in]    curr    root of the current subtree (null terminates recursion)
+        !! @param[in]    radius  search radius
+        !! @param[inout] res     result buffer; doubles in size when full
+        !! @param[inout] arrSize number of results written into res so far
+        !! @param[in]    metric  'euclidean', 'manhattan', 'chebyshev'
         module recursive subroutine rNN(target, curr, radius, res, arrSize, metric)
             type(node), intent(in), pointer             :: target, curr
             real(kind=real64), intent(in)               :: radius
@@ -40,10 +41,11 @@ submodule (KdTree) SearchSubmod
             if (radius .lt. 0.0_real64)      error stop "rNN_Node: negative radius"
             if (.not. this%isMember(target)) error stop "rNN_Node: target is not a member of tree"
 
-            if(.not. present(initialSize)) then 
+            if(.not. present(bufferSize)) then
                 is = 1000
-            else 
-                is = initialSize 
+            else
+                if (bufferSize .le. 0) error stop "rNN_Node: invalid bufferSize"
+                is = bufferSize
             end if
             
             if (.not. present(metric)) then 
@@ -68,7 +70,7 @@ submodule (KdTree) SearchSubmod
 
             call rNN(target, this%root, radius, res, arrSize, m)
             
-            !... resizing later on
+            ! trim res to the number of results actually found
             if (arrSize .eq. 0) then  
                 deallocate(res)
                 allocate(res(0))
@@ -106,15 +108,16 @@ submodule (KdTree) SearchSubmod
             if (size(centroid) .ne. this%dim)   error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
             if (radius .lt. 0.0_real64)         error stop "rNN_Centroid: negative radius"
 
-            if(.not. present(initialSize)) then 
+            if(.not. present(bufferSize)) then
                 is = 1000
-            else 
-                is = initialSize 
+            else
+                if (bufferSize .le. 0) error stop "rNN_Centroid: invalid bufferSize"
+                is = bufferSize
             end if
-            
-            if (.not. present(metric)) then 
+
+            if (.not. present(metric)) then
                 m = 'euclidean'
-            else  
+            else
                 select case (metric)
                 case ('euclidean')
                     m = 'euclidean'
@@ -131,12 +134,12 @@ submodule (KdTree) SearchSubmod
             arrSize = 0 
             allocate(res(is))
 
-            ! create a dummy node
+            ! wrap centroid in a node so rNN can call distance methods uniformly
             allocate(dummyNode%coords(this%dim), source=centroid)
             
             call rNN(dummyNode, this%root, radius, res, arrSize, m)
 
-            !... resizing later on
+            ! trim res to the number of results actually found
             if (arrSize .eq. 0) then  
                 deallocate(res)
                 allocate(res(0))

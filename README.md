@@ -40,9 +40,9 @@ Suggested names:
 - `Testv021_RNN_BOUNDARY_INCLUSION`
 - `Testv021_RNN_SELF_INCLUSION`
 
-### `initialSize` overflow
+### `bufferSize` overflow
 
-`rNN_Node` and `rNN_Centroid` pre-allocate a result buffer of `initialSize`
+`rNN_Node` and `rNN_Centroid` pre-allocate a result buffer of `bufferSize`
 (default 1000) and resize on return. If the result count exceeds the initial
 allocation the buffer must grow correctly. This is the most likely place for a
 silent regression.
@@ -168,7 +168,7 @@ Suggested names:
 ## Priority order
 
 1. **Data-payload tests** — `class(*)` path is entirely untested; `DATA_SURVIVES_REORDERING` is the highest-value single test.
-2. **`initialSize` overflow** — single most likely regression site.
+2. **`bufferSize` overflow** — single most likely regression site.
 3. **Radius edge cases** — boundary inclusion and self-inclusion pin implicit contracts before anyone changes them.
 4. **`isMember` direct tests** — currently only covered by side-effect.
 5. **Lifecycle** — `build → destroy → build` and double-destroy lock down memory management.

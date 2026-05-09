@@ -56,7 +56,8 @@ tests/
 │   └── Testv020_COLLINEAR_TWO/   # rNN on two-axis collinear geometries
 └── v0.2.1/
     ├── Testv021_EMPTY_RESULT_POPULATED_TREE/  # rNN returns empty on populated tree
-    └── Testv021_ZERO_RADIUS_POPULATED_TREE/   # rNN with zero radius
+    ├── Testv021_ZERO_RADIUS_POPULATED_TREE/   # rNN with zero radius
+    └── Testv021_BUFFER_SIZE/                  # bufferSize parameter: default, small (1), exact, large (1 M), invalid (0 / negative)
 ```
 
 The subdirectory name matches the common prefix of all test files within it.
@@ -74,5 +75,5 @@ The subdirectory name matches the common prefix of all test files within it.
 | Directory | Tests | What is covered |
 |-----------|-------|-----------------|
 | `v0.1.0`  | 17    | Tree build: empty, single, two-point, axis arrays, collinear, duplicate geometries |
-| `v0.2.0`  | 77    | Node/point distance functions (euclidean, manhattan, chebyshev); rNN_Centroid and rNN_Node with all metrics and all error guards; same build geometry suite as v0.1.0 extended with per-metric rNN count checks |
-| `v0.2.1`  | 16    | rNN returning empty results on a populated tree; rNN with zero radius |
+| `v0.2.0`  | 69    | Node/point distance functions (euclidean, manhattan, chebyshev); rNN_Centroid and rNN_Node with all metrics and all error guards; same build geometry suite as v0.1.0 extended with per-metric rNN count checks |
+| `v0.2.1`  | 28    | rNN returning empty results on a populated tree; rNN with zero radius; bufferSize parameter (default, small=1, exact, large=1M, invalid 0/negative — 4 WILL_FAIL) |
