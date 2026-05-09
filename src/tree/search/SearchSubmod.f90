@@ -1,4 +1,4 @@
-submodule (KdTreeModule) SearchSubmod
+submodule (KdTree) SearchSubmod
     implicit none 
     
     ! interface for helper functions 
@@ -15,11 +15,13 @@ submodule (KdTreeModule) SearchSubmod
         !! @param[in] curr    the root of the current subtree
         !! @param[in] res     the list of nodes within the search radius
         !! @param[in] arrSize the number of nodes found within the search radius
-        module recursive subroutine rNN(target, curr, radius, res, arrSize)
+        !! @param[in] metric  'euclidean', 'manhattan', 'chebyshev'
+        module recursive subroutine rNN(target, curr, radius, res, arrSize, metric)
             type(node), intent(in), pointer             :: target, curr
             real(kind=real64), intent(in)               :: radius
             integer, intent(inout)                      :: arrSize
             type(nodePtr), allocatable, intent(inout)   :: res(:)
+            character(len=*), intent(in)                :: metric
         end subroutine rNN
         
         !=======================================================!
@@ -30,8 +32,9 @@ submodule (KdTreeModule) SearchSubmod
     contains 
         module procedure rNN_Node
             
-            integer :: arrSize, is
-            
+            integer          :: arrSize, is
+            character(len=9) :: m
+
             if (.not. associated(this%root)) error stop "rNN_Node: tree is empty (call build first?)"
             if (.not. associated(target))    error stop "rNN_Node: target is null"
             if (radius .lt. 0.0_real64)      error stop "rNN_Node: negative radius"
@@ -43,11 +46,27 @@ submodule (KdTreeModule) SearchSubmod
                 is = initialSize 
             end if
             
+            if (.not. present(metric)) then 
+                m = 'euclidean'
+            else  
+                select case (metric)
+                case ('euclidean')
+                    m = 'euclidean'
+                case ('manhattan')
+                    m = 'manhattan'
+                case ('chebyshev')
+                    m = 'chebyshev'
+                case default
+                    error stop "rNN_Node: unknown metric"
+                end select
+            end if
+
             ! track array size for resizing later on
             arrSize = 0 
+            
             allocate(res(is))
 
-            call rNN(target, this%root, radius, res, arrSize)
+            call rNN(target, this%root, radius, res, arrSize, m)
             
             !... resizing later on
             if (arrSize .eq. 0) then  
@@ -62,7 +81,8 @@ submodule (KdTreeModule) SearchSubmod
 
         module procedure rNN_Centroid
 
-            integer            :: arrSize, is 
+            integer          :: arrSize, is
+            character(len=9) :: m
             type(node), target :: dummyNode
 
             if (.not. associated(this%root))    error stop "rNN_Centroid: tree is empty (call build first?)"
@@ -74,6 +94,21 @@ submodule (KdTreeModule) SearchSubmod
             else 
                 is = initialSize 
             end if
+            
+            if (.not. present(metric)) then 
+                m = 'euclidean'
+            else  
+                select case (metric)
+                case ('euclidean')
+                    m = 'euclidean'
+                case ('manhattan')
+                    m = 'manhattan'
+                case ('chebyshev')
+                    m = 'chebyshev'
+                case default
+                    error stop "rNN_Centroid: unknown metric"
+                end select
+            end if
 
             ! track array size for resizing later on
             arrSize = 0 
@@ -82,7 +117,7 @@ submodule (KdTreeModule) SearchSubmod
             ! create a dummy node
             allocate(dummyNode%coords(this%dim), source=centroid)
             
-            call rNN(dummyNode, this%root, radius, res, arrSize)
+            call rNN(dummyNode, this%root, radius, res, arrSize, m)
 
             !... resizing later on
             if (arrSize .eq. 0) then  

@@ -10,13 +10,20 @@ program Testv020_EMPTY_TREE_RNN_NODE
 
         !> rNN_Node on an empty tree must error stop.
         subroutine emptyTree()
-            type(Tree)                 :: t
-            type(Node), target         :: dummyNode
-            real(real64)               :: coords(2, 0),  centroid(2) = [0.0_real64, 0.0_real64], r=0.9
+            type(Tree)                 :: t, tHelper
+            real(real64)               :: coords(2, 0)
+            real(real64)               :: helperCoords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
+            real(real64)               :: r = 0.9
             type(NodePtr), allocatable :: res(:)
+            type(Node), pointer        :: node1
+
             call t%build(coords)
-            allocate(dummyNode%coords(size(centroid)), source=centroid)
-            res = t%rNN_Node(dummyNode, r) ! expected to fail here
+            call tHelper%build(helperCoords)
+
+            res   = tHelper%rNN_Centroid([0.0_real64, 0.0_real64], 1000.0_real64)
+            node1 => res(1)%p
+
+            res = t%rNN_Node(node1, r) ! expected to fail here (empty tree check fires first)
             write(*, '(A)') '--- emptyTree (rNN_Node) ---'
             write(*, '(A)') 'expected program to fail, but ran successfully!'
         end subroutine emptyTree

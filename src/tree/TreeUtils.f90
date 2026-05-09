@@ -1,16 +1,8 @@
-submodule(KdTreeModule) HelpersSubmod
+submodule(KdTree) TreeUtils
     use iso_fortran_env, only: output_unit
     implicit none
     contains
         
-        module procedure getDim    
-            k = this%dim
-        end procedure getDim
-
-        module procedure getPop
-            n = this%pop
-        end procedure getPop
-
         module procedure printTree
             integer :: u
             u = output_unit
@@ -129,4 +121,4 @@ submodule(KdTreeModule) HelpersSubmod
             call destroy(this)
         end procedure finalizer
 
-end submodule HelpersSubmod
+end submodule TreeUtils

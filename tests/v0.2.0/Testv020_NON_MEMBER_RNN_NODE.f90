@@ -1,1 +1,32 @@
-! tests expected to fail
+!> Expected-fail: rNN_Node with a node from a different Tree must error stop.
+!! Registered with WILL_FAIL in CTest.
+program Testv020_NON_MEMBER_RNN_NODE
+
+    use KdTree
+    use iso_fortran_env, only: real64
+    implicit none
+
+    call nonMemberRnnNode()
+    contains
+
+        subroutine nonMemberRnnNode()
+            type(Tree)                 :: t1, t2
+            real(real64)               :: coords(2, 2) = reshape([1.0_real64, 2.0_real64, -2.0_real64, -32.3_real64], [2, 2])
+            real(real64)               :: centroid(2)  = [0.0_real64, 0.0_real64]
+            type(NodePtr), allocatable :: res(:)
+            type(Node), pointer        :: node2
+
+            call t1%build(coords)
+            call t2%build(coords)
+
+            res    = t2%rNN_Centroid(centroid, 1000.0_real64)
+            node2 => res(1)%p
+
+            ! node2 belongs to t2 — must error stop
+            res = t1%rNN_Node(node2, 1000.0_real64)
+            write(*, '(A)') '--- nonMemberRnnNode ---'
+            write(*, '(A)') 'expected error stop, but rNN_Node returned normally'
+
+        end subroutine nonMemberRnnNode
+
+end program Testv020_NON_MEMBER_RNN_NODE

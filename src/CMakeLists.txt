@@ -1,11 +1,13 @@
 add_library(kdtree
-	node/KdNodeModule.f90
-	tree/KdTreeModule.f90
-	tree/HelpersSubmod.f90
+	KdTree.f90
+	node/NodeDistance.f90
+	node/NodeGetters.f90
+	node/NodeUtils.f90
 	tree/BuildSubmod.f90
+	tree/TreeGetters.f90
+	tree/TreeUtils.f90
 	tree/search/SearchSubmod.f90
 	tree/search/RnnModule.f90
-	KdTree.f90
 )
 
 target_include_directories(kdtree PUBLIC
