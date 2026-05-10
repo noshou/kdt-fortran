@@ -33,6 +33,16 @@ Each call creates a standalone executable from `TestName.f90`, links it against 
 
 `WILL_FAIL` is used for tests that verify error guards — the program is expected to call `error stop`. CTest inverts the pass/fail logic: the test passes only when the program exits non-zero.
 
+### Registering tests in a subdirectory
+
+ List each test explicitly in the subdirectory's `CMakeLists.txt`:
+
+```cmake
+add_kdtest(Testv010_EMPTY)
+add_kdtest(Testv010_ONE_POINT)
+add_kdtest(Testv020_RNN_NODE_NEGATIVE_RADIUS WILL_FAIL)
+```
+
 ## Directory structure
 
 Each version directory contains subdirectories, one per unit under test. Each subdirectory has its own `CMakeLists.txt` and holds all the `.f90` files for that unit:

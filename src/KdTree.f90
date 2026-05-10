@@ -56,7 +56,9 @@ module KdTree
         !=================== NodeGetters.f90 ===================!
         !=======================================================!
         
-        !> Returns the data stored in this node 
+        !> Returns the data stored in this node.
+        !! The dynamic type of the result matches the type passed as data to build().
+        !! Use a select type construct to compare or assign the value.
         module function getData(this) result(data)
             class(Node), intent(in) :: this
             class(*), allocatable   :: data
@@ -237,10 +239,12 @@ module KdTree
         !=======================================================!
 
         !> Builds a balanced Kd-Tree from a set of points.
-        !! @param[in] coords A (k, n) array where n is the number of points 
+        !! @param[in] coords A (k, n) array where n is the number of points
         !!                   and k is the dimensionality of the splitting axes.
-        !! @param[in] data   (Optional) A rank-1 array of size n, where each 
+        !! @param[in] data   (Optional) A rank-1 array of size n, where each
         !!                   element is the data associated with a point in coords.
+        !!                   The element type determines what select type cases the
+        !!                   caller must handle when calling getData() on a result node.
         module subroutine build(this, coords, data)
             class(tree), intent(inout)      :: this
             real(kind=real64), intent(in)   :: coords(:,:)

@@ -11,10 +11,9 @@ submodule(KdTree) BuildSubmod
             this%dim = size(coords, 1)
             this%pop = size(coords, 2) 
 
-
             ! ensure number of data points is equal to number of coordinates 
             if (present(data)) then
-                if (size(data) .ne. this%pop) then 
+                if ((size(data) .ne. this%pop) .and. (size(data) .ne. 0)) then 
                     error stop "data array length must equal number of points"
                 end if 
             end if
@@ -24,7 +23,7 @@ submodule(KdTree) BuildSubmod
             do i = 1, this%pop
                 allocate(this%nodePool(i)%coords(this%dim))
                 this%nodePool(i)%coords(:) = coords(:, i)
-                if (present(data)) then
+                if ((present(data)) .and. (size(data) .ne. 0)) then
                     allocate(this%nodePool(i)%data, source=data(i))
                 end if
             end do
