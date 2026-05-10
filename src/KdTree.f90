@@ -35,6 +35,7 @@ module KdTree
     type :: Tree
     private
     integer              :: dim = 0, pop = 0, TreeId = 0
+    logical              :: initialized = .false.
     type(node), pointer  :: nodePool(:) => null()
     type(node), pointer  :: root => null()
         contains
@@ -45,6 +46,7 @@ module KdTree
             procedure    :: rNN_Node
             procedure    :: rNN_Centroid
             procedure    :: isMember
+            procedure    :: getInitState
             procedure    :: assert
             procedure    :: destroy
             final        :: finalizer
@@ -186,6 +188,13 @@ module KdTree
             class(Tree), intent(in) :: this
             integer                 :: n
         end function getPop
+
+        !> Sets state to true if the tree is initialized
+        !! param[inout] state the state of the tree
+        module subroutine getInitState(this, state)
+            class(Tree), intent(in)    :: this
+            logical,     intent(inout) :: state
+        end subroutine getInitState
 
         !=======================================================!
 

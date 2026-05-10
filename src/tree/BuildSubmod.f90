@@ -2,11 +2,13 @@ submodule(KdTree) BuildSubmod
     implicit none 
     contains 
         
-        module procedure build 
-            
+        module procedure build
+
             integer, allocatable :: indices(:)
             integer              :: i, id
-            
+
+            if (this%initialized) error stop "build: tree is already initialized (call destroy first)"
+
             ! initialize dimension and population size
             this%dim = size(coords, 1)
             this%pop = size(coords, 2) 
@@ -44,6 +46,7 @@ submodule(KdTree) BuildSubmod
             call buildSubtree(this, this%root, 0, indices, 1, this%pop)
 
             deallocate(indices)
+            this%initialized = .true.
 
         end procedure build
         

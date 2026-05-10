@@ -111,10 +111,11 @@ submodule(KdTree) TreeUtils
 
         module procedure destroy
             if (associated(this%nodePool)) deallocate(this%nodePool)
-            this%root   => null()
-            this%dim    = 0
-            this%pop    = 0
-            this%treeId = 0
+            this%root        => null()
+            this%dim         = 0
+            this%pop         = 0
+            this%treeId      = 0
+            this%initialized = .false.
         end procedure destroy
 
         module procedure finalizer
