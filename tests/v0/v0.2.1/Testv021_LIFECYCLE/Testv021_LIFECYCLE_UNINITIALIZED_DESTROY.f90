@@ -7,7 +7,7 @@ program Testv021_LIFECYCLE_UNINITIALIZED_DESTROY
         
         !> checks if calling destroy on an uninitialized tree
         !! causes no errors state is correct 
-        subroutine lifecycleUninitializedDestroyed()
+        subroutine lifecycleUninitializedDestroy()
             type(Tree)      :: t
             logical         :: assertNodePool, assertRoot, assertInitState
 
@@ -28,5 +28,5 @@ program Testv021_LIFECYCLE_UNINITIALIZED_DESTROY
                 write(*, '(A,L2)') '           t%initialized          = ', assertInitState
             end if
 
-        end subroutine lifecycleUninitializedDestroyed
+        end subroutine lifecycleUninitializedDestroy
 end program Testv021_LIFECYCLE_UNINITIALIZED_DESTROY

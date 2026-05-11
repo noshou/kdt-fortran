@@ -1,5 +1,5 @@
 submodule(KdTree) TreeUtils
-    use iso_fortran_env, only: output_unit
+    use iso_fortran_env, only: output_unit, int64
     implicit none
     contains
         
@@ -8,7 +8,7 @@ submodule(KdTree) TreeUtils
             u = output_unit
             if (present(unit)) u = unit
             if (associated(this%root)) then
-                call this%root%printNode(0, u)
+                call this%root%printNode(0_int64, u)
             else
                 write(u, '(A)') '**empty tree**'
             end if
@@ -111,7 +111,7 @@ submodule(KdTree) TreeUtils
         
         module procedure associatedNodePool
             assoc = associated(this%nodePool)
-        end procedure nodePoolStatus
+        end procedure associatedNodePool
 
         module procedure associatedRoot
             assoc = associated(this%root)
