@@ -16,10 +16,9 @@ program Testv020_RNN_NODE_NULL_TARGET
                 2.0_real64, 1.0_real64,  &
                 3.0_real64, 1.0_real64], [2, 3])
             type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr)              :: target
 
             call t%build(coords)
-            target => null()
 
             res = t%rNN_Node(target, 1.0_real64)
             write(*, '(A)') '--- Testv020_RNN_NODE_NULL_TARGET ---'

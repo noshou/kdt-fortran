@@ -38,6 +38,7 @@ submodule(KdTree) BuildSubmod
             ! must use: -fopenmp for gfortran or -qopenmp for ifort for thread saftey
             
             if (nextTreeId .eq. huge(nextTreeId)) error stop "build: treeID overflow! (how the f**k did you get this \[^_^]/)"
+            
             !$OMP ATOMIC CAPTURE
             nextTreeId = nextTreeId + 1_int64
             id = nextTreeId

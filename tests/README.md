@@ -90,12 +90,13 @@ Each subdirectory has its own `CMakeLists.txt` and holds all the `.f90` files fo
  │  │   └── Testv020_COLLINEAR_TWO/   			# rNN on two-axis collinear geometries
  │  ├── v0.2.1/
  │  │   ├── Testv021_TREE_GETTERS/ 			# tree%getDim(), tree%getPop(), tree%getInitState; tested after freeing, populated, and empty
- │  │   ├── Testv021_LIFECYCLE/ 			# tests lifecylce (destroy, double free, build -> free -> destroy -> build, multiple builds on tre)
  │  │   ├── Testv021_BUFFER_SIZE/                  	# bufferSize parameter: default, small (1), exact, large (1 M), invalid (0 / negative)
+ │  │   ├── Testv021_IS_MEMBER/			# tests checks against searching on non-member nodes
  │  │   ├── Testv021_EMPTY_RESULT_POPULATED_TREE/  	# rNN returns empty on populated tree
  │  │   ├── Testv021_ZERO_RADIUS_POPULATED_TREE/   	# rNN with zero radius
- │  │   ├── Testv021_IS_MEMBER/				# tests checks against searching on non-member nodes
- │  │   └── Testv021_DATA_INPUT/   			# data inputs (valid and invalid) on tree
+ │  │   ├── Testv021_DATA_INPUT/   			# data inputs (valid and invalid) on tree
+ │  │   ├── Testv021_NODEPTR_LIFECYCLE                 # tests Nodeptr lifecycle
+ │  │   └── Testv021_LIFECYCLE/ 			# tests tree lifecylce (destroy, double free, build -> free -> destroy -> build, multiple builds on tree)
 ```
 
 The subdirectory name matches the common prefix of all test files within it. New versions must pass all regresison tests.

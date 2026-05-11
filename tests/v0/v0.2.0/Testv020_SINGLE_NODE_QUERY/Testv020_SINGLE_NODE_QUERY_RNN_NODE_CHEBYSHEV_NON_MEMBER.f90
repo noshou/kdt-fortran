@@ -16,17 +16,15 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV_NON_MEMBER
                 0.6_real64, 0.8_real64,  &
                 0.9_real64, 0.9_real64,  &
                 1.9_real64, 0.9_real64], [2, 4])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
 
             call t1%build(coords)
             call t2%build(coords)
 
-            res    = t2%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
-            target => res(1)%p
+            centroid_res = t2%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
 
             ! target belongs to t2 — must error stop
-            res = t1%rNN_Node(target, 1.0_real64, metric='chebyshev')
+            res = t1%rNN_Node(centroid_res(1), 1.0_real64, metric='chebyshev')
             write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV_NON_MEMBER ---'
             write(*, '(A)') 'expected error stop, but rNN_Node returned normally'
         end subroutine singleNodeQuery_rNN_Node_Chebyshev_NonMember

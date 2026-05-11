@@ -14,15 +14,13 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_INVALID_METRIC
             real(real64)               :: coords(2, 2) = reshape( &
                 [1.0_real64, 0.0_real64,  &
                 0.0_real64, 1.0_real64], [2, 2])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
 
             call t%build(coords)
 
-            res    = t%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
 
-            res = t%rNN_Node(target, 1.0_real64, metric='invalid')
+            res = t%rNN_Node(centroid_res(1), 1.0_real64, metric='invalid')
             write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_INVALID_METRIC ---'
             write(*,*) 'expected program to fail!'
 

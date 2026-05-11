@@ -15,16 +15,14 @@ program Testv021_ZERO_RADIUS_POPULATED_TREE_RNN_NODE_MANHATTAN
                 0.0_real64, 0.0_real64,  0.00000031_real64,       &
                 1.0_real64, 5.0_real64, -93131913.0_real64,       &
                 0.0_real64, 0.0_real64,  0.0_real64], [3, 6])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
             real(real64)               :: r
             
             call t%build(coords)
             r = sqrt(sum(([0.0_real64, 0.0_real64,  0.00000031_real64] - [0.0_real64, 0.0_real64,  0.0_real64])**2))
-            res = t%rNN_Centroid([0.0_real64, 0.0_real64, 0.0_real64], r)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([0.0_real64, 0.0_real64, 0.0_real64], r)
             
-            res = t%rNN_Node(target, 0.0_real64, metric='manhattan', excludeTarget=.false.)
+            res = t%rNN_Node(centroid_res(1), 0.0_real64, metric='manhattan', excludeTarget=.false.)
             if (size(res) .ne. 1) then
                 write(*, '(A)') '--- zeroRadiusPopulatedTree_rNN_Node_Manhattan ---'
                 write(*,*) 'expected 1 node, got:', size(res)

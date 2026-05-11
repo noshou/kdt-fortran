@@ -15,14 +15,12 @@ program Testv020_RNN_NODE_NEGATIVE_RADIUS
                 [1.0_real64, 1.0_real64,  &
                  2.0_real64, 1.0_real64,  &
                  3.0_real64, 1.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
 
             call t%build(coords)
-            res    = t%rNN_Centroid([1.0_real64, 1.0_real64], 0.01_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([1.0_real64, 1.0_real64], 0.01_real64)
 
-            res = t%rNN_Node(target, -1.0_real64)
+            res = t%rNN_Node(centroid_res(1), -1.0_real64)
             write(*, '(A)') '--- Testv020_RNN_NODE_NEGATIVE_RADIUS ---'
             write(*,*) 'expected error stop, but rNN_Node returned normally'
         end subroutine rnnNode_NegativeRadius

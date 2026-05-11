@@ -27,9 +27,15 @@ module KdTree
             procedure                   :: getSplitAxis
     end type Node
 
-    !> pointer to a Node
+    !> Pointer to an owned copy of a Node returned by a search.
+    !! p is always a pointer to a heap-allocated copy; call destroy() or let it
+    !! go out of scope to free the copy.
     type :: NodePtr
-        type(Node), pointer :: p => null()
+        type(Node), pointer          :: p    => null()
+        type(Node), pointer, private :: src_ => null()
+        contains
+            procedure :: destroy => destroyNodePtr
+            final     :: finalizerNodePtr
     end type NodePtr
     
     type :: Tree
@@ -306,10 +312,10 @@ module KdTree
         !! @return list of nodes within the search radius
         module function rNN_Node(this, target, radius, bufferSize, metric, excludeTarget) result(res)
             class(tree), intent(in)                :: this
-            type(node), pointer, intent(in)        :: target
+            type(NodePtr), intent(in)              :: target
             real(kind=real64), intent(in)          :: radius
             integer, intent(in), optional          :: bufferSize
-            character(len=*), intent(in), optional :: metric 
+            character(len=*), intent(in), optional :: metric
             logical, intent(in), optional          :: excludeTarget
             type(nodePtr), allocatable             :: res(:)
         end function rNN_Node
@@ -337,6 +343,22 @@ module KdTree
 
         !=======================================================!
 
+        !=======================================================!
+        !================== NodePtrUtils.f90 ==================!
+        !=======================================================!
+
+        !> Frees the owned node copy and nulls p.
+        module subroutine destroyNodePtr(this)
+            class(NodePtr), intent(inout) :: this
+        end subroutine destroyNodePtr
+
+        !> Frees the owned node copy when NodePtr goes out of scope.
+        module subroutine finalizerNodePtr(this)
+            type(NodePtr), intent(inout) :: this
+        end subroutine finalizerNodePtr
+
+        !=======================================================!
+
     end interface
-    
+
 end module KdTree

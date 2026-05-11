@@ -1,176 +1,188 @@
-# v0.2.0 Test Coverage
+# kdt-fortran
 
-Gap analysis against the public API after v0.2.0 shipped.
-
-## Already covered (v0.1.0 + v0.2.0)
-
-- **v0.1.0** — tree construction: empty, single point, multi-point, 1D–4D
-  axis-aligned arrays, collinear points, duplicates.
-- **v0.2.0** — all distance functions (node-to-node, node-to-point) for
-  Euclidean, Manhattan, and Chebyshev, including error stops (unallocated
-  coords, axis mismatch); `rNN_Centroid` and `rNN_Node` error stops (empty
-  tree, non-member, null target, negative radius, invalid metric string);
-  correctness on single-node geometry with all three metrics and both query
-  forms; non-member rejection; duplicate points (1–4 axes, all metrics);
-  collinear points (1-axis and 2-axis varieties, all metrics).
+A balanced kd-tree in modern Fortran with radius nearest-neighbour search.
 
 ---
 
-## Coverage gaps for v0.2.0
+## v0.2.1
 
-### Radius edge cases
+### API changes
 
-- **Empty result in a populated tree** — radius small enough that nothing is
-  captured; confirms early termination returns an empty array, not a crash or
-  stale results.
-- **Radius = 0** — degenerate sphere; `rNN_Node` should return only the target
-  itself; `rNN_Centroid` with a centroid not in the tree should return empty.
-  Pin the contract.
-- **Boundary inclusion** — a point sitting at distance exactly `r` from the
-  query: is it included (`<=`) or excluded (`<`)? Pin the semantics in a test
-  so a refactor cannot silently change them.
-- **Self-inclusion** — when the target node is in the tree, is it included in
-  the `rNN_Node` result? Document the contract and test it explicitly.
+**`rNN_Node` target parameter type changed.**
 
-Suggested names:
-
-- `Testv021_RNN_EMPTY_RESULT`
-- `Testv021_RNN_RADIUS_ZERO_NODE`
-- `Testv021_RNN_RADIUS_ZERO_CENTROID`
-- `Testv021_RNN_BOUNDARY_INCLUSION`
-- `Testv021_RNN_SELF_INCLUSION`
-
-### `bufferSize` overflow
-
-`rNN_Node` and `rNN_Centroid` pre-allocate a result buffer of `bufferSize`
-(default 1000) and resize on return. If the result count exceeds the initial
-allocation the buffer must grow correctly. This is the most likely place for a
-silent regression.
-
-- Build a tree with > 1000 points and query with a radius that captures all of
-  them. Assert `size(res).eq.n`.
-
-Suggested name: `Testv021_RNN_INITIAL_SIZE_OVERFLOW`
-
-### Accessors: `getDim` / `getPop`
-
-Currently unexercised by any test.
-
-- Pre-`build`: both must return 0.
-- Post-`build`: `getDim` must match `size(coords, 1)`, `getPop` must match
-  `size(coords, 2)`.
-- After `destroy`: both must return 0 again.
-
-Suggested names:
-
-- `Testv021_ACCESSORS_PRE_BUILD`
-- `Testv021_ACCESSORS_POST_BUILD`
-- `Testv021_ACCESSORS_AFTER_DESTROY`
-
-### `isMember` direct tests
-
-`isMember` is currently only exercised indirectly through the non-member error
-stops in `rNN_Node`. It needs direct coverage as a logical function.
-
-- A node retrieved from tree `t` must return `.true.` for `t%isMember(node)`.
-- A node retrieved from tree `t2` must return `.false.` for `t1%isMember(node)`.
-- A null/disassociated pointer — document and pin the contract.
-
-Suggested names:
-
-- `Testv021_ISMEMBER_TRUE`
-- `Testv021_ISMEMBER_FALSE`
-- `Testv021_ISMEMBER_NULL` (likely `WILL_FAIL` if contract is error stop)
-
-### Lifecycle: `destroy` and the finalizer
-
-- **`build → destroy → build`** on the same `Tree` variable: the second build
-  must produce the same result as if the variable were fresh. Catches pool
-  leaks and stale state.
-- **Double-`destroy`** must be a no-op (no crash, no double-free).
-- **Finalizer path** — a `Tree` going out of scope without an explicit
-  `destroy`. Best verified under valgrind; at minimum assert no crash.
-
-Suggested names:
-
-- `Testv021_REBUILD_SAME_TREE`
-- `Testv021_DOUBLE_DESTROY`
-
-### Data payload (`build` optional `data` argument)
-
-`Node%data` is `class(*), allocatable`. The optional `data` argument to `build`
-has never been exercised by any test. Minimum required coverage:
-
-- **Integer payload** — build with `data = [1, 2, ..., n]`, retrieve via
-  `getData`, `select type` to `integer`, assert value matches.
-- **Real payload** — same with `real(real64)`.
-- **Data survives reordering** — `build` reorders points; store the original
-  column index as the payload and assert each node's `coords` matches
-  `coords(:, node%getData())` from the original input array. This is the most
-  important data test.
-- **`rNN` returns nodes with intact data** — query a populated tree and walk
-  the returned `NodePtr` array; assert each result's `getData()` is allocated
-  and correct. Catches bugs where pruning or pool reuse silently clears the
-  payload.
-- **Data length mismatch** — `size(data) .ne. size(coords, 2)` must error stop.
-- **Rebuild replaces data** — `build` with payload A, then `build` again with
-  payload B on the same `Tree`; old payload must not leak, new payload must be
-  retrievable.
-
-Suggested names:
-
-- `Testv021_BUILD_WITH_INT_DATA`
-- `Testv021_BUILD_WITH_REAL_DATA`
-- `Testv021_DATA_SURVIVES_REORDERING`
-- `Testv021_RNN_RETURNS_DATA`
-- `Testv021_DATA_LENGTH_MISMATCH` (`WILL_FAIL`)
-- `Testv021_REBUILD_REPLACES_DATA`
-
-### Brute-force cross-check and fuzz
-
-Hand-written geometry tests catch specific bugs but miss the "subtle off-by-one
-in bounds-pruning" class. A brute-force oracle costs ~5 lines and covers that
-entire class.
-
-**Pattern:**
+The `target` argument was `type(node), pointer`; it is now `type(NodePtr)`.
+Callers pass the `NodePtr` returned directly from a prior search instead of
+dereferencing its `%p` field. This lets the implementation use the private
+`%src_` pointer (which points into the tree's node pool) for exact physical
+identity checks .
 
 ```fortran
-! reference: collect every point within radius the dumb way
-do i = 1, n
-    if (norm2(coords(:,i) - centroid) <= radius) refCount = refCount + 1
-end do
-if (size(res) .ne. refCount) stop 1
+! v0.2.0
+type(Node), pointer        :: target
+res    = t%rNN_Centroid(centroid, r)
+target => res(1)%p
+res    = t%rNN_Node(target, r2)
+
+! v0.2.1
+type(NodePtr), allocatable :: centroid_res(:)
+centroid_res = t%rNN_Centroid(centroid, r)
+res          = t%rNN_Node(centroid_res(1), r2)
 ```
 
-Replace `norm2` with `sum(abs(...))` for Manhattan and `maxval(abs(...))` for
-Chebyshev.
+### New features
 
-- **Fixed-geometry cross-check** — a handful of hand-picked inputs (e.g. 20
-  points in a unit cube, several radii), all three metrics, both query forms.
-  Assert result size and that every returned node actually lies within radius.
-- **Randomised fuzz with fixed seed** — loop over many random point sets and
-  query parameters; cross-check each against brute force. Fixed seed =
-  reproducible failures.
+#### `excludeTarget` optional parameter on `rNN_Node`
+
+When `.true.`, the target node is removed from the result set.
+Removal uses physical pointer identity (`src_` against the result's `src_`),
+so it is correct even when the tree contains duplicate coordinates.
 
 ```fortran
-call random_seed(put=[42, 42, ...])  ! deterministic
+res = t%rNN_Node(centroid_res(1), radius, excludeTarget=.true.)
 ```
 
-Suggested names:
+#### `bufferSize` validation on search functions
 
-- `Testv021_BRUTE_FORCE_EUCLIDEAN`
-- `Testv021_BRUTE_FORCE_MANHATTAN`
-- `Testv021_BRUTE_FORCE_CHEBYSHEV`
-- `Testv021_FUZZ_ALL_METRICS`
+Passing `bufferSize <= 0` now triggers `error stop` immediately instead of
+
+allocating a zero- or negative-length buffer.
+
+#### `build` data-length precondition
+
+The optional `data` argument to `build` must satisfy
+`size(data) == size(coords, 2)` or `size(data) == 0` (empty array is allowed
+and leaves nodes without a payload). Any other length triggers `error stop`.
+
+#### `NodePtr` type extended
+
+In v0.2.0 `NodePtr` was a bare wrapper around `%p`. In v0.2.1 it gains:
+
+- `%src_`  private back-pointer to the original tree node (used internallyfor identity; not accessible to callers).
+- `%destroy()` explicit method to free the owned copy and null both pointers.
+- `final` finalizer copy freed automatically when the `NodePtr` goes out of
+  scope. Double-destroy (explicit then implicit, or two explicit calls) is a
+  no-op.
+
+#### Tree Internal State
+
+##### `Tree%associatedNodePool(this, assoc)` / `Tree%associatedRoot(this, assoc)`
+
+Diagnostic predicates that set `assoc` to `.true.` iff the internal node pool
+array (respectively the root pointer) is currently associated. Both return
+`.false.` on an uninitialized or destroyed tree. Primarily used in lifecycle
+tests to verify that `destroy` fully resets internal state.
+
+##### `Tree%getTreeId()`
+
+Returns the unique `integer(int64)` ID assigned to the tree at `build` time.
+Each call to `build` increments a module-level counter and stamps every node
+in the pool with the new ID, which is what `isMember` compares against.
+
+##### `Tree%getInitState(this, isInit)`
+
+Sets `isInit` to `.true.` if the tree has been built and not yet destroyed,
+`.false.` otherwise. Useful for guarding re-builds and testing lifecycle state.
+
+#### **Integer width promotion**
+
+`treeId`, `splitAxis`, and the module-level `nextTreeId` counter were widened
+
+from default `integer` to `integer(int64)`.
+
+### Source module additions
+
+| File                          | Role                                                             |
+| ----------------------------- | ---------------------------------------------------------------- |
+| `src/node/NodePtrUtils.f90` | `destroyNodePtr` and `finalizerNodePtr` submodule procedures |
+
+### Test coverage added in v0.2.1
+
+#### **Buffer size** 
+
+`Testv021_BUFFER_SIZE/`
+
+Both `rNN_Node` and `rNN_Centroid` are exercised with the default buffer (1000),
+an exact-fit buffer, a buffer smaller than the result set (exercises the
+doubling-resize path), a buffer larger than the result set, and invalid sizes
+0 and −1 (both must `error stop`).
+
+#### **Radius edge cases**
+
+`Testv021_EMPTY_RESULT_POPULATED_TREE/`
+
+`Testv021_ZERO_RADIUS_POPULATED_TREE/`
+
+Both query forms (`rNN_Node`, `rNN_Centroid`) are tested with a radius small
+enough that no node is captured in a populated tree, and with radius = 0.
+All three metrics (Euclidean, Manhattan, Chebyshev) are covered in each case.
+`rNN_Node` variants include `excludeTarget=.true.` to exercise the removal path
+and confirm a zero-element result is returned correctly.
+
+#### **Data payload**
+
+`Testv021_DATA_INPUT/`
+
+`build` with integer and real `data` arrays; data survives tree reordering
+(original column index stored as payload, verified after build); `rNN` returns
+nodes with intact payloads; size-mismatch error stops for both populated and
+unpopulated data arrays; empty-tree build with empty and non-empty data.
+
+#### **Tree lifecycle**
+
+`Testv021_LIFECYCLE/`
+Uninitialized tree (no `build`), `destroy` on a built tree, double-`destroy`,
+`build → destroy → build` with identical coordinates, and
+`build → destroy → build` with different coordinates. Double-`build` without
+an intervening `destroy` must `error stop`.
+
+#### **NodePtr lifecycle**
+
+`Testv021_NODEPTR_LIFECYCLE/`
+
+Explicit `%destroy()` frees the copy; double-`destroy` is a no-op (no crash,
+no double-free).
+
+#### **Tree getters**
+
+`Testv021_TREE_GETTERS/`
+
+`getDim`, `getPop`, and `getInitState` are verified across all four tree
+states: uninitialized, empty (built from a zero-column array), populated, and
+freed.
+
+#### Node Membership
+
+`Testv021_IS_MEMBER_*/`
+
+Direct coverage of the membership predicate: a node from the same tree returns
+`.true.`; a node from a different tree returns `.false.`; after `destroy` any
+node must fail membership; after `build → destroy → build` the new nodes must
+pass and old ones must fail.
 
 ---
 
-## Priority order
+## v0.2.0
 
-1. **Data-payload tests** — `class(*)` path is entirely untested; `DATA_SURVIVES_REORDERING` is the highest-value single test.
-2. **`bufferSize` overflow** — single most likely regression site.
-3. **Radius edge cases** — boundary inclusion and self-inclusion pin implicit contracts before anyone changes them.
-4. **`isMember` direct tests** — currently only covered by side-effect.
-5. **Lifecycle** — `build → destroy → build` and double-destroy lock down memory management.
-6. **Accessors** — `getDim`/`getPop` are trivial to test and currently completely dark.
-7. **Brute-force cross-check** — highest payoff for search-correctness confidence; do the fixed-geometry version first, then the fuzz loop.
+Tree construction, all distance functions (node-to-node and node-to-point) for
+Euclidean, Manhattan, and Chebyshev metrics with error stops (unallocated
+coords, axis mismatch); `rNN_Centroid` and `rNN_Node` with error stops (empty
+tree, non-member, null target, negative radius, invalid metric string);
+single-node geometry correctness for all three metrics and both query forms;
+non-member rejection; duplicate points (1–4 axes, all metrics); collinear
+points (1-axis and 2-axis varieties, all metrics).
+
+---
+
+## v0.1.0
+
+Tree construction: empty tree, single point, multi-point, 1D–4D axis-aligned
+arrays, collinear points, duplicates.
+
+---
+
+## v0.2.2 (planned)
+
+Thread-safety testing. Concurrent read-only searches (`rNN_Node`,
+`rNN_Centroid`) on a shared built tree are expected to be safe since they do
+not mutate the tree; this will be pinned with OpenMP parallel-do tests.
+Concurrent `build` or `destroy` is explicitly out of scope.

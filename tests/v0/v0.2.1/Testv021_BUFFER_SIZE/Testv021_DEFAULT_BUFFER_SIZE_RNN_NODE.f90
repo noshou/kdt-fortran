@@ -15,16 +15,14 @@ program Testv021_DEFAULT_BUFFER_SIZE_RNN_NODE
                  0.0_real64, 0.0_real64,  0.00000031_real64,       &
                  1.0_real64, 5.0_real64, -93131913.0_real64,       &
                  0.0_real64, 0.0_real64,  0.0_real64], [3, 6])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
             integer                    :: i
 
             call t%build(coords)
-            res    = t%rNN_Centroid([5.0_real64, 1.0_real64, 0.92_real64], 0.0_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([5.0_real64, 1.0_real64, 0.92_real64], 0.0_real64)
 
             do i = 1, 1000
-                res = t%rNN_Node(target, 4.0_real64)
+                res = t%rNN_Node(centroid_res(1), 4.0_real64)
                 if (size(res) .ne. 3) then
                     write(*, '(A)') '--- defaultBufferSize_rNN_Node ---'
                     write(*, *) 'expected 3 nodes, got:', size(res)

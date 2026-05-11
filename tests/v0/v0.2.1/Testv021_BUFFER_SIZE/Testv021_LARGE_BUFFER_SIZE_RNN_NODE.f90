@@ -12,8 +12,7 @@ program Testv021_LARGE_BUFFER_SIZE_RNN_NODE
             integer, parameter         :: N = 1000, NDIM = 3, NITER = 1000
             type(Tree)                 :: t
             real(real64)               :: coords(NDIM, N), target_coords(NDIM)
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
             real(real64)               :: d, r
             integer                    :: i, j, expected
 
@@ -22,14 +21,13 @@ program Testv021_LARGE_BUFFER_SIZE_RNN_NODE
             call t%build(coords)
 
             target_coords = coords(:, 1)
-            res    = t%rNN_Centroid(target_coords, 0.0_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid(target_coords, 0.0_real64)
 
             do i = 1, NITER
                 call random_number(r)
                 r = r * 40.0_real64
 
-                res = t%rNN_Node(target, r, bufferSize=1000000)
+                res = t%rNN_Node(centroid_res(1), r, bufferSize=1000000)
 
                 expected = 0
                 do j = 1, N

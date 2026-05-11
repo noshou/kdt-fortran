@@ -20,16 +20,14 @@ program Testv021_EXACT_BUFFER_SIZE_RNN_NODE
                  0.0_real64, 0.3_real64, 0.0_real64, &
                  0.0_real64, 0.4_real64, 0.0_real64, &
                  0.0_real64, 0.5_real64, 0.0_real64], [3, 10])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
             integer                    :: i
 
             call t%build(coords)
-            res    = t%rNN_Centroid([0.1_real64, 0.0_real64, 0.0_real64], 0.0_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([0.1_real64, 0.0_real64, 0.0_real64], 0.0_real64)
 
             do i = 1, 1000
-                res = t%rNN_Node(target, 1.0_real64, bufferSize=10)
+                res = t%rNN_Node(centroid_res(1), 1.0_real64, bufferSize=10)
                 if (size(res) .ne. 10) then
                     write(*, '(A)') '--- exactBufferSize_rNN_Node ---'
                     write(*, *) 'expected 10 nodes, got:', size(res)

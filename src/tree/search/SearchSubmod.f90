@@ -1,9 +1,9 @@
 submodule (KdTree) SearchSubmod
-    implicit none 
-    
-    ! interface for helper functions 
-    interface 
-        
+    implicit none
+
+    ! interface for helper functions
+    interface
+
         !=======================================================!
         !=================== RnnModule.f90  ====================!
         !=======================================================!
@@ -24,22 +24,23 @@ submodule (KdTree) SearchSubmod
             type(nodePtr), allocatable, intent(inout)   :: res(:)
             character(len=*), intent(in)                :: metric
         end subroutine rNN
-        
+
         !=======================================================!
 
-    
-        end interface 
-    
-    contains 
-        module procedure rNN_Node
-            
-            integer          :: arrSize, is, i
-            character(len=9) :: m
 
-            if (.not. associated(this%root)) error stop "rNN_Node: tree is empty (call build first?)"
-            if (.not. associated(target))    error stop "rNN_Node: target is null"
-            if (radius .lt. 0.0_real64)      error stop "rNN_Node: negative radius"
-            if (.not. this%isMember(target)) error stop "rNN_Node: target is not a member of tree"
+        end interface
+
+    contains
+        module procedure rNN_Node
+
+            integer                        :: arrSize, is, i, j
+            character(len=9)               :: m
+            type(nodePtr), allocatable     :: tmp(:)
+
+            if (.not. associated(this%root))         error stop "rNN_Node: tree is empty (call build first?)"
+            if (.not. associated(target%src_))       error stop "rNN_Node: target is null"
+            if (radius .lt. 0.0_real64)              error stop "rNN_Node: negative radius"
+            if (.not. this%isMember(target%src_))    error stop "rNN_Node: target is not a member of tree"
 
             if(.not. present(bufferSize)) then
                 is = 1000
@@ -47,10 +48,10 @@ submodule (KdTree) SearchSubmod
                 if (bufferSize .le. 0) error stop "rNN_Node: invalid bufferSize"
                 is = bufferSize
             end if
-            
-            if (.not. present(metric)) then 
+
+            if (.not. present(metric)) then
                 m = 'euclidean'
-            else  
+            else
                 select case (metric)
                 case ('euclidean')
                     m = 'euclidean'
@@ -63,26 +64,37 @@ submodule (KdTree) SearchSubmod
                 end select
             end if
 
-            ! track array size for resizing later on
-            arrSize = 0 
-            
+            arrSize = 0
             allocate(res(is))
 
-            call rNN(target, this%root, radius, res, arrSize, m)
-            
-            ! trim res to the number of results actually found
-            if (arrSize .eq. 0) then  
+            call rNN(target%src_, this%root, radius, res, arrSize, m)
+
+            ! trim to actual result count
+            if (arrSize .eq. 0) then
                 deallocate(res)
                 allocate(res(0))
-            else 
-                res = res(1:arrSize)
-            end if 
+            else
+                allocate(tmp(arrSize))
+                do i = 1, arrSize
+                    tmp(i)%p    => res(i)%p    
+                    res(i)%p    => null()
+                    tmp(i)%src_ => res(i)%src_ 
+                    res(i)%src_ => null()
+                end do
+                call move_alloc(from=tmp, to=res)
+            end if
 
             ! remove target node from list of found nodes
             if (present(excludeTarget) .and. excludeTarget) then
                 do i = 1, arrSize
-                    if (associated(res(i)%p, target)) then
-                        res(i:arrSize-1) = res(i+1:arrSize)
+                    if (associated(res(i)%src_, target%src_)) then
+                        call res(i)%destroy()
+                        do j = i, arrSize - 1
+                            res(j)%p    => res(j+1)%p    
+                            res(j+1)%p    => null()
+                            res(j)%src_ => res(j+1)%src_ 
+                            res(j+1)%src_ => null()
+                        end do
                         arrSize = arrSize - 1
                         exit
                     end if
@@ -91,7 +103,12 @@ submodule (KdTree) SearchSubmod
                     deallocate(res)
                     allocate(res(0))
                 else
-                    res = res(1:arrSize)
+                    allocate(tmp(arrSize))
+                    do i = 1, arrSize
+                        tmp(i)%p    => res(i)%p    ; res(i)%p    => null()
+                        tmp(i)%src_ => res(i)%src_ ; res(i)%src_ => null()
+                    end do
+                    call move_alloc(from=tmp, to=res)
                 end if
             end if
 
@@ -100,9 +117,10 @@ submodule (KdTree) SearchSubmod
 
         module procedure rNN_Centroid
 
-            integer            :: arrSize, is
-            character(len=9)   :: m
-            type(node), target :: dummyNode
+            integer                        :: arrSize, is, i
+            character(len=9)               :: m
+            type(node), target             :: dummyNode
+            type(nodePtr), allocatable     :: tmp(:)
 
             if (.not. associated(this%root))    error stop "rNN_Centroid: tree is empty (call build first?)"
             if (size(centroid) .ne. this%dim)   error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
@@ -130,24 +148,29 @@ submodule (KdTree) SearchSubmod
                 end select
             end if
 
-            ! track array size for resizing later on
-            arrSize = 0 
+            arrSize = 0
             allocate(res(is))
 
             ! wrap centroid in a node so rNN can call distance methods uniformly
             allocate(dummyNode%coords(this%dim), source=centroid)
-            
+
             call rNN(dummyNode, this%root, radius, res, arrSize, m)
 
-            ! trim res to the number of results actually found
-            if (arrSize .eq. 0) then  
+            ! trim to actual result count
+            if (arrSize .eq. 0) then
                 deallocate(res)
                 allocate(res(0))
-            else 
-                res = res(1:arrSize)
-            end if 
+            else
+                allocate(tmp(arrSize))
+                do i = 1, arrSize
+                    tmp(i)%p    => res(i)%p    
+                    res(i)%p    => null()
+                    tmp(i)%src_ => res(i)%src_ 
+                    res(i)%src_ => null()
+                end do
+                call move_alloc(from=tmp, to=res)
+            end if
 
         end procedure rNN_Centroid
 
 end submodule SearchSubmod
-

@@ -17,14 +17,12 @@ program Testv021_INVALID_BUFFER_SIZE_ZERO_RNN_NODE
                  0.0_real64, 0.0_real64,  0.00000031_real64,       &
                  1.0_real64, 5.0_real64, -93131913.0_real64,       &
                  0.0_real64, 0.0_real64,  0.0_real64], [3, 6])
-            type(NodePtr), allocatable :: res(:)
-            type(Node), pointer        :: target
+            type(NodePtr), allocatable :: res(:), centroid_res(:)
 
             call t%build(coords)
-            res    = t%rNN_Centroid([5.0_real64, 1.0_real64, 0.92_real64], 0.0_real64)
-            target => res(1)%p
+            centroid_res = t%rNN_Centroid([5.0_real64, 1.0_real64, 0.92_real64], 0.0_real64)
 
-            res = t%rNN_Node(target, 4.0_real64, bufferSize=0)
+            res = t%rNN_Node(centroid_res(1), 4.0_real64, bufferSize=0)
             write(*, '(A)') '--- invalidBufferSizeZero_rNN_Node ---'
             write(*, *) 'expected error stop, but rNN_Node returned normally'
 
