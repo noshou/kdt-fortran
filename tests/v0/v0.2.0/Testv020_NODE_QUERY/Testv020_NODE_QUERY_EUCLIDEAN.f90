@@ -32,7 +32,7 @@ program Testv020_NODE_QUERY_EUCLIDEAN
             dist = res1(1)%p%euclideanDist(res2(1)%p)
 
             if (abs(dist - sqrt(10.0_real64)) > 1.0e-12_real64) then
-                write(*, '(A)') '--- nodeQuery_Euclidean ---'
+                write(*, '(A)') '--- Testv020_NODE_QUERY_EUCLIDEAN ---'
                 write(*,*) 'expected sqrt(10), got:', dist
                 stop 1
             end if

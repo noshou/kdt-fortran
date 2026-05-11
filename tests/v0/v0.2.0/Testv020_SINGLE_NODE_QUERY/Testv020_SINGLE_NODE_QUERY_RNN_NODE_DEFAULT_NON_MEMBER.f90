@@ -27,7 +27,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_DEFAULT_NON_MEMBER
 
             ! target belongs to t2 — must error stop
             res = t1%rNN_Node(target, 1.0_real64)
-            write(*, '(A)') '--- singleNodeQuery_rNN_Node_Default_NonMember ---'
+            write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_DEFAULT_NON_MEMBER ---'
             write(*, '(A)') 'expected error stop, but rNN_Node returned normally'
         end subroutine singleNodeQuery_rNN_Node_Default_NonMember
 

@@ -32,7 +32,7 @@ program Testv020_NODE_QUERY_MANHATTAN
             dist = res1(1)%p%manhattanDist(res2(1)%p)
 
             if (dist .ne. 4.0_real64) then
-                write(*, '(A)') '--- nodeQuery_Manhattan ---'
+                write(*, '(A)') '--- Testv020_NODE_QUERY_MANHATTAN ---'
                 write(*,*) 'expected 4.0, got:', dist
                 stop 1
             end if

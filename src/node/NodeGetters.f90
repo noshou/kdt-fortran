@@ -2,7 +2,6 @@ submodule(KdTree) NodeGetters
     implicit none 
     contains 
 
-
         module procedure getData 
             data = this%data
         end procedure getData

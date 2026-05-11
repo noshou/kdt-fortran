@@ -23,7 +23,7 @@ program Testv020_RNN_NODE_NEGATIVE_RADIUS
             target => res(1)%p
 
             res = t%rNN_Node(target, -1.0_real64)
-            write(*, '(A)') '--- rnnNode_NegativeRadius ---'
+            write(*, '(A)') '--- Testv020_RNN_NODE_NEGATIVE_RADIUS ---'
             write(*,*) 'expected error stop, but rNN_Node returned normally'
         end subroutine rnnNode_NegativeRadius
 

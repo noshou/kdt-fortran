@@ -10,7 +10,11 @@ submodule(KdTree) TreeGetters
         end procedure getPop
 
         module procedure getInitState
-            state = this%initialized
+            isInit = this%initialized
         end procedure getInitState
+
+        module procedure getTreeId
+            id = this%treeId
+        end procedure getTreeId
 
 end submodule TreeGetters

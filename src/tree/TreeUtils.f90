@@ -108,13 +108,21 @@ submodule(KdTree) TreeUtils
                 end if
             end do
         end procedure assert
+        
+        module procedure associatedNodePool
+            assoc = associated(this%nodePool)
+        end procedure nodePoolStatus
+
+        module procedure associatedRoot
+            assoc = associated(this%root)
+        end procedure associatedRoot
 
         module procedure destroy
             if (associated(this%nodePool)) deallocate(this%nodePool)
             this%root        => null()
-            this%dim         = 0
-            this%pop         = 0
-            this%treeId      = 0
+            this%dim         = 0_int64
+            this%pop         = 0_int64
+            this%treeId      = 0_int64
             this%initialized = .false.
         end procedure destroy
 

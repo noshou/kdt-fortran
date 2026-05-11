@@ -29,7 +29,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_MANHATTAN
             res = t%rNN_Node(target, 1.0_real64, metric='manhattan')
 
             if (size(res) .ne. 2) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Node_Manhattan ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_MANHATTAN ---'
                 write(*,*) 'expected 2 nodes, got:', size(res)
                 stop 1
             end if

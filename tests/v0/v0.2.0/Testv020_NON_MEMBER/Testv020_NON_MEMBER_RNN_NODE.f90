@@ -24,7 +24,7 @@ program Testv020_NON_MEMBER_RNN_NODE
 
             ! node2 belongs to t2 — must error stop
             res = t1%rNN_Node(node2, 1000.0_real64)
-            write(*, '(A)') '--- nonMemberRnnNode ---'
+            write(*, '(A)') '--- Testv020_NON_MEMBER_RNN_NODE ---'
             write(*, '(A)') 'expected error stop, but rNN_Node returned normally'
 
         end subroutine nonMemberRnnNode

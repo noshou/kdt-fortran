@@ -22,7 +22,7 @@ program Testv020_COLLINEAR_ONE_AXIS_I_RNN_CHEBYSHEV
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 2.0_real64, 0.0_real64], 1.5_real64, metric='chebyshev')
             if (size(res) .ne. 3) then
-                write(*, '(A)') '--- collinearOne_AxisI_rNN_Chebyshev ---'
+                write(*, '(A)') '--- Testv020_COLLINEAR_ONE_AXIS_I_RNN_CHEBYSHEV ---'
                 write(*, *) 'expected 3 nodes, got:', size(res)
                 stop 1
             end if

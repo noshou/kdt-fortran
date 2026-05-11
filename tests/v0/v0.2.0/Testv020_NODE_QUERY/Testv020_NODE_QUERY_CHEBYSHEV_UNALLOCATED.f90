@@ -14,7 +14,7 @@ program Testv020_NODE_QUERY_CHEBYSHEV_UNALLOCATED
             real(real64) :: dist
 
             dist = n1%chebyshevDist(n2)
-            write(*, '(A)') '--- nodeQuery_Chebyshev_Unallocated ---'
+            write(*, '(A)') '--- Testv020_NODE_QUERY_CHEBYSHEV_UNALLOCATED ---'
             write(*,*) 'expected error stop, but chebyshevDist returned normally'
         end subroutine nodeQuery_Chebyshev_Unallocated
 

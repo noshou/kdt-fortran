@@ -24,7 +24,7 @@ program Testv020_DUPLICATES_FOUR_AXIS_RNN_MANHATTAN
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], 0.01_real64, metric='manhattan')
             if (size(res) .ne. 9) then
-                write(*, '(A)') '--- duplicatesFourAxis_rNN_Manhattan ---'
+                write(*, '(A)') '--- Testv020_DUPLICATES_FOUR_AXIS_RNN_MANHATTAN ---'
                 write(*, *) 'expected 9 nodes, got:', size(res)
                 stop 1
             end if

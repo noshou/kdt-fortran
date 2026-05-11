@@ -22,7 +22,7 @@ program Testv020_COLLINEAR_TWO_AXIS_I_AXIS_II_RNN_EUCLIDEAN
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 4.0_real64, 0.0_real64], 35.0_real64)
             if (size(res) .ne. 3) then
-                write(*, '(A)') '--- collinearTwo_AxisIAxisII_rNN_Euclidean ---'
+                write(*, '(A)') '--- Testv020_COLLINEAR_TWO_AXIS_I_AXIS_II_RNN_EUCLIDEAN ---'
                 write(*, *) 'expected 3 nodes, got:', size(res)
                 stop 1
             end if

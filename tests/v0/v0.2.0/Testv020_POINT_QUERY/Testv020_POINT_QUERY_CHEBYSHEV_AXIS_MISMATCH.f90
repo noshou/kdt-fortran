@@ -13,8 +13,8 @@ program Testv020_POINT_QUERY_CHEBYSHEV_AXIS_MISMATCH
             type(Tree)                 :: t
             real(real64)               :: coords(2, 3) = reshape( &
                 [1.0_real64, 1.0_real64,  &
-                 2.0_real64, 1.0_real64,  &
-                 3.0_real64, 1.0_real64], [2, 3])
+                2.0_real64, 1.0_real64,  &
+                3.0_real64, 1.0_real64], [2, 3])
             type(NodePtr), allocatable :: res(:)
             real(real64), allocatable  :: point(:)
             real(real64)               :: dist

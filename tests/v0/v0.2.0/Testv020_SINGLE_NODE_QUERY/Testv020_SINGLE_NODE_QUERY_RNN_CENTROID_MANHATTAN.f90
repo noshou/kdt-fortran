@@ -25,7 +25,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_MANHATTAN
             res = t%rNN_Centroid(centroid, 1.0_real64, metric='manhattan')
 
             if (size(res) .ne. 1) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Centroid_Manhattan ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_MANHATTAN ---'
                 write(*,*) 'expected 1 node, got:', size(res)
                 stop 1
             end if

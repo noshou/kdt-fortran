@@ -21,6 +21,6 @@ program Testv010_ONE_AXIS_ARRAY
                 '    [axis=1] (9.000)']
 
             call t%build(coords)
-            call t%assert('oneAxisArray', expected)
+            call t%assert('Testv010_ONE_AXIS_ARRAY', expected)
         end subroutine oneAxisArray
 end program Testv010_ONE_AXIS_ARRAY

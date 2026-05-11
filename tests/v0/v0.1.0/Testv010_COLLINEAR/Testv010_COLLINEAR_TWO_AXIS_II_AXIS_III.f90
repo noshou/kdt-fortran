@@ -26,6 +26,6 @@ program Testv010_COLLINEAR_TWO_AXIS_II_AXIS_III
                 '    [axis=3] (0.3131E+5, 5.000, 4.000)']
 
             call t%build(coords)
-            call t%assert('collinearTwo_AxisIIAxisIII', expected)
+            call t%assert('Testv010_COLLINEAR_TWO_AXIS_II_AXIS_III', expected)
         end subroutine collinearTwo_AxisIIAxisIII
 end program Testv010_COLLINEAR_TWO_AXIS_II_AXIS_III

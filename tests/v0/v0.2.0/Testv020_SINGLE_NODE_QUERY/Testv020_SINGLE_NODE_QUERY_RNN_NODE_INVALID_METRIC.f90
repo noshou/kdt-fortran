@@ -23,7 +23,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_INVALID_METRIC
             target => res(1)%p
 
             res = t%rNN_Node(target, 1.0_real64, metric='invalid')
-            write(*, '(A)') '--- singleNodeQuery_rNN_Node_InvalidMetric ---'
+            write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_INVALID_METRIC ---'
             write(*,*) 'expected program to fail!'
 
         end subroutine singleNodeQuery_rNN_Node_InvalidMetric

@@ -29,7 +29,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV
             res = t%rNN_Node(target, 1.0_real64, metric='chebyshev')
 
             if (size(res) .ne. 4) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Node_Chebyshev ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV ---'
                 write(*,*) 'expected 4 nodes, got:', size(res)
                 stop 1
             end if

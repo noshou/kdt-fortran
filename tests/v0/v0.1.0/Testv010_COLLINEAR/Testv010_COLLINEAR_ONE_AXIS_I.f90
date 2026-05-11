@@ -24,6 +24,6 @@ program Testv010_COLLINEAR_ONE_AXIS_I
                 '    [axis=3] (5.000, 6.000, 0.000)']
 
             call t%build(coords)
-            call t%assert('collinearOne_AxisI', expected)
+            call t%assert('Testv010_COLLINEAR_ONE_AXIS_I', expected)
         end subroutine collinearOne_AxisI
 end program Testv010_COLLINEAR_ONE_AXIS_I

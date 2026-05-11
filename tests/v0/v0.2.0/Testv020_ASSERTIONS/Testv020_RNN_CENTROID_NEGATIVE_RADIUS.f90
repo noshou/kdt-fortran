@@ -20,7 +20,7 @@ program Testv020_RNN_CENTROID_NEGATIVE_RADIUS
             call t%build(coords)
 
             res = t%rNN_Centroid([0.0_real64, 0.0_real64], -1.0_real64)
-            write(*, '(A)') '--- rnnCentroid_NegativeRadius ---'
+            write(*, '(A)') '--- Testv020_RNN_CENTROID_NEGATIVE_RADIUS ---'
             write(*,*) 'expected error stop, but rNN_Centroid returned normally'
         end subroutine rnnCentroid_NegativeRadius
 

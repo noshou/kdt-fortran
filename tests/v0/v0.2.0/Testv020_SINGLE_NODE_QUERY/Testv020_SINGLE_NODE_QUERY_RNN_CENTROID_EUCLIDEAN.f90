@@ -24,7 +24,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_EUCLIDEAN
             res = t%rNN_Centroid(centroid, 1.0_real64, metric='euclidean')
 
             if (size(res) .ne. 2) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Centroid_Euclidean ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_EUCLIDEAN ---'
                 write(*,*) 'expected 2 nodes, got:', size(res)
                 stop 1
             end if

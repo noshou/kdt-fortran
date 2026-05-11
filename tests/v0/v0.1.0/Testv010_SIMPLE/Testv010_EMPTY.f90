@@ -14,6 +14,6 @@ program Testv010_EMPTY
                 '**empty tree**']
 
             call t%build(coords)
-            call t%assert('empty', expected)
+            call t%assert('Testv010_EMPTY', expected)
         end subroutine empty
 end program Testv010_EMPTY

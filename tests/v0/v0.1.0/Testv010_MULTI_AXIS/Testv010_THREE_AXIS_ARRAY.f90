@@ -26,7 +26,7 @@ program Testv010_THREE_AXIS_ARRAY
                 '    [axis=3] (5.000, 9.000, 33.13)']
 
             call t%build(coords)
-            call t%assert('threeAxisArray', expected)
+            call t%assert('Testv010_THREE_AXIS_ARRAY', expected)
         end subroutine threeAxisArray
 
 end program Testv010_THREE_AXIS_ARRAY

@@ -23,7 +23,7 @@ program Testv020_POINT_QUERY_CHEBYSHEV_UNALLOCATED
             res = t%rNN_Centroid([1.0_real64, 1.0_real64], 0.01_real64)
 
             dist = res(1)%p%chebyshevDistPoint(point)
-            write(*, '(A)') '--- pointQuery_Chebyshev_Unallocated ---'
+            write(*, '(A)') '--- Testv020_POINT_QUERY_CHEBYSHEV_UNALLOCATED ---'
             write(*,*) 'expected error stop, but chebyshevDistPoint returned normally'
         end subroutine pointQuery_Chebyshev_Unallocated
 

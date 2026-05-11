@@ -33,7 +33,7 @@ program Testv020_POINT_QUERY_CHEBYSHEV
             dist = res(1)%p%chebyshevDistPoint(point)
 
             if (dist .ne. 3.0_real64) then
-                write(*, '(A)') '--- pointQuery_Chebyshev ---'
+                write(*, '(A)') '--- Testv020_POINT_QUERY_CHEBYSHEV ---'
                 write(*,*) 'expected 3.0, got:', dist
                 stop 1
             end if

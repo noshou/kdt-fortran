@@ -31,6 +31,6 @@ program Testv010_DUPLICATES_THREE_AXIS
                 '      [axis=1] (5.000, 5.000, 5.000)']
 
             call t%build(coords)
-            call t%assert('duplicatesThreeAxis', expected)
+            call t%assert('Testv010_DUPLICATES_THREE_AXIS', expected)
         end subroutine duplicatesThreeAxis
 end program Testv010_DUPLICATES_THREE_AXIS

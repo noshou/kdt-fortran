@@ -21,7 +21,7 @@ program Testv020_COLLINEAR_TWO_AXIS_II_AXIS_III_RNN_MANHATTAN
             call t%build(coords)
             res = t%rNN_Centroid([0.0_real64, 5.0_real64, 4.0_real64], 35.0_real64, metric='manhattan')
             if (size(res) .ne. 3) then
-                write(*, '(A)') '--- collinearTwo_AxisIIAxisIII_rNN_Manhattan ---'
+                write(*, '(A)') '--- Testv020_COLLINEAR_TWO_AXIS_II_AXIS_III_RNN_MANHATTAN ---'
                 write(*, *) 'expected 3 nodes, got:', size(res)
                 stop 1
             end if

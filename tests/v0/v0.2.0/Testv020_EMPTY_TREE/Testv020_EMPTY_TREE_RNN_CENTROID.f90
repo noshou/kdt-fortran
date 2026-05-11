@@ -15,7 +15,7 @@ program Testv020_EMPTY_TREE_RNN_CENTROID
             type(NodePtr), allocatable :: res(:)
             call t%build(coords)
             res = t%rNN_Centroid(centroid, r) ! expected to fail here
-            write(*, '(A)') '--- emptyTree (rNN_Centroid) ---'
+            write(*, '(A)') '--- Testv020_EMPTY_TREE_RNN_CENTROID ---'
             write(*, '(A)') 'expected program to fail, but ran successfully!'
         end subroutine emptyTree
 

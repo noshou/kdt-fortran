@@ -16,6 +16,6 @@ program Testv010_TWO_POINTS
                 '  [axis=2] (3.000, 2.000)']
 
             call t%build(coords)
-            call t%assert('twoPoints', expected)
+            call t%assert('Testv010_TWO_POINTS', expected)
         end subroutine twoPoints
 end program Testv010_TWO_POINTS

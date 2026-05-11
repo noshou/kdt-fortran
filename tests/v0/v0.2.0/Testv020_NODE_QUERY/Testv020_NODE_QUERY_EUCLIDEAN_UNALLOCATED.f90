@@ -14,7 +14,7 @@ program Testv020_NODE_QUERY_EUCLIDEAN_UNALLOCATED
             real(real64) :: dist
 
             dist = n1%euclideanDist(n2)
-            write(*, '(A)') '--- nodeQuery_Euclidean_Unallocated ---'
+            write(*, '(A)') '--- Testv020_NODE_QUERY_EUCLIDEAN_UNALLOCATED ---'
             write(*,*) 'expected error stop, but euclideanDist returned normally'
         end subroutine nodeQuery_Euclidean_Unallocated
 

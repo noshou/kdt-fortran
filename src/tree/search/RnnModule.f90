@@ -2,9 +2,9 @@ submodule(KdTree:SearchSubmod) RnnModule
     implicit none 
     contains 
         module procedure rNN
-            real(kind=real64)                           :: delta
-            type(nodePtr), allocatable                  :: tmp(:)
-            integer                                     :: axis
+            real(kind=real64)           :: delta
+            type(nodePtr), allocatable  :: tmp(:)
+            integer(int64)              :: axis
             
             if (associated(curr)) then 
                 

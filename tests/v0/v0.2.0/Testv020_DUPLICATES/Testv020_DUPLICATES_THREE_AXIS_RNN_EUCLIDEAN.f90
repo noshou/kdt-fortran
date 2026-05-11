@@ -24,7 +24,7 @@ program Testv020_DUPLICATES_THREE_AXIS_RNN_EUCLIDEAN
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 5.0_real64, 5.0_real64], 0.01_real64)
             if (size(res) .ne. 9) then
-                write(*, '(A)') '--- duplicatesThreeAxis_rNN_Euclidean ---'
+                write(*, '(A)') '--- Testv020_DUPLICATES_THREE_AXIS_RNN_EUCLIDEAN ---'
                 write(*, *) 'expected 9 nodes, got:', size(res)
                 stop 1
             end if

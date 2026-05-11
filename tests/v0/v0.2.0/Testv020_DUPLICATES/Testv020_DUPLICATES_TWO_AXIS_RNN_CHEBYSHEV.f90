@@ -20,7 +20,7 @@ program Testv020_DUPLICATES_TWO_AXIS_RNN_CHEBYSHEV
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 5.0_real64], 0.01_real64, metric='chebyshev')
             if (size(res) .ne. 9) then
-                write(*, '(A)') '--- duplicatesTwoAxis_rNN_Chebyshev ---'
+                write(*, '(A)') '--- Testv020_DUPLICATES_TWO_AXIS_RNN_CHEBYSHEV ---'
                 write(*, *) 'expected 9 nodes, got:', size(res)
                 stop 1
             end if

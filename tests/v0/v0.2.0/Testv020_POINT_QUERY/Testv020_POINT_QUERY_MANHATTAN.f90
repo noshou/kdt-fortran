@@ -33,7 +33,7 @@ program Testv020_POINT_QUERY_MANHATTAN
             dist = res(1)%p%manhattanDistPoint(point)
 
             if (dist .ne. 4.0_real64) then
-                write(*, '(A)') '--- pointQuery_Manhattan ---'
+                write(*, '(A)') '--- Testv020_POINT_QUERY_MANHATTAN ---'
                 write(*,*) 'expected 4.0, got:', dist
                 stop 1
             end if

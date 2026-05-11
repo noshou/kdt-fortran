@@ -24,7 +24,7 @@ program Testv020_POINT_QUERY_MANHATTAN_AXIS_MISMATCH
             allocate(point, source=[1.0_real64, 1.0_real64, 1.0_real64])
 
             dist = res(1)%p%manhattanDistPoint(point)
-            write(*, '(A)') '--- pointQuery_Manhattan_AxisMismatch ---'
+            write(*, '(A)') '--- Testv020_POINT_QUERY_MANHATTAN_AXIS_MISMATCH ---'
             write(*,*) 'expected error stop, but manhattanDistPoint returned normally'
         end subroutine pointQuery_Manhattan_AxisMismatch
 

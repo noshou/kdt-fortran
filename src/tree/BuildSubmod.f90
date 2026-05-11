@@ -4,8 +4,8 @@ submodule(KdTree) BuildSubmod
         
         module procedure build
 
-            integer, allocatable :: indices(:)
-            integer              :: i, id
+            integer(int64), allocatable :: indices(:)
+            integer(int64)              :: i, id
 
             if (this%initialized) error stop "build: tree is already initialized (call destroy first)"
 
@@ -15,7 +15,7 @@ submodule(KdTree) BuildSubmod
 
             ! ensure number of data points is equal to number of coordinates 
             if (present(data)) then
-                if ((size(data) .ne. this%pop) .and. (size(data) .ne. 0)) then 
+                if ((size(data) .ne. this%pop) .and. (size(data) .ne. 0_int64)) then 
                     error stop "data array length must equal number of points"
                 end if 
             end if
@@ -25,25 +25,27 @@ submodule(KdTree) BuildSubmod
             do i = 1, this%pop
                 allocate(this%nodePool(i)%coords(this%dim))
                 this%nodePool(i)%coords(:) = coords(:, i)
-                if ((present(data)) .and. (size(data) .ne. 0)) then
+                if ((present(data)) .and. (size(data) .ne. 0_int64)) then
                     allocate(this%nodePool(i)%data, source=data(i))
                 end if
             end do
 
             ! allocate indices; that way we don't have to modify the list of nodes
             allocate(indices(this%pop))
-            indices = [(i, i=1, this%pop)]
+            indices = [(i, i=1_int64, this%pop)]
 
             ! initialize tree id 
             ! must use: -fopenmp for gfortran or -qopenmp for ifort for thread saftey
+            
+            if (nextTreeId .eq. huge(nextTreeId)) error stop "build: treeID overflow! (how the f**k did you get this \[^_^]/)"
             !$OMP ATOMIC CAPTURE
-            nextTreeId = nextTreeId + 1
+            nextTreeId = nextTreeId + 1_int64
             id = nextTreeId
             !$OMP END ATOMIC
             this%treeId = id
 
             ! build tree
-            call buildSubtree(this, this%root, 0, indices, 1, this%pop)
+            call buildSubtree(this, this%root, 0_int64, indices, 1_int64, this%pop)
 
             deallocate(indices)
             this%initialized = .true.
@@ -61,16 +63,16 @@ submodule(KdTree) BuildSubmod
 
             type(tree), intent(inout)          :: this
             type(node), pointer, intent(out)   :: root
-            integer, intent(inout)             :: indices(:)
-            integer, intent(in)                :: lowerIdx, upperIdx, depth
-            integer                            :: axis, median, middleBounds(2), targetIdx
+            integer(int64), intent(inout)      :: indices(:)
+            integer(int64), intent(in)         :: lowerIdx, upperIdx, depth
+            integer(int64)                     :: axis, median, middleBounds(2), targetIdx
                 
             ! base case: we are at a leaf (or tree is empty)
             if (lowerIdx > upperIdx) then 
                 root => null()
             else 
-                axis = mod(depth, this%dim) + 1
-                targetIdx = (lowerIdx + upperIdx) / 2
+                axis = mod(depth, this%dim) + 1_int64
+                targetIdx = (lowerIdx + upperIdx) / 2_int64
                 median = quickSelect( &
                     this%nodePool,    &
                     indices,          &
@@ -83,8 +85,8 @@ submodule(KdTree) BuildSubmod
                 root => this%nodePool(indices(median))
                 root%splitAxis = axis
                 root%treeId = this%treeId
-                call buildSubtree(this, root%leftChild,  depth+1, indices, lowerIdx, median-1)
-                call buildSubtree(this, root%rightChild, depth+1, indices, median+1, upperIdx)
+                call buildSubtree(this, root%leftChild,  depth+1_int64, indices, lowerIdx, median-1_int64)
+                call buildSubtree(this, root%rightChild, depth+1_int64, indices, median+1_int64, upperIdx)
             end if  
             
         end subroutine buildSubtree
@@ -112,19 +114,19 @@ submodule(KdTree) BuildSubmod
             targetIdx                   &
             ) result(median)
             
-            type(node), intent(in)   :: nodes(:)
-            integer, intent(inout)   :: indices(:)
-            integer, intent(in)      :: lowerIdx, upperIdx, axis, targetIdx
-            integer, intent(inout)   :: middleBounds(2)
-            integer                  :: pivotIdx, median
-            real(kind=real64)        :: pivotVal, randomNumber
+            type(node), intent(in)          :: nodes(:)
+            integer(int64), intent(inout)   :: indices(:)
+            integer(int64), intent(in)      :: lowerIdx, upperIdx, axis, targetIdx
+            integer(int64), intent(inout)   :: middleBounds(2)
+            integer(int64)                  :: pivotIdx, median
+            real(kind=real64)               :: pivotVal, randomNumber
 
             if (lowerIdx .eq. upperIdx) then 
                 median = lowerIdx
             else 
 
                 call random_number(randomNumber)
-                pivotIdx = lowerIdx + floor(randomNumber * (upperIdx - lowerIdx + 1))
+                pivotIdx = lowerIdx + floor(randomNumber * (upperIdx - lowerIdx + 1_int64))
                 pivotVal = nodes(indices(pivotIdx))%coords(axis)
                 call quickSelectPartition(  &
                     nodes,                  &
@@ -184,9 +186,9 @@ submodule(KdTree) BuildSubmod
             )
 
             type(node), intent(in)         :: nodes(:)
-            integer, intent(inout)         :: indices(:), middleBounds(2)
-            integer,    intent(in)         :: lowerIdx, upperIdx, axis
-            integer                        :: i, tmp, lowerMiddleIdx, upperMiddleIdx
+            integer(int64), intent(inout)  :: indices(:), middleBounds(2)
+            integer(int64), intent(in)     :: lowerIdx, upperIdx, axis
+            integer(int64)                 :: i, tmp, lowerMiddleIdx, upperMiddleIdx
             real(kind=real64), intent(in)  :: pivot
 
             i = lowerIdx
@@ -197,15 +199,15 @@ submodule(KdTree) BuildSubmod
                     tmp = indices(i)
                     indices(i) = indices(lowerMiddleIdx)
                     indices(lowerMiddleIdx) = tmp
-                    i = i + 1
-                    lowerMiddleIdx = lowerMiddleIdx + 1
+                    i = i + 1_int64
+                    lowerMiddleIdx = lowerMiddleIdx + 1_int64
                 else if (nodes(indices(i))%coords(axis) > pivot) then
                     tmp = indices(i)
                     indices(i) = indices(upperMiddleIdx)
                     indices(upperMiddleIdx) = tmp
-                    upperMiddleIdx = upperMiddleIdx - 1
+                    upperMiddleIdx = upperMiddleIdx - 1_int64
                 else
-                    i = i + 1
+                    i = i + 1_int64
                 end if
             end do 
 

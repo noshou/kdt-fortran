@@ -22,7 +22,7 @@ program Testv020_COLLINEAR_ONE_AXIS_III_RNN_MANHATTAN
             call t%build(coords)
             res = t%rNN_Centroid([13.0_real64, 0.0_real64, 4.0_real64], 12.5_real64, metric='manhattan')
             if (size(res) .ne. 1) then
-                write(*, '(A)') '--- collinearOne_AxisIII_rNN_Manhattan ---'
+                write(*, '(A)') '--- Testv020_COLLINEAR_ONE_AXIS_III_RNN_MANHATTAN ---'
                 write(*, *) 'expected 1 node, got:', size(res)
                 stop 1
             end if

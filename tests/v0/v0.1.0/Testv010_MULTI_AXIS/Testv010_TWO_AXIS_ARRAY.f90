@@ -25,7 +25,7 @@ program Testv010_TWO_AXIS_ARRAY
                 '    [axis=1] (5.000, 9.000)']
 
             call t%build(coords)
-            call t%assert('twoAxisArray', expected)
+            call t%assert('Testv010_TWO_AXIS_ARRAY', expected)
         end subroutine twoAxisArray
 
 end program Testv010_TWO_AXIS_ARRAY 

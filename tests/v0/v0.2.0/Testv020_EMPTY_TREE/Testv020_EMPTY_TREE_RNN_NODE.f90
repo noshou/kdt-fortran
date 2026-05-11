@@ -24,7 +24,7 @@ program Testv020_EMPTY_TREE_RNN_NODE
             node1 => res(1)%p
 
             res = t%rNN_Node(node1, r) ! expected to fail here (empty tree check fires first)
-            write(*, '(A)') '--- emptyTree (rNN_Node) ---'
+            write(*, '(A)') '--- Testv020_EMPTY_TREE_RNN_NODE ---'
             write(*, '(A)') 'expected program to fail, but ran successfully!'
         end subroutine emptyTree
 

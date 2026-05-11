@@ -32,7 +32,7 @@ program Testv020_NODE_QUERY_CHEBYSHEV
             dist = res1(1)%p%chebyshevDist(res2(1)%p)
 
             if (dist .ne. 3.0_real64) then
-                write(*, '(A)') '--- nodeQuery_Chebyshev ---'
+                write(*, '(A)') '--- Testv020_NODE_QUERY_CHEBYSHEV ---'
                 write(*,*) 'expected 3.0, got:', dist
                 stop 1
             end if

@@ -20,7 +20,7 @@ program Testv020_NON_MEMBER_RNN_CENTROID
 
             ! centroid is 3D but tree is 2D — must error stop
             res = t%rNN_Centroid(centroid3d, 1.0_real64)
-            write(*, '(A)') '--- nonMemberRnnCentroid ---'
+            write(*, '(A)') '--- Testv020_NON_MEMBER_RNN_CENTROID ---'
             write(*, '(A)') 'expected error stop, but rNN_Centroid returned normally'
 
         end subroutine dimMismatchCentroid

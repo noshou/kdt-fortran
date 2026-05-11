@@ -22,7 +22,7 @@ program Testv020_RNN_NODE_NULL_TARGET
             target => null()
 
             res = t%rNN_Node(target, 1.0_real64)
-            write(*, '(A)') '--- rnnNode_NullTarget ---'
+            write(*, '(A)') '--- Testv020_RNN_NODE_NULL_TARGET ---'
             write(*,*) 'expected error stop, but rNN_Node returned normally'
         end subroutine rnnNode_NullTarget
 

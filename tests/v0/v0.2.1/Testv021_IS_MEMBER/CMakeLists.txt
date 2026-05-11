@@ -1,0 +1,4 @@
+add_kdtest(Testv021_IS_MEMBER_TRUE)
+add_kdtest(Testv021_IS_MEMBER_FALSE)
+add_kdtest(Testv021_IS_MEMBER_AFTER_DESTROY)
+add_kdtest(Testv021_IS_MEMBER_AFTER_BUILD_DESTROY_BUILD)

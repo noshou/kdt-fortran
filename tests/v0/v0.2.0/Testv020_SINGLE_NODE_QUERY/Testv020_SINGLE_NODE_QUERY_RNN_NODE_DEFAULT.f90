@@ -30,7 +30,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_DEFAULT
             res = t%rNN_Node(target, 1.0_real64)
 
             if (size(res) .ne. 3) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Node_Default ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_DEFAULT ---'
                 write(*,*) 'expected 3 nodes, got:', size(res)
                 stop 1
             end if

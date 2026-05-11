@@ -19,7 +19,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_INVALID_METRIC
 
             call t%build(coords)
             res = t%rNN_Centroid(centroid, 1.0_real64, metric='invalid')
-            write(*, '(A)') '--- singleNodeQuery_rNN_Centroid_InvalidMetric ---'
+            write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_INVALID_METRIC ---'
             write(*,*) 'expected program to fail!'
 
         end subroutine singleNodeQuery_rNN_Centroid_InvalidMetric

@@ -1,18 +1,18 @@
 module KdTree 
     
-    use iso_fortran_env, only: real64, output_unit
+    use iso_fortran_env, only: int64, real64, output_unit
     implicit none
     private
-    public              :: Tree, Node, NodePtr
-    integer, save       :: nextTreeId = 0
+    public                  :: Tree, Node, NodePtr
+    integer(int64), save    :: nextTreeId = 0_int64
 
     type :: Node
         private
         class(*), allocatable           :: data
         real(kind=real64), allocatable  :: coords(:)
-        integer                         :: splitAxis ! tracks which index in coords is the splitting plane
+        integer(int64)                  :: splitAxis ! tracks which index in coords is the splitting plane
         type(Node), pointer             :: leftChild => null(), rightChild => null()
-        integer                         :: treeId
+        integer(int64)                  :: treeId
         contains    
             procedure                   :: euclideanDist
             procedure                   :: euclideanDistPoint
@@ -34,7 +34,7 @@ module KdTree
     
     type :: Tree
     private
-    integer              :: dim = 0, pop = 0, TreeId = 0
+    integer(int64)       :: dim = 0, pop = 0, TreeId = 0
     logical              :: initialized = .false.
     type(node), pointer  :: nodePool(:) => null()
     type(node), pointer  :: root => null()
@@ -47,6 +47,9 @@ module KdTree
             procedure    :: rNN_Centroid
             procedure    :: isMember
             procedure    :: getInitState
+            procedure    :: getTreeId
+            procedure    :: associatedNodePool 
+            procedure    :: associatedRoot
             procedure    :: assert
             procedure    :: destroy
             final        :: finalizer
@@ -75,7 +78,7 @@ module KdTree
         !> Returns the splitting axis of this node
         module function getSplitAxis(this) result(splitAxs)
             class(Node), intent(in) :: this 
-            integer                 :: splitAxs
+            integer(int64)          :: splitAxs
         end function getSplitAxis
 
         !=======================================================!
@@ -157,9 +160,9 @@ module KdTree
         !! @param[in] depth the depth of this Node
         !! @param[in] unit  optional output unit (defaults to stdout)
         module recursive subroutine printNode(this, depth, unit)
-            class(Node), intent(in)       :: this
-            integer,     intent(in)       :: depth
-            integer, intent(in), optional :: unit
+            class(Node),    intent(in)           :: this
+            integer(int64), intent(in)           :: depth
+            integer,        intent(in), optional :: unit
         end subroutine printNode
 
         !> Prints the current node, but not its subtree
@@ -180,21 +183,27 @@ module KdTree
         !> Returns the dimension (number of splitting axis) of the tree
         module function getDim(this) result(k)
             class(Tree), intent(in) :: this
-            integer                 :: k
+            integer(int64)          :: k
         end function getDim
 
         !> Returns the number of nodes in the tree
         module function getPop(this) result(n)
             class(Tree), intent(in) :: this
-            integer                 :: n
+            integer(int64)          :: n
         end function getPop
 
-        !> Sets state to true if the tree is initialized
-        !! param[inout] state the state of the tree
-        module subroutine getInitState(this, state)
+        !> Sets isInit to true iff the tree is initialized
+        !! param[inout] isInit the state of the tree
+        module subroutine getInitState(this, isInit)
             class(Tree), intent(in)    :: this
-            logical,     intent(inout) :: state
+            logical,     intent(inout) :: isInit
         end subroutine getInitState
+
+        !> Returns the unique integer ID assigned to this tree at build time
+        module function getTreeId(this) result(id)
+            class(Tree), intent(in) :: this
+            integer(int64)          :: id
+        end function getTreeId
 
         !=======================================================!
 
@@ -230,6 +239,22 @@ module KdTree
             character(len=*), intent(in) :: testName
             character(len=*), intent(in) :: expected(:)
         end subroutine assert
+
+        !> Sets assoc to true iff a nodePool is allocated.
+        !! Should agree with associatedSubtree and !(this%initialized)
+        !! @param[inout] assoc true if this%nodePool is allocated, false otherwise
+        module subroutine associatedNodePool(this, assoc)
+            class(Tree),      intent(in)    :: this 
+            logical,          intent(inout) :: assoc
+        end subroutine associatedNodePool
+        
+        !> Sets assoc to true iff a root node is allocated.
+        !! Should agree with associatedNodePool and !(this%initialized)
+        !! @param[inout] assoc true if this%root is allocated, false otherwise
+        module subroutine associatedRoot(this, assoc)
+            class(Tree),      intent(in)    :: this 
+            logical,          intent(inout) :: assoc
+        end subroutine associatedRoot
 
         !> Frees the node pool and resets tree state.
         module subroutine destroy(this)

@@ -28,7 +28,7 @@ program Testv020_NODE_QUERY_CHEBYSHEV_AXIS_MISMATCH
             res3 = t3%rNN_Centroid([1.0_real64, 1.0_real64, 1.0_real64], 0.01_real64)
 
             dist = res2(1)%p%chebyshevDist(res3(1)%p)
-            write(*, '(A)') '--- nodeQuery_Chebyshev_AxisMismatch ---'
+            write(*, '(A)') '--- Testv020_NODE_QUERY_CHEBYSHEV_AXIS_MISMATCH ---'
             write(*,*) 'expected error stop, but chebyshevDist returned normally'
         end subroutine nodeQuery_Chebyshev_AxisMismatch
 

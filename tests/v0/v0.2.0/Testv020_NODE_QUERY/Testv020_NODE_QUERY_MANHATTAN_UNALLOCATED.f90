@@ -14,7 +14,7 @@ program Testv020_NODE_QUERY_MANHATTAN_UNALLOCATED
             real(real64) :: dist
 
             dist = n1%manhattanDist(n2)
-            write(*, '(A)') '--- nodeQuery_Manhattan_Unallocated ---'
+            write(*, '(A)') '--- Testv020_NODE_QUERY_MANHATTAN_UNALLOCATED ---'
             write(*,*) 'expected error stop, but manhattanDist returned normally'
         end subroutine nodeQuery_Manhattan_Unallocated
 

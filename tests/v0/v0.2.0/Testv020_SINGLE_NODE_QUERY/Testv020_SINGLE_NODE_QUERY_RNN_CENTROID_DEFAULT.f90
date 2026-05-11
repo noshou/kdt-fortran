@@ -24,7 +24,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_DEFAULT
             res = t%rNN_Centroid(centroid, 1.0_real64)
 
             if (size(res) .ne. 2) then
-                write(*, '(A)') '--- singleNodeQuery_rNN_Centroid_Default ---'
+                write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_DEFAULT ---'
                 write(*,*) 'expected 2 nodes, got:', size(res)
                 stop 1
             end if
