@@ -9,7 +9,8 @@ submodule(KdTree) TreeModder
             this%rebuildRatio = ratio
         end procedure setRebuildRatio
 
-        !> rebuilds a tree after node pool has been modified. note: 
+        !> rebuilds a tree after node pool has been modified. 
+        !!
         !! must ensure that tree and node state 
         !! invariants are preserved BEFORE calling rebuild
         subroutine rebuild(t)
@@ -34,7 +35,7 @@ submodule(KdTree) TreeModder
 
             logical                 :: isInit, hasData, rootHasData, hasRoot, doRebuild
             integer(int64)          :: dataListSize, i, dim, pop, numNodeToAdd, tid, currIdx
-            type(Node), allocatable :: nodePoolTmp(:)
+            type(Node), pointer     :: nodePoolTmp(:)
 
             ! initialize state variables
             call this%associatedRoot(hasRoot)
@@ -68,18 +69,19 @@ submodule(KdTree) TreeModder
                 end if
             end if
 
-            ! realloc nodePool
-            ! nodes in nodePool[this%pop+1:pop] need to be assigned to tree
-            ! note: nodes will be added to leaves, so lch/rch will be 0
+            ! realloc nodePool — serialized: nodePool pointer, pop, and currNodeId are all shared state
+            !$OMP CRITICAL (tree_mutate)
             pop = numNodeToAdd + this%pop
             tid = this%getTreeId()
             allocate(nodePoolTmp(pop))
             nodePoolTmp(1:this%pop) = this%nodePool(1:this%pop)
             do i = this%pop + 1, pop
                 allocate(nodePoolTmp(i)%coords(dim))
-                this%currNodeId                                 = this%currNodeId + 1_int64
-                nodePoolTmp(i)%nodeId                           = this%currNodeId
-                nodePoolTmp(i)%numRemovesSnapshot               = this%numRemoves 
+                !$OMP ATOMIC CAPTURE
+                this%currNodeId       = this%currNodeId + 1_int64
+                nodePoolTmp(i)%nodeId = this%currNodeId
+                !$OMP END ATOMIC
+                nodePoolTmp(i)%numRemovesSnapshot               = this%numRemoves
                 nodePoolTmp(i)%coords(:)                        =  coordsList(:, i-this%pop)
                 nodePoolTmp(i)%hasData                          =  hasData
                 nodePoolTmp(i)%lch                              =  0_int64
@@ -88,15 +90,17 @@ submodule(KdTree) TreeModder
                 nodePoolTmp(i)%treeId                           = tid
             end do
             deallocate(this%nodePool)
-            this%nodePool = nodePoolTmp
-            this%pop = pop 
+            this%nodePool => nodePoolTmp
+            this%pop = pop
+            !$OMP END CRITICAL (tree_mutate)
 
-            ! check if we need to rebuild tree
+            ! rebuild decision and tree mutation — serialized: modifications, rootIdx, and lch/rch are shared state
+            !$OMP CRITICAL (tree_mutate)
             doRebuild = this%modifications + numNodeToAdd .gt. ceiling(this%rebuildRatio * (this%pop - numNodeToAdd))
-            if (doRebuild) then 
+            if (doRebuild) then
                 call rebuild(this)
-            else 
-                
+            else
+
                 ! no need for rebuild; insert new nodes at leaves
                 do i = this%pop-numNodeToAdd + 1, this%pop
                     currIdx = this%rootIdx
@@ -104,33 +108,33 @@ submodule(KdTree) TreeModder
 
                         ! search left subtree
                         if (                                                                 &
-                            this%nodePool(i)%coords(this%nodePool(currIdx)%splitAxis) .le.   & 
+                            this%nodePool(i)%coords(this%nodePool(currIdx)%splitAxis) .le.   &
                             this%nodePool(currIdx)%coords(this%nodePool(currIdx)%splitAxis)) &
-                        then 
+                        then
                             if (this%nodePool(currIdx)%lch .eq. 0_int64) then
                                 this%nodePool(currIdx)%lch = i
                                 this%nodePool(i)%splitAxis = mod(this%nodePool(currIdx)%splitAxis, this%dim) + 1_int64
                                 exit
-                            else 
+                            else
                                 currIdx = this%nodePool(currIdx)%lch
                             end if
 
                         ! search right subtree
-                        else 
+                        else
                             if (this%nodePool(currIdx)%rch .eq. 0_int64) then
                                 this%nodePool(currIdx)%rch = i
                                 this%nodePool(i)%splitAxis = mod(this%nodePool(currIdx)%splitAxis, this%dim) + 1_int64
                                 exit
-                            else 
+                            else
                                 currIdx = this%nodePool(currIdx)%rch
                             end if
                         end if
                     end do
                 end do
-            
-                ! update number of modifications
+
                 this%modifications = this%modifications + numNodeToAdd
             end if
+            !$OMP END CRITICAL (tree_mutate)
 
         end procedure addNodes
 

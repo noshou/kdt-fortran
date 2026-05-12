@@ -43,11 +43,11 @@ module KdTree
     private
     integer(int64)       :: dim = 0_int64, pop = 0_int64, TreeId = 0_int64
     integer(int64)       :: currNodeId = 0_int64, numRemoves = 0_int64
-    logical              :: initialized = .false.                         !> true iff tree%build() is called successfully
-    type(node), pointer  :: nodePool(:) => null()                         !> pool of allocated nodes
-    integer(int64)       :: rootIdx = 0_int64                             !> index into nodePool for the root; 0 = empty
-    integer(int64)       :: modifications = 0_int64                       !> total number of insertions/deletions on tree
-    real(real64)         :: rebuildRatio = 0.25_real64                    !> if modifications > rebuildRatio * pop, trigger rebuild 
+    logical              :: initialized = .false.       !> true iff tree%build() is called successfully
+    type(node), pointer  :: nodePool(:) => null()       !> pool of allocated nodes
+    integer(int64)       :: rootIdx = 0_int64           !> index into nodePool for the root; 0 = empty
+    integer(int64)       :: modifications = 0_int64     !> total number of insertions/deletions on tree
+    real(real64)         :: rebuildRatio = 0.25_real64  !> if modifications > rebuildRatio * pop, trigger rebuild 
 
         contains
             procedure    :: getDim
@@ -320,17 +320,31 @@ module KdTree
         !=======================================================!
         !=================== TreeModder.f90  ===================!
         !=======================================================!
-        !=======================================================!
-        
-        !> Overwrites rebuildRatio. Input must be between 0 and 1.
+
+        !> Overwrites rebuildRatio. Must be in (0, 1).
+        !! Not thread-safe; do not call concurrently with addNodes().
         !! @param[in] ratio the new rebuildRatio
         module subroutine setRebuildRatio(this, ratio)
             class(Tree),  intent(inout) :: this
             real(real64), intent(in)    :: ratio
         end subroutine setRebuildRatio
 
-        ! addNodes — under active development in TreeModder.f90, not yet compilable
-        ! should be used sparingly since it bulk allocates nodes
+        !> Inserts new nodes into the tree.
+        !!
+        !! coordsList is a (k, n) array of n points in k dimensions;
+        !! k must match the dimension of the tree.
+        !! If the tree holds data, dataList must be provided and have
+        !! exactly n elements of the same type as the existing data.
+        !! New nodes are appended to the pool then either inserted at leaves
+        !! or trigger a full rebuild if modifications exceed rebuildRatio * pop.
+        !!
+        !! Thread safety: concurrent calls to addNodes() are serialized internally
+        !! via !$OMP CRITICAL. The precondition checks (before the critical section)
+        !! are NOT thread-safe; callers must ensure the tree is initialized and
+        !! stable before calling.
+        !!
+        !! @param[in] coordsList  (k, n) array of coordinates to add
+        !! @param[in] dataList    optional rank-1 array of n data values
         module subroutine addNodes(this, coordsList, dataList)
             class(Tree),  intent(inout)     :: this
             real(real64), intent(in)        :: coordsList(:,:)

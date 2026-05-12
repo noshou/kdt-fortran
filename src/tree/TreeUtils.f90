@@ -138,6 +138,7 @@ submodule(KdTree) TreeUtils
 
         module procedure destroy
             if (associated(this%nodePool)) deallocate(this%nodePool)
+            this%nodePool       => null()
             this%rootIdx        = 0_int64
             this%dim            = 0_int64
             this%pop            = 0_int64

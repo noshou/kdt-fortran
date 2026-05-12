@@ -8,15 +8,16 @@ submodule (KdTree) SearchSubmod
         !=================== RnnModule.f90  ====================!
         !=======================================================!
 
-        !> Radius Nearest Neighbour search. Walks the kd-tree from curr,
+        !> Radius Nearest Neighbour search. Walks the kd-tree from currIdx,
         !! appending matching nodes to res and pruning subtrees whose
         !! splitting hyperplane lies further than radius from target.
-        !! @param[in]    target  the query node (used as the search centre)
-        !! @param[in]    curr    root of the current subtree (null terminates recursion)
-        !! @param[in]    radius  search radius
-        !! @param[inout] res     result buffer; doubles in size when full
-        !! @param[inout] arrSize number of results written into res so far
-        !! @param[in]    metric  'euclidean', 'manhattan', 'chebyshev'
+        !! @param[in]    target   the query node (used as the search centre)
+        !! @param[in]    currIdx  nodePool index of the current subtree root; 0 terminates recursion
+        !! @param[in]    nodePool the tree's node pool
+        !! @param[in]    radius   search radius
+        !! @param[inout] res      result buffer; doubles in size when full
+        !! @param[inout] arrSize  number of results written into res so far
+        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'
         module recursive subroutine rNN(target, currIdx, nodePool, radius, res, arrSize, metric)
             type(node),     intent(in)                  :: target
             integer(int64), intent(in)                  :: currIdx
@@ -35,14 +36,14 @@ submodule (KdTree) SearchSubmod
     contains
         module procedure rNN_Node
 
-            integer                        :: arrSize, is, i, j
-            character(len=9)               :: m
-            type(nodePtr), allocatable     :: tmp(:)
+            integer                    :: arrSize, is, i, j
+            character(len=9)           :: m
+            type(nodePtr), allocatable :: tmp(:)
 
-            if (this%rootIdx .eq. 0_int64)         error stop "rNN_Node: tree is empty (call build first?)"
-            if (.not. associated(target%p))        error stop "rNN_Node: target is null"
-            if (radius .lt. 0.0_real64)            error stop "rNN_Node: negative radius"
-            if (.not. this%isMember(target%p))     error stop "rNN_Node: target is not a member of tree"
+            if (this%rootIdx .eq. 0_int64)     error stop "rNN_Node: tree is empty (call build first?)"
+            if (.not. associated(target%p))    error stop "rNN_Node: target is null"
+            if (radius .lt. 0.0_real64)        error stop "rNN_Node: negative radius"
+            if (.not. this%isMember(target%p)) error stop "rNN_Node: target is not a member of tree"
 
             if(.not. present(bufferSize)) then
                 is = 1000
@@ -120,10 +121,10 @@ submodule (KdTree) SearchSubmod
 
         module procedure rNN_Centroid
 
-            integer                        :: arrSize, is, i
-            character(len=9)               :: m
-            type(node), target             :: dummyNode
-            type(nodePtr), allocatable     :: tmp(:)
+            integer                    :: arrSize, is, i
+            character(len=9)           :: m
+            type(node)                 :: dummyNode
+            type(nodePtr), allocatable :: tmp(:)
 
             if (this%rootIdx .eq. 0_int64)      error stop "rNN_Centroid: tree is empty (call build first?)"
             if (size(centroid) .ne. this%dim)   error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
