@@ -4,8 +4,7 @@ submodule(KdTree) NodePtrUtils
 
         module procedure destroyNodePtr
             if (associated(this%p)) deallocate(this%p)
-            this%p    => null()
-            this%src_ => null()
+            this%p => null()
         end procedure destroyNodePtr
 
         module procedure finalizerNodePtr

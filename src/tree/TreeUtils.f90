@@ -1,5 +1,5 @@
 submodule(KdTree) TreeUtils
-    use iso_fortran_env, only: output_unit, int64
+    use iso_fortran_env, only: output_unit, int64, real64
     implicit none
     contains
         
@@ -7,19 +7,38 @@ submodule(KdTree) TreeUtils
             integer :: u
             u = output_unit
             if (present(unit)) u = unit
-            if (associated(this%root)) then
-                call this%root%printNode(0_int64, u)
+            if (this%rootIdx .ne. 0_int64) then
+                call this%nodePool(this%rootIdx)%printNode(0_int64, this%nodePool, u)
             else
                 write(u, '(A)') '**empty tree**'
             end if
         end procedure printTree
 
         module procedure isMember
-            if (.not. associated(target)) then 
+            integer(int64) :: i
+            ! Step 1: uninitialized NodePtr or wrong tree entirely
+            if (.not. associated(target)) then
                 res = .false.
-            else 
-                res = this%treeId .eq. target%treeId
+                return
             end if
+            if (this%treeId .ne. target%treeId) then
+                res = .false.
+                return
+            end if
+            ! Step 2: no removals since this copy was dispatched — node must still exist
+            if (target%numRemovesSnapshot .eq. this%numRemoves) then
+                res = .true.
+                return
+            end if
+            ! Step 3: removals have occurred; scan pool for the node's unique id
+            res = .false.
+            do i = 1_int64, this%pop
+                if (this%nodePool(i)%nodeId .eq. target%nodeId) then
+                    res = .true.
+                    target%numRemovesSnapshot = this%numRemoves
+                    return
+                end if
+            end do
         end procedure isMember
 
         !> Returns the substring of s from the first '(' onward, or
@@ -114,16 +133,20 @@ submodule(KdTree) TreeUtils
         end procedure associatedNodePool
 
         module procedure associatedRoot
-            assoc = associated(this%root)
+            assoc = (this%rootIdx .ne. 0_int64)
         end procedure associatedRoot
 
         module procedure destroy
             if (associated(this%nodePool)) deallocate(this%nodePool)
-            this%root        => null()
-            this%dim         = 0_int64
-            this%pop         = 0_int64
-            this%treeId      = 0_int64
-            this%initialized = .false.
+            this%rootIdx        = 0_int64
+            this%dim            = 0_int64
+            this%pop            = 0_int64
+            this%treeId         = 0_int64
+            this%initialized    = .false.
+            this%modifications  = 0_int64
+            this%rebuildRatio   = 0.25_real64
+            this%numRemoves     = 0_int64
+            this%currNodeId     = 0_int64
         end procedure destroy
 
         module procedure finalizer

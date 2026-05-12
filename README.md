@@ -79,7 +79,6 @@ Each call to `build` increments a module-level counter and stamps every node
 in the pool with the new ID, which is what `isMember` compares against.
 
 ##### `Tree%getInitState(this, isInit)`
-
 Sets `isInit` to `.true.` if the tree has been built and not yet destroyed,
 `.false.` otherwise. Useful for guarding re-builds and testing lifecycle state.
 

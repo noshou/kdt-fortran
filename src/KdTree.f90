@@ -8,10 +8,12 @@ module KdTree
 
     type :: Node
         private
+        logical                         :: hasData = .false.    !> flagged true if node contains data
         class(*), allocatable           :: data
         real(kind=real64), allocatable  :: coords(:)
-        integer(int64)                  :: splitAxis ! tracks which index in coords is the splitting plane
-        type(Node), pointer             :: leftChild => null(), rightChild => null()
+        integer(int64)                  :: splitAxis            !> tracks which index in coords is the splitting plane
+        integer(int64)                  :: numRemovesSnapshot = 0_int64, nodeId = 0_int64
+        integer(int64)                  :: lch = 0_int64, rch = 0_int64  !> indices into nodePool; 0 = no child
         integer(int64)                  :: treeId
         contains    
             procedure                   :: euclideanDist
@@ -30,20 +32,24 @@ module KdTree
     !> Pointer to an owned copy of a Node returned by a search.
     !! p is always a pointer to a heap-allocated copy; call destroy() or let it
     !! go out of scope to free the copy.
+    !! src_ is the physical index inside the node pool. 
     type :: NodePtr
-        type(Node), pointer          :: p    => null()
-        type(Node), pointer, private :: src_ => null()
+        type(Node), pointer     :: p    => null()
         contains
-            procedure :: destroy => destroyNodePtr
-            final     :: finalizerNodePtr
+            procedure           :: destroy => destroyNodePtr
+            final               :: finalizerNodePtr
     end type NodePtr
     
     type :: Tree
     private
-    integer(int64)       :: dim = 0, pop = 0, TreeId = 0
-    logical              :: initialized = .false.
-    type(node), pointer  :: nodePool(:) => null()
-    type(node), pointer  :: root => null()
+    integer(int64)       :: dim = 0_int64, pop = 0_int64, TreeId = 0_int64
+    integer(int64)       :: currNodeId = 0_int64, numRemoves = 0_int64
+    logical              :: initialized = .false.                         !> true iff tree%build() is called successfully
+    type(node), pointer  :: nodePool(:) => null()                         !> pool of allocated nodes
+    integer(int64)       :: rootIdx = 0_int64                             !> index into nodePool for the root; 0 = empty
+    integer(int64)       :: modifications = 0_int64                       !> total number of insertions/deletions on tree
+    real(real64)         :: rebuildRatio = 0.25_real64                    !> if modifications > rebuildRatio * pop, trigger rebuild 
+
         contains
             procedure    :: getDim
             procedure    :: getPop
@@ -54,7 +60,8 @@ module KdTree
             procedure    :: isMember
             procedure    :: getInitState
             procedure    :: getTreeId
-            procedure    :: associatedNodePool 
+            procedure    :: setRebuildRatio
+            procedure    :: associatedNodePool
             procedure    :: associatedRoot
             procedure    :: assert
             procedure    :: destroy
@@ -165,9 +172,10 @@ module KdTree
         !> Recursively prints this Node and its subtree in pre-order.
         !! @param[in] depth the depth of this Node
         !! @param[in] unit  optional output unit (defaults to stdout)
-        module recursive subroutine printNode(this, depth, unit)
+        module recursive subroutine printNode(this, depth, nodePool, unit)
             class(Node),    intent(in)           :: this
             integer(int64), intent(in)           :: depth
+            type(Node),     intent(in)           :: nodePool(:)
             integer,        intent(in), optional :: unit
         end subroutine printNode
 
@@ -211,12 +219,29 @@ module KdTree
             integer(int64)          :: id
         end function getTreeId
 
+
+        !> Returns the rebuildRatio.
+        !! If this%modifications > this%rebuildRatio * this%pop,
+        !! trigger a rebuild of the tree.
+        module function getRebuildRatio(this) result(rebuildRatio)
+            class(Tree), intent(in) :: this
+            real(real64)            :: rebuildRatio
+        end function getRebuildRatio
+
+        !> Returns the number of modifications done on tree.
+        !! If this%modifications > this%rebuildRatio * this%pop,
+        !! trigger a rebuild of the tree.
+        module function getNumMods(this) result(numMods)
+            class(Tree), intent(in) :: this
+            integer(int64)          :: numMods
+        end function getNumMods
+
         !=======================================================!
 
         !=======================================================!
         !==================== TreeUtils.f90 ====================!
         !=======================================================!
-        
+
         !> Prints the entire tree in post-order.
         !! @param[in] unit  optional output unit (defaults to stdout)
         module subroutine printTree(this, unit)
@@ -272,26 +297,46 @@ module KdTree
             type(Tree), intent(inout) :: this
         end subroutine finalizer
 
-        !=======================================================!
 
         !=======================================================!
         !=================== BuildSubmod.f90 ===================!
         !=======================================================!
-
         !> Builds a balanced Kd-Tree from a set of points.
-        !! @param[in] coords A (k, n) array where n is the number of points
-        !!                   and k is the dimensionality of the splitting axes.
-        !! @param[in] data   (Optional) A rank-1 array of size n, where each
-        !!                   element is the data associated with a point in coords.
-        !!                   The element type determines what select type cases the
-        !!                   caller must handle when calling getData() on a result node.
-        module subroutine build(this, coords, data)
-            class(tree), intent(inout)      :: this
-            real(kind=real64), intent(in)   :: coords(:,:)
-            class(*), intent(in), optional  :: data(:)
+        !! @param[in] coords         A (k, n) array where n is the number of points
+        !!                           and k is the dimensionality of the splitting axes.
+        !! @param[in] data           (Optional) A rank-1 array of size n, where each
+        !!                           element is the data associated with a point in coords.
+        !!                           The element type determines what select type cases the
+        !!                           caller must handle when calling getData() on a result node.
+        !! @param[in] rebuildRatio   If this%modifications > this%rebuildRatio * this%pop,
+        !!                           then a tree rebuild is triggered. Defaulted to 0.25.
+        module subroutine build(this, coords, data, rebuildRatio)
+            class(Tree), intent(inout)              :: this
+            real(kind=real64), intent(in)           :: coords(:,:)
+            class(*), intent(in), optional          :: data(:)
+            real(kind=real64), intent(in), optional :: rebuildRatio
         end subroutine build
         
         !=======================================================!
+        
+        !=======================================================!
+        !=================== TreeModder.f90  ===================!
+        !=======================================================!
+        !=======================================================!
+        
+        !> Overwrites rebuildRatio. Input must be between 0 and 1.
+        !! @param[in] ratio the new rebuildRatio
+        module subroutine setRebuildRatio(this, ratio)
+            class(Tree),  intent(inout) :: this
+            real(real64), intent(in)    :: ratio
+        end subroutine setRebuildRatio
+
+        ! addNodes — under active development in TreeModder.f90, not yet compilable
+        module subroutine addNodes(this, coordsList, dataList)
+            class(Tree),  intent(inout)     :: this
+            real(real64), intent(in)        :: coordsList(:,:)
+            class(*), intent(in), optional  :: dataList(:)
+        end subroutine addNodes
 
         !=======================================================!
         !================== SearchSubmod.f90  ==================!

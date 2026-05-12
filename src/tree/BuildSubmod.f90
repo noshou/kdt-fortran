@@ -20,14 +20,19 @@ submodule(KdTree) BuildSubmod
                 end if 
             end if
 
-            ! initialize node pool
+            ! initialize node pool 
+            !! NOTE: THIS IS NOT MULTITHREAD SAFE
             allocate(this%nodePool(this%pop))
             do i = 1, this%pop
                 allocate(this%nodePool(i)%coords(this%dim))
                 this%nodePool(i)%coords(:) = coords(:, i)
                 if ((present(data)) .and. (size(data) .ne. 0_int64)) then
                     allocate(this%nodePool(i)%data, source=data(i))
+                    this%nodePool(i)%hasData = .true.
                 end if
+                this%nodePool(i)%numRemovesSnapshot = this%numRemoves
+                this%currNodeId = this%currNodeId + 1_int64
+                this%nodePool(i)%nodeId = this%currNodeId
             end do
 
             ! allocate indices; that way we don't have to modify the list of nodes
@@ -46,13 +51,17 @@ submodule(KdTree) BuildSubmod
             this%treeId = id
 
             ! build tree
-            call buildSubtree(this, this%root, 0_int64, indices, 1_int64, this%pop)
+            call buildSubtree(this, this%rootIdx, 0_int64, indices, 1_int64, this%pop)
 
             deallocate(indices)
+            
+            if (present(rebuildRatio)) then 
+                call this%setRebuildRatio(rebuildRatio)
+            end if            
             this%initialized = .true.
 
         end procedure build
-        
+
         !> Recursively builds a balanced subtree from the node pool.
         !! @param[inout] this      the tree being built
         !! @param[out]   root      pointer set to the root of this subtree, or null() for an empty range
@@ -60,18 +69,18 @@ submodule(KdTree) BuildSubmod
         !! @param[inout] indices   index permutation array, rearranged in-place by quickSelect
         !! @param[in]    lowerIdx  lower bound of the index range for this subtree
         !! @param[in]    upperIdx  upper bound of the index range for this subtree
-        recursive subroutine buildSubtree(this, root, depth, indices, lowerIdx, upperIdx)
+        recursive subroutine buildSubtree(this, rootIdx, depth, indices, lowerIdx, upperIdx)
 
             type(tree), intent(inout)          :: this
-            type(node), pointer, intent(out)   :: root
+            integer(int64), intent(out)        :: rootIdx
             integer(int64), intent(inout)      :: indices(:)
             integer(int64), intent(in)         :: lowerIdx, upperIdx, depth
             integer(int64)                     :: axis, median, middleBounds(2), targetIdx
-                
+
             ! base case: we are at a leaf (or tree is empty)
-            if (lowerIdx > upperIdx) then 
-                root => null()
-            else 
+            if (lowerIdx > upperIdx) then
+                rootIdx = 0_int64
+            else
                 axis = mod(depth, this%dim) + 1_int64
                 targetIdx = (lowerIdx + upperIdx) / 2_int64
                 median = quickSelect( &
@@ -82,14 +91,14 @@ submodule(KdTree) BuildSubmod
                     axis,             &
                     middleBounds,     &
                     targetIdx         &
-                )    
-                root => this%nodePool(indices(median))
-                root%splitAxis = axis
-                root%treeId = this%treeId
-                call buildSubtree(this, root%leftChild,  depth+1_int64, indices, lowerIdx, median-1_int64)
-                call buildSubtree(this, root%rightChild, depth+1_int64, indices, median+1_int64, upperIdx)
-            end if  
-            
+                )
+                rootIdx = indices(median)
+                this%nodePool(rootIdx)%splitAxis = axis
+                this%nodePool(rootIdx)%treeId = this%treeId
+                call buildSubtree(this, this%nodePool(rootIdx)%lch, depth+1_int64, indices, lowerIdx, median-1_int64)
+                call buildSubtree(this, this%nodePool(rootIdx)%rch, depth+1_int64, indices, median+1_int64, upperIdx)
+            end if
+
         end subroutine buildSubtree
 
         !> Rearranges indices so that indices(targetIdx) holds the

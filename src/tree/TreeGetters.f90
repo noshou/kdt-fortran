@@ -17,4 +17,12 @@ submodule(KdTree) TreeGetters
             id = this%treeId
         end procedure getTreeId
 
+        module procedure getRebuildRatio
+            rebuildRatio = this%rebuildRatio
+        end procedure getRebuildRatio
+
+        module procedure getNumMods
+            numMods = this%modifications
+        end procedure getNumMods
+
 end submodule TreeGetters

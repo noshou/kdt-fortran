@@ -21,8 +21,8 @@ submodule(KdTree) NodeUtils
             end do
             write(u, '(A)') ')'
 
-            if (associated(this%leftChild))  call this%leftChild%printNode(depth + 1, unit)
-            if (associated(this%rightChild)) call this%rightChild%printNode(depth + 1, unit)
+            if (this%lch .ne. 0_int64) call nodePool(this%lch)%printNode(depth + 1, nodePool, unit)
+            if (this%rch .ne. 0_int64) call nodePool(this%rch)%printNode(depth + 1, nodePool, unit)
         end procedure printNode
 
         module procedure printNodeSingle 

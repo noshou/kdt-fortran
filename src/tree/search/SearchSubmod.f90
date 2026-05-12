@@ -17,8 +17,10 @@ submodule (KdTree) SearchSubmod
         !! @param[inout] res     result buffer; doubles in size when full
         !! @param[inout] arrSize number of results written into res so far
         !! @param[in]    metric  'euclidean', 'manhattan', 'chebyshev'
-        module recursive subroutine rNN(target, curr, radius, res, arrSize, metric)
-            type(node), intent(in), pointer             :: target, curr
+        module recursive subroutine rNN(target, currIdx, nodePool, radius, res, arrSize, metric)
+            type(node),     intent(in)                  :: target
+            integer(int64), intent(in)                  :: currIdx
+            type(node),     intent(in)                  :: nodePool(:)
             real(kind=real64), intent(in)               :: radius
             integer, intent(inout)                      :: arrSize
             type(nodePtr), allocatable, intent(inout)   :: res(:)
@@ -37,10 +39,10 @@ submodule (KdTree) SearchSubmod
             character(len=9)               :: m
             type(nodePtr), allocatable     :: tmp(:)
 
-            if (.not. associated(this%root))         error stop "rNN_Node: tree is empty (call build first?)"
-            if (.not. associated(target%src_))       error stop "rNN_Node: target is null"
-            if (radius .lt. 0.0_real64)              error stop "rNN_Node: negative radius"
-            if (.not. this%isMember(target%src_))    error stop "rNN_Node: target is not a member of tree"
+            if (this%rootIdx .eq. 0_int64)         error stop "rNN_Node: tree is empty (call build first?)"
+            if (.not. associated(target%p))        error stop "rNN_Node: target is null"
+            if (radius .lt. 0.0_real64)            error stop "rNN_Node: negative radius"
+            if (.not. this%isMember(target%p))     error stop "rNN_Node: target is not a member of tree"
 
             if(.not. present(bufferSize)) then
                 is = 1000
@@ -67,7 +69,7 @@ submodule (KdTree) SearchSubmod
             arrSize = 0
             allocate(res(is))
 
-            call rNN(target%src_, this%root, radius, res, arrSize, m)
+            call rNN(target%p, this%rootIdx, this%nodePool, radius, res, arrSize, m)
 
             ! trim to actual result count
             if (arrSize .eq. 0) then
@@ -76,10 +78,8 @@ submodule (KdTree) SearchSubmod
             else
                 allocate(tmp(arrSize))
                 do i = 1, arrSize
-                    tmp(i)%p    => res(i)%p    
-                    res(i)%p    => null()
-                    tmp(i)%src_ => res(i)%src_ 
-                    res(i)%src_ => null()
+                    tmp(i)%p => res(i)%p
+                    res(i)%p => null()
                 end do
                 call move_alloc(from=tmp, to=res)
             end if
@@ -87,13 +87,11 @@ submodule (KdTree) SearchSubmod
             ! remove target node from list of found nodes
             if (present(excludeTarget) .and. excludeTarget) then
                 do i = 1, arrSize
-                    if (associated(res(i)%src_, target%src_)) then
+                    if (res(i)%p%nodeId .eq. target%p%nodeId) then
                         call res(i)%destroy()
                         do j = i, arrSize - 1
-                            res(j)%p    => res(j+1)%p    
-                            res(j+1)%p    => null()
-                            res(j)%src_ => res(j+1)%src_ 
-                            res(j+1)%src_ => null()
+                            res(j)%p   => res(j+1)%p
+                            res(j+1)%p => null()
                         end do
                         arrSize = arrSize - 1
                         exit
@@ -105,12 +103,17 @@ submodule (KdTree) SearchSubmod
                 else
                     allocate(tmp(arrSize))
                     do i = 1, arrSize
-                        tmp(i)%p    => res(i)%p    ; res(i)%p    => null()
-                        tmp(i)%src_ => res(i)%src_ ; res(i)%src_ => null()
+                        tmp(i)%p => res(i)%p ; res(i)%p => null()
                     end do
                     call move_alloc(from=tmp, to=res)
                 end if
             end if
+
+            ! stamp each dispatched copy with the current removal counter so
+            ! the fast path in isMember fires on subsequent calls
+            do i = 1, size(res)
+                if (associated(res(i)%p)) res(i)%p%numRemovesSnapshot = this%numRemoves
+            end do
 
         end procedure rNN_Node
 
@@ -122,7 +125,7 @@ submodule (KdTree) SearchSubmod
             type(node), target             :: dummyNode
             type(nodePtr), allocatable     :: tmp(:)
 
-            if (.not. associated(this%root))    error stop "rNN_Centroid: tree is empty (call build first?)"
+            if (this%rootIdx .eq. 0_int64)      error stop "rNN_Centroid: tree is empty (call build first?)"
             if (size(centroid) .ne. this%dim)   error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
             if (radius .lt. 0.0_real64)         error stop "rNN_Centroid: negative radius"
 
@@ -154,7 +157,7 @@ submodule (KdTree) SearchSubmod
             ! wrap centroid in a node so rNN can call distance methods uniformly
             allocate(dummyNode%coords(this%dim), source=centroid)
 
-            call rNN(dummyNode, this%root, radius, res, arrSize, m)
+            call rNN(dummyNode, this%rootIdx, this%nodePool, radius, res, arrSize, m)
 
             ! trim to actual result count
             if (arrSize .eq. 0) then
@@ -163,13 +166,16 @@ submodule (KdTree) SearchSubmod
             else
                 allocate(tmp(arrSize))
                 do i = 1, arrSize
-                    tmp(i)%p    => res(i)%p    
-                    res(i)%p    => null()
-                    tmp(i)%src_ => res(i)%src_ 
-                    res(i)%src_ => null()
+                    tmp(i)%p => res(i)%p
+                    res(i)%p => null()
                 end do
                 call move_alloc(from=tmp, to=res)
             end if
+
+            ! stamp each dispatched copy with the current removal counter
+            do i = 1, size(res)
+                if (associated(res(i)%p)) res(i)%p%numRemovesSnapshot = this%numRemoves
+            end do
 
         end procedure rNN_Centroid
 

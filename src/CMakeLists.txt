@@ -9,6 +9,7 @@ add_library(kdtree
 	tree/TreeUtils.f90
 	tree/search/SearchSubmod.f90
 	tree/search/RnnModule.f90
+	tree/TreeModder.f90
 )
 
 target_include_directories(kdtree PUBLIC
