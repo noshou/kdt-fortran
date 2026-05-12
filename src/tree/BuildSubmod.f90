@@ -64,7 +64,7 @@ submodule(KdTree) BuildSubmod
 
         !> Recursively builds a balanced subtree from the node pool.
         !! @param[inout] this      the tree being built
-        !! @param[out]   root      pointer set to the root of this subtree, or null() for an empty range
+        !! @param[out]   root      index of the root of the tree
         !! @param[in]    depth     current depth, used to cycle the split axis
         !! @param[inout] indices   index permutation array, rearranged in-place by quickSelect
         !! @param[in]    lowerIdx  lower bound of the index range for this subtree

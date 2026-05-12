@@ -32,7 +32,6 @@ module KdTree
     !> Pointer to an owned copy of a Node returned by a search.
     !! p is always a pointer to a heap-allocated copy; call destroy() or let it
     !! go out of scope to free the copy.
-    !! src_ is the physical index inside the node pool. 
     type :: NodePtr
         type(Node), pointer     :: p    => null()
         contains
@@ -297,7 +296,6 @@ module KdTree
             type(Tree), intent(inout) :: this
         end subroutine finalizer
 
-
         !=======================================================!
         !=================== BuildSubmod.f90 ===================!
         !=======================================================!
@@ -332,6 +330,7 @@ module KdTree
         end subroutine setRebuildRatio
 
         ! addNodes — under active development in TreeModder.f90, not yet compilable
+        ! should be used sparingly since it bulk allocates nodes
         module subroutine addNodes(this, coordsList, dataList)
             class(Tree),  intent(inout)     :: this
             real(real64), intent(in)        :: coordsList(:,:)
