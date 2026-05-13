@@ -1,0 +1,3 @@
+add_kdtest(Testv030_ADD_NODES_GET_POP_SINGLE)
+add_kdtest(Testv030_ADD_NODES_GET_POP_MULTI)
+add_kdtest(Testv030_ADD_NODES_GET_DIM_INIT_STATE)

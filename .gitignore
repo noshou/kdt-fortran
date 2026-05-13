@@ -52,6 +52,7 @@
 # build dir
 _build/
 build/
+Testing/ 
 
 ## OS-SPECIFIC ##
 # macOS

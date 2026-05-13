@@ -1,3 +1,4 @@
 add_subdirectory(v0.1.0)
 add_subdirectory(v0.2.0)
 add_subdirectory(v0.2.1)
+add_subdirectory(v0.3.0)

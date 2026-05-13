@@ -1,0 +1,3 @@
+add_kdtest_omp(Testv030_MULTITHREAD_V021_LIFECYCLE)
+add_kdtest_omp(Testv030_MULTITHREAD_V021_IS_MEMBER)
+add_kdtest_omp(Testv030_MULTITHREAD_V021_DATA)

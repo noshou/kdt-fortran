@@ -1,0 +1,8 @@
+add_subdirectory(Testv030_MULTITHREAD_CONCURRENT_ADD)
+add_subdirectory(Testv030_MULTITHREAD_CONCURRENT_RNN)
+add_subdirectory(Testv030_MULTITHREAD_INDEPENDENT_TREES)
+add_subdirectory(Testv030_MULTITHREAD_V010)
+add_subdirectory(Testv030_MULTITHREAD_V020)
+add_subdirectory(Testv030_MULTITHREAD_V021)
+add_subdirectory(Testv030_MULTITHREAD_ADD_NODES)
+add_subdirectory(Testv030_MULTITHREAD_INTERNAL_STATE)

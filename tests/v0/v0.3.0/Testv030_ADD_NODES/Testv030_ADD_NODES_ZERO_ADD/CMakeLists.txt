@@ -1,0 +1,2 @@
+add_kdtest(Testv030_ADD_NODES_ZERO_ADD_STATE)
+add_kdtest(Testv030_ADD_NODES_ZERO_ADD_RNN)

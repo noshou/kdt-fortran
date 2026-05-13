@@ -1,0 +1,7 @@
+add_kdtest(Testv030_ADD_NODES_UNINITIALIZED                  WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_DIM_MISMATCH                   WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_DATA_COUNT_MISMATCH            WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_DATA_TYPE_MISMATCH             WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_TREE_HAS_DATA_NO_DATA_GIVEN    WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_TREE_NO_DATA_DATA_GIVEN        WILL_FAIL)
+add_kdtest(Testv030_ADD_NODES_EMPTY_DATA_LIST                WILL_FAIL)

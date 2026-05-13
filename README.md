@@ -92,7 +92,7 @@ from default `integer` to `integer(int64)`.
 
 | File                          | Role                                                             |
 | ----------------------------- | ---------------------------------------------------------------- |
-| `src/node/NodePtrUtils.f90` | `destroyNodePtr` and `finalizerNodePtr` submodule procedures |
+| `src/node/NodeUtils/NodeUtils.f90` | `destroyNodePtr` and `finalizerNodePtr` submodule procedures (merged into NodeUtils) |
 
 ### Test coverage added in v0.2.1
 
