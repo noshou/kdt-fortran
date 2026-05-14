@@ -4,8 +4,8 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_TRIGGERS_REBUILD
     implicit none
     call rebuildBoundaryTriggersRebuild()
     contains
-        !> One over boundary: add ceiling(ratio*pop)+1 nodes with 0 mods -> triggers rebuild.
-        !! Build 4, ratio=0.5: ceiling(0.5*4)=2; add 3: 0+3>2 is TRUE -> rebuild, numMods=0.
+        !> One over boundary: add N > ratio*pop nodes with 0 mods -> triggers rebuild.
+        !! Build 4, ratio=0.5: 0.5*4=2.0; add 3: 0+3>2.0 is TRUE -> rebuild, numMods=0.
         !! All 7 nodes findable after rebuild.
         subroutine rebuildBoundaryTriggersRebuild()
             type(Tree)                 :: t

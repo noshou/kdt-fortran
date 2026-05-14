@@ -5,10 +5,10 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
     call numModsAccumulates()
     contains
         !> With ratio=0.9 all adds are leaf inserts; getNumMods accumulates by batch size each call.
-        !! Build 8 nodes (ratio=0.9 -> threshold=ceiling(0.9*8)=8). Three addNodes calls:
-        !!   add 1: 0+1>8=F -> leaf, mods=1, pop=9
-        !!   add 2: 1+2>ceiling(0.9*9)=9=F -> leaf, mods=3, pop=11
-        !!   add 1: 3+1>ceiling(0.9*10)=9=F -> leaf, mods=4, pop=12
+        !! Build 8 nodes (ratio=0.9). Three addNodes calls:
+        !!   add 1: 0+1 > 0.9*8=7.2 -> FALSE, leaf, mods=1, pop=9
+        !!   add 2: 1+2 > 0.9*9=8.1 -> FALSE, leaf, mods=3, pop=11
+        !!   add 1: 3+1 > 0.9*11=9.9 -> FALSE, leaf, mods=4, pop=12
         subroutine numModsAccumulates()
             type(Tree)   :: t
             real(real64) :: init_coords(2, 8) = reshape( &

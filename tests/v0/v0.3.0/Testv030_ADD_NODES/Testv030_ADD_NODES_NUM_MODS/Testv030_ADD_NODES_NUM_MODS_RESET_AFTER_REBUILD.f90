@@ -6,9 +6,9 @@ program Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD
     contains
         !> One leaf insert raises numMods to 1; a second add crosses the threshold and triggers
         !! a rebuild, resetting numMods to 0. Pop and full state are verified at each step.
-        !! Build 4, ratio=0.25 -> threshold = ceiling(0.25*4)=1.
-        !!   add 1: 0+1>1=F -> leaf, mods=1, pop=5
-        !!   add 2: 1+2>ceiling(0.25*5)=2=T -> rebuild, mods=0, pop=7
+        !! Build 4, ratio=0.25.
+        !!   add 1: 0+1 > 0.25*4=1.0 -> FALSE, leaf, mods=1, pop=5
+        !!   add 2: 1+2 > 0.25*5=1.25 -> TRUE, rebuild, mods=0, pop=7
         subroutine numModsResetAfterRebuild()
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
@@ -34,7 +34,7 @@ program Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD
                 stop 1
             end if
 
-            ! rebuild: 1+2 > ceiling(0.25*5)=2 -> 3 > 2 -> true
+            ! rebuild: 1+2 > 0.25*5=1.25 -> 3 > 1.25 -> TRUE
             call t%addNodes(rebuild_coords)
             numMods = t%getNumMods() 
             pop     = t%getPop()

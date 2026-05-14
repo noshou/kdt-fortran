@@ -7,8 +7,8 @@ program Testv030_ADD_NODES_INCREMENTAL_STATE
         !> Add one node at a time (5 times). After each add verify pop, numMods,
         !! getRebuildRatio, getInitState, associatedNodePool, associatedRoot.
         !! ratio=0.9 ensures all are leaf inserts:
-        !!   ceiling(0.9*4)=4; add 1: 0+1>4=F (mods=1)
-        !!   add 1: 1+1>ceiling(0.9*5)=5=F (mods=2)  ... all 5 adds stay as leaf inserts.
+        !!   add 1: 0+1 > 0.9*4=3.6 -> FALSE (mods=1)
+        !!   add 1: 1+1 > 0.9*5=4.5 -> FALSE (mods=2)  ... all 5 adds stay as leaf inserts.
         subroutine incrementalState()
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &

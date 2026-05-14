@@ -5,7 +5,7 @@ program Testv030_ADD_NODES_LIFECYCLE_ZERO_POP_ADD
     call zeroPopsAdd()
     contains
         !> Build with zero nodes then addNodes.
-        !! 0+N > ceiling(0.25*0)=0 always triggers rebuild on first add.
+        !! 0+N > 0.25*0=0.0 always triggers rebuild on first add (N > 0 is always true).
         !! Verifies state after zero-pop build, then pop/numMods/rNN after add.
         subroutine zeroPopsAdd()
             type(Tree)                 :: t

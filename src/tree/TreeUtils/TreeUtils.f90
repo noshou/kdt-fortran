@@ -41,6 +41,48 @@ submodule(KdTree) TreeUtils
             end do
         end procedure isMember
 
+        !> Strips leading zeros from exponent fields (e.g. E+001 -> E+1) for
+        !! portable comparison across compilers with different exponent widths.
+        function normalizeExp(s) result(t)
+            character(len=*), intent(in) :: s
+            character(len=len(s))        :: t
+            integer                      :: i, j, k, n
+            n = len_trim(s)
+            t = ' '
+            i = 1
+            j = 1
+            do while (i <= n)
+                if ((s(i:i) == 'E' .or. s(i:i) == 'e') .and. i < n) then
+                    if (s(i+1:i+1) == '+' .or. s(i+1:i+1) == '-') then
+                        t(j:j) = s(i:i)
+                        j = j + 1
+                        t(j:j) = s(i+1:i+1)
+                        j = j + 1
+                        k = i + 2
+                        ! skip leading zeros, keeping at least one digit
+                        do while (k < n .and. s(k:k) == '0' .and. &
+                                  s(k+1:k+1) >= '0' .and. s(k+1:k+1) <= '9')
+                            k = k + 1
+                        end do
+                        do while (k <= n .and. s(k:k) >= '0' .and. s(k:k) <= '9')
+                            t(j:j) = s(k:k)
+                            j = j + 1
+                            k = k + 1
+                        end do
+                        i = k
+                    else
+                        t(j:j) = s(i:i)
+                        j = j + 1
+                        i = i + 1
+                    end if
+                else
+                    t(j:j) = s(i:i)
+                    j = j + 1
+                    i = i + 1
+                end if
+            end do
+        end function normalizeExp
+
         !> Returns the substring of s from the first '(' onward, or
         !! adjustl(s) if no '(' is present (e.g. '**empty tree**').
         function stripPrefix(s) result(t)
@@ -49,9 +91,9 @@ submodule(KdTree) TreeUtils
             integer                      :: pos
             pos = index(s, '(')
             if (pos.eq.0) then
-                t = adjustl(s)
+                t = normalizeExp(adjustl(s))
             else
-                t = s(pos:)
+                t = normalizeExp(s(pos:))
             end if
         end function stripPrefix
 

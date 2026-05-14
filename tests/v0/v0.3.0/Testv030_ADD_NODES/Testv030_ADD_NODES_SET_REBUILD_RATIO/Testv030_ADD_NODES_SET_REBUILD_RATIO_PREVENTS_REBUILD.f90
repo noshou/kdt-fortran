@@ -4,8 +4,8 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_PREVENTS_REBUILD
     implicit none
     call setRebuildRatioPreventsRebuild()
     contains
-        !> Default ratio=0.25 would rebuild when adding 3 to a 4-node tree (0+3>ceiling(0.25*4)=1).
-        !! With ratio=0.9 ceiling(0.9*4)=4; 0+3>4 is false -> leaf insert; numMods=3.
+        !> Default ratio=0.25 would rebuild when adding 3 to a 4-node tree (0+3>0.25*4=1.0 -> TRUE).
+        !! With ratio=0.9: 0+3>0.9*4=3.6 is FALSE -> leaf insert; numMods=3.
         subroutine setRebuildRatioPreventsRebuild()
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &

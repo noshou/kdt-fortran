@@ -5,7 +5,7 @@ submodule(KdTree) TreeModder
 
         module procedure setRebuildRatio
             if (ratio .le. 0.0_real64) error stop "setRebuildRatio: rebuildRatio must be greater than zero!"
-            if (ratio .ge. 1.0_real64) error stop "setRebuildRatio: rebuildRatio must be lesser than or equal to 1!"
+            if (ratio .ge. 1.0_real64) error stop "setRebuildRatio: rebuildRatio must be less than 1!"
             this%rebuildRatio = ratio
         end procedure setRebuildRatio
 
@@ -97,9 +97,9 @@ submodule(KdTree) TreeModder
             ! rebuild decision and tree mutation 
             ! serialized: modifications, rootIdx, and lch/rch are shared state
             !$OMP CRITICAL (tree_mutate)
-            if (this%modifications + numNodeToAdd                      &
-                .gt.                                                   &
-                ceiling(this%rebuildRatio * (this%pop - numNodeToAdd)) &
+            if (this%modifications + numNodeToAdd                     &
+                .gt.                                                  &
+                this%rebuildRatio * (this%pop - numNodeToAdd)         &
             ) then
                 call rebuild(this)
             

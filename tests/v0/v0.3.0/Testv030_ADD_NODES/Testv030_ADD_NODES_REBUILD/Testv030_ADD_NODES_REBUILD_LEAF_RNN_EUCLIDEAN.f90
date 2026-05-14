@@ -4,7 +4,7 @@ program Testv030_ADD_NODES_REBUILD_LEAF_RNN_EUCLIDEAN
     implicit none
     call rebuildLeafRnnEuclidean()
     contains
-        !> Build with 8 nodes; add 1 node. modifications(0)+1 <= ceil(0.25*(9-1))=2 -> leaf insert.
+        !> Build with 8 nodes; add 1 node. modifications(0)+1 > 0.25*(9-1)=2.0 is FALSE -> leaf insert.
         !! getNumMods returns 1. rNN_Centroid finds only the added leaf node.
         subroutine rebuildLeafRnnEuclidean()
             type(Tree)                 :: t

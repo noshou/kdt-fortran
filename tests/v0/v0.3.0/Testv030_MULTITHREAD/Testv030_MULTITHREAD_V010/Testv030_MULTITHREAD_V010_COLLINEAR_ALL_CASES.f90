@@ -16,19 +16,20 @@ program Testv030_MULTITHREAD_V010_COLLINEAR_ALL_CASES
                     type(Tree)                 :: t1, t2, t3
                     type(NodePtr), allocatable :: res(:)
 
-                    ! 2D collinear along axis 1 (x-axis)
+                    ! 2D collinear along axis 1 (x-axis): (1,0),(2,0),...,(7,0)
                     real(real64) :: col1(2, 7) = reshape( &
-                        [1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
-                        0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 7])
-                    ! 2D collinear along axis 2 (y-axis)
+                        [1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64, 4.0_real64, &
+                         0.0_real64, 5.0_real64, 0.0_real64, 6.0_real64, 0.0_real64, 7.0_real64, 0.0_real64], [2, 7])
+                    ! 2D collinear along axis 2 (y-axis): (0,1),(0,2),...,(0,7)
                     real(real64) :: col2(2, 7) = reshape( &
-                        [0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                        1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64], [2, 7])
-                    ! 3D collinear along axes 1&2
+                        [0.0_real64, 1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64, &
+                         4.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 6.0_real64, 0.0_real64, 7.0_real64], [2, 7])
+                    ! 3D collinear along axis 3 (z-axis): (0,0,1),(0,0,2),...,(0,0,7)
                     real(real64) :: col3(3, 7) = reshape( &
-                        [0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                        0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                        1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64], [3, 7])
+                        [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 2.0_real64, &
+                         0.0_real64, 0.0_real64, 3.0_real64, 0.0_real64, 0.0_real64, 4.0_real64, &
+                         0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 6.0_real64, &
+                         0.0_real64, 0.0_real64, 7.0_real64], [3, 7])
 
                     call t1%build(col1)
                     res = t1%rNN_Centroid([4.0_real64, 0.0_real64], 3.5_real64)

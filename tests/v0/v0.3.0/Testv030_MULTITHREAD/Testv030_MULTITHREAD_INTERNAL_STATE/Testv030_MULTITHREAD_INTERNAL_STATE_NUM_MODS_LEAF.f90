@@ -5,7 +5,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_NUM_MODS_LEAF
     call numModsLeaf()
     contains
         !> Large shared tree (40 nodes); 4 threads each add 1 node concurrently.
-        !! ceiling(0.25*40)=10 >> 4, so all adds are guaranteed leaf inserts regardless
+        !! 0.25*40=10.0 >> 4, so all adds are guaranteed leaf inserts regardless
         !! of CRITICAL-section ordering. Final numMods=4, pop=44.
         subroutine numModsLeaf()
             type(Tree)   :: t

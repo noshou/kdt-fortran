@@ -51,7 +51,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
                     stop 1
             end if
 
-            ! ratio must survive a leaf-insert addNodes (0+1 > ceiling(0.6*8)=5 => 1>5 => false)
+            ! ratio must survive a leaf-insert addNodes (0+1 > 0.6*8=4.8 => 1>4.8 => FALSE)
             call t%addNodes(new_coords)
             ratio   = t%getRebuildRatio()
             numMods = t%getNumMods()

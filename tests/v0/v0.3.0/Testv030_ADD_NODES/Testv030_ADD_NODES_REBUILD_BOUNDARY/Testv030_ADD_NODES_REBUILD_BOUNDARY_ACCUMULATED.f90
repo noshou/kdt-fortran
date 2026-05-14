@@ -6,9 +6,9 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_ACCUMULATED
     contains
         !> Accumulated mods cross the rebuild threshold over three addNodes calls.
         !! Build 4, ratio=0.5. Sequence:
-        !!   add 2: 0+2>ceiling(0.5*4)=2 -> FALSE, leaf, mods=2, pop=6
-        !!   add 1: 2+1>ceiling(0.5*5)=3 -> FALSE, leaf, mods=3, pop=7
-        !!   add 1: 3+1>ceiling(0.5*6)=3 -> TRUE,  rebuild, mods=0, pop=8
+        !!   add 2: 0+2 > 0.5*4=2.0 -> FALSE, leaf, mods=2, pop=6
+        !!   add 1: 2+1 > 0.5*6=3.0 -> FALSE, leaf, mods=3, pop=7
+        !!   add 1: 3+1 > 0.5*7=3.5 -> TRUE,  rebuild, mods=0, pop=8
         !! All 8 nodes findable after final rebuild.
         subroutine rebuildBoundaryAccumulated()
             type(Tree)                 :: t

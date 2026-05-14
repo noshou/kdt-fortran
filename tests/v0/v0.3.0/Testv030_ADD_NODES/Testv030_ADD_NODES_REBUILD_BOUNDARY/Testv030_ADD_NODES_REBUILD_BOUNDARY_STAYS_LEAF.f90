@@ -4,8 +4,8 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_STAYS_LEAF
     implicit none
     call rebuildBoundaryStaysLeaf()
     contains
-        !> Exact boundary: add ceiling(ratio*pop) nodes with 0 mods -> stays leaf insert.
-        !! Build 4, ratio=0.5: ceiling(0.5*4)=2; add 2: 0+2>2 is FALSE -> leaf, numMods=2.
+        !> Exact boundary: add nodes equal to ratio*pop with 0 mods -> stays leaf insert.
+        !! Build 4, ratio=0.5: 0.5*4=2.0; add 2: 0+2>2.0 is FALSE -> leaf, numMods=2.
         subroutine rebuildBoundaryStaysLeaf()
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &

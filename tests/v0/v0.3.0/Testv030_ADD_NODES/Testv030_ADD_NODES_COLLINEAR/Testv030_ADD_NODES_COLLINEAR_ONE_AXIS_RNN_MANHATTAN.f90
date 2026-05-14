@@ -9,8 +9,8 @@ program Testv030_ADD_NODES_COLLINEAR_ONE_AXIS_RNN_MANHATTAN
             real(real64)               :: init_coords(2, 2) = reshape( &
                 [0.0_real64, 100.0_real64, 100.0_real64, 0.0_real64], [2, 2])
             real(real64)               :: col_coords(2, 5) = reshape( &
-                [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, &
-                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 5])
+                [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, &
+                 3.0_real64, 0.0_real64, 4.0_real64, 0.0_real64], [2, 5])
             type(NodePtr), allocatable :: res(:)
 
             call t%build(init_coords)

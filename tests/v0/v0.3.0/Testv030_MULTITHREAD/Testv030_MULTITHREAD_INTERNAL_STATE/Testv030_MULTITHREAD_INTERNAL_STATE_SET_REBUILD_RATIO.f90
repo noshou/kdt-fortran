@@ -28,7 +28,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_SET_REBUILD_RATIO
                     call t%build(init_coords)
                     call t%setRebuildRatio(0.6_real64)
                     
-                    ! ceiling(0.6*8)=5; 0+1>5=F -> leaf insert, numMods=1
+                    ! 0+1 > 0.6*8=4.8 -> FALSE -> leaf insert, numMods=1
                     call t%addNodes(new_coord)
 
                     numMods = t%getNumMods()

@@ -6,7 +6,7 @@ program Testv030_ADD_NODES_DUPLICATES_STATE
     contains
         !> Duplicate coordinates must be stored as distinct nodes (pop grows by count).
         !! Build 8 nodes; add 2 duplicates.
-        !! 0+2 <= ceil(0.25*(10-2))=2 -> FALSE: leaf insert, numMods=2.
+        !! 0+2 > 0.25*(10-2)=2.0 -> FALSE: leaf insert, numMods=2.
         !! Verifies pop=10 (duplicates not deduplicated) and numMods=2.
         subroutine duplicatesState()
             type(Tree)     :: t

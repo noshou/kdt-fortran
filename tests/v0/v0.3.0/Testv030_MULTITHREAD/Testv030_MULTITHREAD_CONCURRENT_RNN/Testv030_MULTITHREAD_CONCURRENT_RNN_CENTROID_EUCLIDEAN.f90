@@ -6,7 +6,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_EUCLIDEAN
     contains
         !> Build shared 2D tree with 9 pts on a 3x3 grid [0,1,2]x[0,1,2].
         !! 4 threads concurrently call rNN_Centroid at (1,1) r=1.5 (euclidean).
-        !! Expected: 5 nodes within r=1.5 (the cross-shaped neighborhood of center).
+        !! Expected: 5 nodes within r=1.0 (the cross-shaped neighborhood of center).
         subroutine concurrentRnnCentroidEuclidean()
             type(Tree)   :: t
             real(real64) :: coords(2, 9) = reshape( &
@@ -28,7 +28,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_EUCLIDEAN
             do i = 1, 4
                 block
                     type(NodePtr), allocatable :: res(:)
-                    res = t%rNN_Centroid([1.0_real64, 1.0_real64], 1.5_real64, metric='euclidean')
+                    res = t%rNN_Centroid([1.0_real64, 1.0_real64], 1.0_real64, metric='euclidean')
                     if (size(res) .ne. 5) then
                         !$OMP CRITICAL
                         failed = .true.

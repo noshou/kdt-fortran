@@ -20,6 +20,28 @@ To run only one version's tests:
 ctest --test-dir build -R "Testv010" --output-on-failure
 ```
 
+To run only the multithreaded tests:
+
+```bash
+ctest --test-dir build -R "MULTITHREAD" --output-on-failure
+```
+
+To run only the single-threaded `addNodes` tests (excludes multithread suite):
+
+```bash
+ctest --test-dir build -R "Testv030_ADD_NODES" --output-on-failure
+```
+
+### Thread count
+
+Multithreaded tests hardcode `NUM_THREADS(4)` in their `!$OMP PARALLEL DO` directives. The `OMP_NUM_THREADS` environment variable is ignored for those loops; however, OpenMP's thread pool is still initialised from the environment before the directives run, so setting `OMP_NUM_THREADS=4` (or higher) in advance avoids pool-resize overhead:
+
+```bash
+OMP_NUM_THREADS=4 ctest --test-dir build -R "MULTITHREAD" --output-on-failure
+```
+
+On machines with fewer than 4 physical threads the tests still pass — OpenMP over-subscribes transparently — but runtime will be higher.
+
 ## CMake framework
 
 Tests are registered with macros defined in `cmake/AddKdTest.cmake`:
@@ -31,7 +53,7 @@ add_kdtest(TestName WILL_FAIL)    # inverted test: passes on non-zero exit
 
 Each call creates a standalone executable from `TestName.f90`, links it against `kdtree`, and registers it with CTest. The executable name and the CTest test name are both `TestName`.
 
-Use `add_kdtest_omp` when the test program itself contains `!$OMP` directives (e.g. threading tests). The `kdtree` library links OpenMP privately, so it is not propagated to test executables; they must link it explicitly.
+Use `add_kdtest_omp` when the test program itself contains `!$OMP` directives. The `kdtree` library links OpenMP privately (it is not propagated to dependents), so test executables that use OpenMP must link it explicitly via this macro. Tests that only call the library — even if the library uses OpenMP internally — do not need `add_kdtest_omp` and should use `add_kdtest` instead.
 
 `WILL_FAIL` is used for tests that verify error guards, where the program is expected to call `error stop`. CTest inverts the pass/fail logic: the test passes only when the program exits non-zero.
 
@@ -69,7 +91,7 @@ add_kdtest and add_subdirectory execute/open the respective tests/directories se
 
 Each release has a directory, and each version has its own set subdirectory. Each version contains subdirectories, one per unit under test.
 
-Each subdirectory has its own `CMakeLists.txt` and holds all the `.f90` files for that unit. Note that below is ordered on **execution order *not* alphabetic order**tests/
+Each subdirectory has its own `CMakeLists.txt` and holds all the `.f90` files for that unit. Note that below is ordered on **execution order, not alphabetic order**.
 
 ```
  ├── v0/

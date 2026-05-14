@@ -24,8 +24,8 @@ program Testv030_MULTITHREAD_V020_RNN_EUCLIDEAN
                         5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                         5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [2, 9])
                     real(real64) :: col_coords(2, 7) = reshape( &
-                        [1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
-                        0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 7])
+                        [1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64, 4.0_real64, &
+                         0.0_real64, 5.0_real64, 0.0_real64, 6.0_real64, 0.0_real64, 7.0_real64, 0.0_real64], [2, 7])
 
                     ! single node query: r=1 finds 2 nodes on unit euclidean sphere
                     call t%build(unit_coords)

@@ -4,7 +4,7 @@ program Testv030_ADD_NODES_REBUILD_FORCE_RNN_EUCLIDEAN
     implicit none
     call rebuildForceRnnEuclidean()
     contains
-        !> Build with 1 node; add 4 nodes. modifications(0)+4 > ceil(0.25*(5-4))=1 -> rebuild.
+        !> Build with 1 node; add 4 nodes. modifications(0)+4 > 0.25*(5-4)=0.25 -> TRUE -> rebuild.
         !! After rebuild, getNumMods returns 0. rNN_Centroid finds all 5 nodes.
         subroutine rebuildForceRnnEuclidean()
             type(Tree)                 :: t

@@ -5,7 +5,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_FORCES_REBUILD
     call setRebuildRatioForcesRebuild()
     contains
 
-        !> With rebuildRatio=0.01, ceiling(0.01*4)=1; adding 2 nodes: 0+2>1 -> rebuild.
+        !> With rebuildRatio=0.01: 0+2 > 0.01*4=0.04 -> TRUE -> rebuild.
         !! numMods=0 after; all 6 nodes findable; full tree state valid.
         subroutine setRebuildRatioForcesRebuild()
             type(Tree)                 :: t

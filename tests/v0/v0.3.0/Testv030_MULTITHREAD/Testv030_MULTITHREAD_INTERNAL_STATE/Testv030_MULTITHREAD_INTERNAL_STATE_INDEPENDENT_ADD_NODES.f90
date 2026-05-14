@@ -5,7 +5,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_INDEPENDENT_ADD_NODES
     call independentAddNodesState()
     contains
         !> 4 threads each build their own tree (4 nodes), setRebuildRatio(0.9), addNodes(2).
-        !! ceiling(0.9*4)=4; 0+2>4=F -> leaf insert. Each thread verifies:
+        !! 0+2 > 0.9*4=3.6 -> FALSE -> leaf insert. Each thread verifies:
         !!   pop=6, numMods=2, getRebuildRatio=0.9, getInitState=T, nodePool=T, root=T.
         !! After parallel region: all 4 treeIds are distinct.
         subroutine independentAddNodesState()
