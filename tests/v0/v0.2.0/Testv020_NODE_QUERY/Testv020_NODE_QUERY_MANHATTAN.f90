@@ -2,7 +2,7 @@
 !! Node at (1,1) to node at (4,2): expected L1 distance = 4.0.
 program Testv020_NODE_QUERY_MANHATTAN
 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,7 +10,7 @@ program Testv020_NODE_QUERY_MANHATTAN
     contains
 
         subroutine nodeQuery_Manhattan()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 10) = reshape( &
                 [1.0_real64, 1.0_real64, &
                 2.0_real64, 1.0_real64,  &
@@ -22,7 +22,7 @@ program Testv020_NODE_QUERY_MANHATTAN
                 3.0_real64, 2.0_real64,  &
                 4.0_real64, 2.0_real64,  &
                 5.0_real64, 2.0_real64], [2, 10])
-            type(NodePtr), allocatable :: res1(:), res2(:)
+            type(KdNodePtr), allocatable :: res1(:), res2(:)
             real(real64)               :: dist
 
             call t%build(coords)

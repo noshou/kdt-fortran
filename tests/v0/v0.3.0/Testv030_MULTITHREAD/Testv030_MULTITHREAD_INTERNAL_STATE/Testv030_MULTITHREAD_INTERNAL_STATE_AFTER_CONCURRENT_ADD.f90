@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_INTERNAL_STATE_AFTER_CONCURRENT_ADD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call internalStateAfterConcurrentAdd()
@@ -8,7 +8,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_AFTER_CONCURRENT_ADD
         !! pop=13, getRebuildRatio=0.25, getInitState=T, nodePool associated, root associated.
         !! numMods is not checked here as its value depends on CRITICAL-section ordering.
         subroutine internalStateAfterConcurrentAdd()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)   :: all_coords(2, 3, 4)
             integer        :: i, j

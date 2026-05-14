@@ -1,5 +1,5 @@
 program Testv021_LIFECYCLE_UNINITIALIZED_DESTROY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call lifecycleUninitializedDestroy()
@@ -8,7 +8,7 @@ program Testv021_LIFECYCLE_UNINITIALIZED_DESTROY
         !> checks if calling destroy on an uninitialized tree
         !! causes no errors state is correct 
         subroutine lifecycleUninitializedDestroy()
-            type(Tree)      :: t
+            type(KdTree)      :: t
             logical         :: assertNodePool, assertRoot, assertInitState
 
             call t%destroy()

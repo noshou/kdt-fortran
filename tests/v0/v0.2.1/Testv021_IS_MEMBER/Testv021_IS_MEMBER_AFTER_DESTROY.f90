@@ -1,5 +1,5 @@
 program Testv021_IS_MEMBER_AFTER_DESTROY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call isMemberAfterDestroy()
@@ -8,14 +8,14 @@ program Testv021_IS_MEMBER_AFTER_DESTROY
         !> Checks if a node is a member of a tree after it has been destroyed
         subroutine isMemberAfterDestroy()
             
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64,  &
                 3.0_real64, 4.0_real64,  &
                 5.0_real64, 6.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:) 
+            type(KdNodePtr), allocatable :: res(:) 
             real(real64) :: centroid(2)  = [0.0_real64, 0.0_real64]
-            type(Node), pointer :: n
+            type(KdNode), pointer :: n
 
             call t%build(coords)
             res = t%rNN_Centroid(centroid, 100.0_real64)

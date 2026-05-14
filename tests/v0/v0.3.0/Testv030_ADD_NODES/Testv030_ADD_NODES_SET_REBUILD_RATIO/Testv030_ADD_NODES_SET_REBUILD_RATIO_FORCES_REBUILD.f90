@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_SET_REBUILD_RATIO_FORCES_REBUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call setRebuildRatioForcesRebuild()
@@ -8,13 +8,13 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_FORCES_REBUILD
         !> With rebuildRatio=0.01: 0+2 > 0.01*4=0.04 -> TRUE -> rebuild.
         !! numMods=0 after; all 6 nodes findable; full tree state valid.
         subroutine setRebuildRatioForcesRebuild()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
             real(real64)               :: new_coords(2, 2) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 60.0_real64], [2, 2])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             real(real64)               :: ratio
             integer(int64)             :: numMods, pop
             logical                    :: isInit, nodePoolAssoc, rootAssoc

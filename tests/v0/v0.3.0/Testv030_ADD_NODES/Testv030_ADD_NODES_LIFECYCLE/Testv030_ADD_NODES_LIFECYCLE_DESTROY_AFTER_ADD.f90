@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_LIFECYCLE_DESTROY_AFTER_ADD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesLifecycleDestroyAfterAdd()
     contains
         !> After addNodes then destroy, all state must be cleared.
         subroutine addNodesLifecycleDestroyAfterAdd()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])

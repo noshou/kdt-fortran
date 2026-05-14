@@ -1,5 +1,5 @@
 program Testv010_COLLINEAR_ONE_AXIS_II
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -7,7 +7,7 @@ program Testv010_COLLINEAR_ONE_AXIS_II
     contains
         !> 3D, all points share axis 2.
         subroutine collinearOne_AxisII()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 6) = reshape(           &
                 [  1.0_real64, 4.0_real64,  0.92_real64,      &
                 52.0_real64, 4.0_real64,  0.42_real64,      &

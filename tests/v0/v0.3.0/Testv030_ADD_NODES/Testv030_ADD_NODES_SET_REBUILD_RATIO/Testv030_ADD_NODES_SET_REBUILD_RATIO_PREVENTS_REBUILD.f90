@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_SET_REBUILD_RATIO_PREVENTS_REBUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call setRebuildRatioPreventsRebuild()
@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_PREVENTS_REBUILD
         !> Default ratio=0.25 would rebuild when adding 3 to a 4-node tree (0+3>0.25*4=1.0 -> TRUE).
         !! With ratio=0.9: 0+3>0.9*4=3.6 is FALSE -> leaf insert; numMods=3.
         subroutine setRebuildRatioPreventsRebuild()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])

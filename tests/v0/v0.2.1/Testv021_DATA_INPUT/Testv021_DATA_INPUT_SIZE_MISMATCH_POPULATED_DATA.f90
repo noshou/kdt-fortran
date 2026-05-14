@@ -1,5 +1,5 @@
 program Testv021_DATA_INPUT_SIZE_MISMATCH_POPULATED_DATA
-    use KdTree 
+    use KdTreeFortran 
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,7 +10,7 @@ program Testv021_DATA_INPUT_SIZE_MISMATCH_POPULATED_DATA
         !!
         !!  (# coords == # data points) || (# data points == 0)
         subroutine dataInputSizeMismatchPopulatedData()
-            type(Tree)          :: t
+            type(KdTree)          :: t
             real(real64)        :: coords(3, 6) = reshape( &
                 [5.0_real64, 1.0_real64,  0.92_real64,            &
                 4.0_real64, 2.0_real64,  0.42_real64,             &

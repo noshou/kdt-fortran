@@ -1,5 +1,5 @@
 program Testv010_THREE_AXIS_ARRAY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -7,7 +7,7 @@ program Testv010_THREE_AXIS_ARRAY
     contains
                 !> 3D, 7 distinct points.
         subroutine threeAxisArray()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 7) = reshape(         &
                 [3.0_real64, 1.0_real64, -13.31_real64,     &
                 1.0_real64, 4.0_real64,  34.14_real64,     &

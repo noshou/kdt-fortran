@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_DATA_COUNT_MISMATCH
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesDataCountMismatch()
     contains
         !> addNodes with data list size != number of coords must error stop.
         subroutine addNodesDataCountMismatch()
-            type(Tree)       :: t
+            type(KdTree)       :: t
             real(real64)     :: init_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
             character(len=1) :: init_data(3) = ['A', 'B', 'C']

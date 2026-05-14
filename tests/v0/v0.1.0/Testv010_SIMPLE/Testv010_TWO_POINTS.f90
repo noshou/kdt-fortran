@@ -1,5 +1,5 @@
 program Testv010_TWO_POINTS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call twoPoints()
@@ -7,7 +7,7 @@ program Testv010_TWO_POINTS
 
         !> Two points → root + one child.
         subroutine twoPoints()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 2) = reshape( &
                 [1.0_real64, 5.0_real64,    &
                 3.0_real64, 2.0_real64], [2, 2])

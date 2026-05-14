@@ -1,5 +1,5 @@
 program Testv010_COLLINEAR_ONE_AXIS_III 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -9,7 +9,7 @@ program Testv010_COLLINEAR_ONE_AXIS_III
         !! so the depth-2 split degenerates. Set comparison absorbs
         !! sibling-order ambiguity.
         subroutine collinearOne_AxisIII()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 6) = reshape(             &
                 [  1.0_real64,  0.92_real64,       4.0_real64,  &
                 52.0_real64,  0.42_real64,       4.0_real64,  &

@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_LIFECYCLE_NODEPOOL_ASSOCIATED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesLifecycleNodepoolAssociated()
     contains
         !> nodePool and root must still be associated after addNodes.
         subroutine addNodesLifecycleNodepoolAssociated()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])

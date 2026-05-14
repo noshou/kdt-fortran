@@ -1,5 +1,5 @@
 program Testv021_NODEPTR_LIFECYCLE_DESTROY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call nodePtrLifecycleDestroy()
@@ -7,12 +7,12 @@ program Testv021_NODEPTR_LIFECYCLE_DESTROY
 
         !> checks that after destroy, NodePtr%p is null
         subroutine nodePtrLifecycleDestroy()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64, &
                 3.0_real64, 4.0_real64, &
                 5.0_real64, 6.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid([0.0_real64, 0.0_real64], 100.0_real64)

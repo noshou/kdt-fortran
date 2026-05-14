@@ -1,12 +1,12 @@
 program Testv021_TREE_GETTERS_GET_INIT_STATE_UNINITIALIZED
-    use KdTree
+    use KdTreeFortran
     implicit none
     call getInitStateUninitialized()
     contains
 
         !> getInitState must return .false. before build is called.
         subroutine getInitStateUninitialized()
-            type(Tree) :: t
+            type(KdTree) :: t
             logical    :: isInit
 
             call t%getInitState(isInit)

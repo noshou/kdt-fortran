@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V020_RNN_MANHATTAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call v020RnnManhattan()
@@ -12,8 +12,8 @@ program Testv030_MULTITHREAD_V020_RNN_MANHATTAN
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdTree)                 :: t
+                    type(KdNodePtr), allocatable :: res(:)
                     real(real64) :: coords(2, 4) = reshape( &
                         [1.0_real64, 0.0_real64, 0.6_real64, 0.8_real64, &
                         0.9_real64, 0.9_real64, 1.9_real64, 0.9_real64], [2, 4])

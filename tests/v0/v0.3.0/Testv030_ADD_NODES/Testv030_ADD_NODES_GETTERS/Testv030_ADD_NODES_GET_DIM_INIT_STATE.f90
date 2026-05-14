@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_GET_DIM_INIT_STATE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call addNodesGetDimInitState()
     contains
         !> getDim and getInitState must remain unchanged after addNodes.
         subroutine addNodesGetDimInitState()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(3, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 0.0_real64, &
                 1.0_real64, 0.0_real64, 0.0_real64, &

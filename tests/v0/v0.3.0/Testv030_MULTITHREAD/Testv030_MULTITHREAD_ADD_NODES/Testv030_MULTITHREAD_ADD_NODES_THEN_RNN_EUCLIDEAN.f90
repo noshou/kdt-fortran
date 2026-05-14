@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_ADD_NODES_THEN_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesThenRnnEuclidean()
@@ -7,7 +7,7 @@ program Testv030_MULTITHREAD_ADD_NODES_THEN_RNN_EUCLIDEAN
         !> Sequential addNodes on shared tree; then 4 threads concurrently search.
         !! All threads must find the same count of nodes within the radius.
         subroutine addNodesThenRnnEuclidean()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
@@ -23,7 +23,7 @@ program Testv030_MULTITHREAD_ADD_NODES_THEN_RNN_EUCLIDEAN
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(t, failed)
             do i = 1, 4
                 block
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdNodePtr), allocatable :: res(:)
                     
                     ! centroid (1.5,1.5) r=1.5 euclidean: finds pts within 1.5 of center
                     res = t%rNN_Centroid([1.5_real64, 1.5_real64], 1.5_real64, metric='euclidean')

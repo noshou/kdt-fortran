@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_CONCURRENT_ADD_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call concurrentAddRnnEuclidean()
@@ -7,10 +7,10 @@ program Testv030_MULTITHREAD_CONCURRENT_ADD_RNN_EUCLIDEAN
         !> 4 threads concurrently add 3 pts each at x=1..12, y=0.
         !! After parallel adds, rNN_Centroid at (6.5,0) r=7 finds all 13 pts.
         subroutine concurrentAddRnnEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)               :: all_coords(2, 3, 4)
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: i, j
 
             do i = 1, 4

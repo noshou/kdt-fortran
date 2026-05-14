@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_INTERNAL_STATE_ZERO_ADD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call mtZeroAdd()
@@ -16,7 +16,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_ZERO_ADD
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)     :: t
+                    type(KdTree)     :: t
                     real(real64)   :: zero_coords(2, 0)
                     integer(int64) :: numMods, pop
                     real(real64)   :: ratio

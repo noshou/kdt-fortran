@@ -1,5 +1,5 @@
 program Testv020_COLLINEAR_TWO_AXIS_II_AXIS_III_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -9,7 +9,7 @@ program Testv020_COLLINEAR_TWO_AXIS_II_AXIS_III_RNN_EUCLIDEAN
         !! x=1: dist=1 in. x=2: dist=2 in. x=-31: dist=31 in.
         !! Others: dist>35. Expect 3.
         subroutine collinearTwo_AxisIIAxisIII_rNN_Euclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(3, 6) = reshape(  &
                 [  2.0_real64,    5.0_real64, 4.0_real64, &
                 1.0_real64,    5.0_real64, 4.0_real64, &
@@ -17,7 +17,7 @@ program Testv020_COLLINEAR_TWO_AXIS_II_AXIS_III_RNN_EUCLIDEAN
                 31313.0_real64, 5.0_real64, 4.0_real64, &
                 -31.0_real64,    5.0_real64, 4.0_real64, &
                 432.419_real64, 5.0_real64, 4.0_real64], [3, 6])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid([0.0_real64, 5.0_real64, 4.0_real64], 35.0_real64)

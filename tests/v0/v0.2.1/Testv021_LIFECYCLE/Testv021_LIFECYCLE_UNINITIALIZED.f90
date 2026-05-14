@@ -1,5 +1,5 @@
 program Testv021_LIFECYCLE_UNINITIALIZED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call lifecycleUninitialized()
@@ -7,7 +7,7 @@ program Testv021_LIFECYCLE_UNINITIALIZED
         
         !> checks if uninitialized state is correct 
         subroutine lifecycleUninitialized()
-            type(Tree)      :: t
+            type(KdTree)      :: t
             logical         :: assertNodePool, assertRoot, assertInitState
 
             call t%associatedNodePool(assertNodePool)

@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_DIM_EMPTY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call treeGettersGetDimEmpty()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_DIM_EMPTY
 
         !> getDim must return k after build with k-dimensional coords and zero points.
         subroutine treeGettersGetDimEmpty()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: coords(3, 0)
             integer(int64) :: d
 

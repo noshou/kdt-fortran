@@ -1,7 +1,7 @@
 !> Expected-fail: rNN_Centroid on an empty tree must error stop.
 !! Registered with WILL_FAIL in CTest.
 program Testv020_EMPTY_TREE_RNN_CENTROID
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,9 +10,9 @@ program Testv020_EMPTY_TREE_RNN_CENTROID
 
         !> rNN_Centroid on an empty tree must error stop.
         subroutine emptyTree()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 0),  centroid(2) = [0.0_real64, 0.0_real64], r=0.9
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             call t%build(coords)
             res = t%rNN_Centroid(centroid, r) ! expected to fail here
             write(*, '(A)') '--- Testv020_EMPTY_TREE_RNN_CENTROID ---'

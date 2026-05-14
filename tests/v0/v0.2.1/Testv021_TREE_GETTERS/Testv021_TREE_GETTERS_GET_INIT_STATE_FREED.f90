@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_INIT_STATE_FREED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call getInitStateFreed()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_INIT_STATE_FREED
 
         !> getInitState must return .false. after build then destroy.
         subroutine getInitStateFreed()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64,             &
                  3.0_real64, 4.0_real64,             &

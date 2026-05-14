@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_GET_POP_SINGLE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call addNodesGetPopSingle()
     contains
         !> getPop must return initial + 1 after adding one node.
         subroutine addNodesGetPopSingle()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
                  0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])

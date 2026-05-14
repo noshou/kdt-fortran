@@ -1,8 +1,8 @@
-submodule(KdTree) TreeUtils
+submodule(KdTreeFortran) TreeUtils
     use iso_fortran_env, only: output_unit, int64, real64
     implicit none
     contains
-        
+
         module procedure printTree
             integer :: u
             u = output_unit

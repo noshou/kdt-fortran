@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_REBUILD_LEAF_PRESERVES_ORIGINALS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call leafPreservesOriginals()
@@ -10,14 +10,14 @@ program Testv030_ADD_NODES_REBUILD_LEAF_PRESERVES_ORIGINALS
         !! (which only find the newly added leaf) — here we verify original nodes
         !! remain reachable via search after a leaf-structural change.
         subroutine leafPreservesOriginals()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                  2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64, &
                  4.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, &
                  6.0_real64, 0.0_real64, 7.0_real64, 0.0_real64], [2, 8])
             real(real64)               :: new_coords(2, 1) = reshape([3.5_real64, 0.0_real64], [2, 1])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer(int64)             :: numMods
 
             call t%build(init_coords)

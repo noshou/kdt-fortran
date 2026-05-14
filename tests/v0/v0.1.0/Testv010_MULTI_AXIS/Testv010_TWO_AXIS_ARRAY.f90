@@ -1,12 +1,12 @@
 program Testv010_TWO_AXIS_ARRAY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call twoAxisArray()
     contains
         !> 2D, 7 distinct points.
         subroutine twoAxisArray()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 7) = reshape( &
                 [3.0_real64, 1.0_real64, &
                 1.0_real64, 4.0_real64, &

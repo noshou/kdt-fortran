@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_INCREMENTAL_STATE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call incrementalState()
@@ -10,7 +10,7 @@ program Testv030_ADD_NODES_INCREMENTAL_STATE
         !!   add 1: 0+1 > 0.9*4=3.6 -> FALSE (mods=1)
         !!   add 1: 1+1 > 0.9*5=4.5 -> FALSE (mods=2)  ... all 5 adds stay as leaf inserts.
         subroutine incrementalState()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])

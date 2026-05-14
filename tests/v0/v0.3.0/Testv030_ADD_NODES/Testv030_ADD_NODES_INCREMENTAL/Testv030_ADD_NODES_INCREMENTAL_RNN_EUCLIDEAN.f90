@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_INCREMENTAL_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call incrementalRnnEuclidean()
@@ -7,12 +7,12 @@ program Testv030_ADD_NODES_INCREMENTAL_RNN_EUCLIDEAN
         !> Add one node at a time at (k*100, 0); after each add verify rNN_Centroid
         !! at that point with r=1 (euclidean) finds exactly 1 node.
         subroutine incrementalRnnEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)               :: step(2, 1)
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: k
 
             call t%build(init_coords)

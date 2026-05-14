@@ -2,7 +2,7 @@
 !! Registered with WILL_FAIL in CTest.
 program Testv020_SINGLE_NODE_QUERY_RNN_NODE_MANHATTAN_NON_MEMBER
 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,13 +10,13 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_MANHATTAN_NON_MEMBER
     contains
 
         subroutine singleNodeQuery_rNN_Node_Manhattan_NonMember()
-            type(Tree)                 :: t1, t2
+            type(KdTree)                 :: t1, t2
             real(real64)               :: coords(2, 4) = reshape( &
                 [1.0_real64, 0.0_real64,  &
                 0.6_real64, 0.8_real64,  &
                 0.9_real64, 0.9_real64,  &
                 1.9_real64, 0.9_real64], [2, 4])
-            type(NodePtr), allocatable :: res(:), centroid_res(:)
+            type(KdNodePtr), allocatable :: res(:), centroid_res(:)
 
             call t1%build(coords)
             call t2%build(coords)

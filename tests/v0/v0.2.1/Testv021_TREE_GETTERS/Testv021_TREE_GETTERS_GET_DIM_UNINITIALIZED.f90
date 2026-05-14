@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_DIM_UNINITIALIZED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: int64
     implicit none
     call getDimUninitialized()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_DIM_UNINITIALIZED
 
         !> getDim must return 0 before build is called.
         subroutine getDimUninitialized()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             integer(int64) :: d
 
             d = t%getDim()

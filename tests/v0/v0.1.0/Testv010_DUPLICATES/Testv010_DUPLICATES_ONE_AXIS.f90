@@ -1,5 +1,5 @@
 program Testv010_DUPLICATES_ONE_AXIS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -9,7 +9,7 @@ program Testv010_DUPLICATES_ONE_AXIS
         !! pathological all-ties case. Verifies the build handles it without
         !! infinite recursion and emits the expected node-multiset.
         subroutine duplicatesOneAxis()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(1, 9) = reshape( &
                 [5.0_real64, &
                 5.0_real64, &

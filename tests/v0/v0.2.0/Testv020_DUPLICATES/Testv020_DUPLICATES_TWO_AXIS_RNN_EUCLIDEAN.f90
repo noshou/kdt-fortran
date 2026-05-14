@@ -1,5 +1,5 @@
 program Testv020_DUPLICATES_TWO_AXIS_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -8,14 +8,14 @@ program Testv020_DUPLICATES_TWO_AXIS_RNN_EUCLIDEAN
         !> 2D tree, all 9 points at (5,5). rNN_Centroid at (5,5) r=0.01, euclidean:
         !! all 9 at distance 0, expect 9 results.
         subroutine duplicatesTwoAxis_rNN_Euclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64], [2, 9])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 5.0_real64], 0.01_real64)

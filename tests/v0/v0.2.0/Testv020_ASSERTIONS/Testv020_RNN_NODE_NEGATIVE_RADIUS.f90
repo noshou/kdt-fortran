@@ -2,7 +2,7 @@
 !! Registered with WILL_FAIL in CTest.
 program Testv020_RNN_NODE_NEGATIVE_RADIUS
 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,12 +10,12 @@ program Testv020_RNN_NODE_NEGATIVE_RADIUS
     contains
 
         subroutine rnnNode_NegativeRadius()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 3) = reshape( &
                 [1.0_real64, 1.0_real64,  &
                  2.0_real64, 1.0_real64,  &
                  3.0_real64, 1.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:), centroid_res(:)
+            type(KdNodePtr), allocatable :: res(:), centroid_res(:)
 
             call t%build(coords)
             centroid_res = t%rNN_Centroid([1.0_real64, 1.0_real64], 0.01_real64)

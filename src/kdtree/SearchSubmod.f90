@@ -1,4 +1,4 @@
-submodule (KdTree) SearchSubmod
+submodule (KdTreeFortran) SearchSubmod
     implicit none
 
     ! interface for helper functions
@@ -12,23 +12,24 @@ submodule (KdTree) SearchSubmod
         !! appending matching nodes to res and pruning subtrees whose
         !! splitting hyperplane lies further than radius from target.
         !! @param[in]    target   the query node (used as the search centre)
-        !! @param[in]    currIdx  nodePool index of the current subtree root; 0 terminates recursion
+        !! @param[in]    currIdx  nodePool index of the current subtree root; 
+        !!                        0 terminates recursion
         !! @param[in]    nodePool the tree's node pool
         !! @param[in]    radius   search radius
         !! @param[inout] res      result buffer; doubles in size when full
         !! @param[inout] arrSize  number of results written into res so far
         !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'
         module recursive subroutine rNN(target, currIdx, nodePool, radius, res, arrSize, metric)
-            type(node),     intent(in)                  :: target
+            type(KdNode),     intent(in)                :: target
             integer(int64), intent(in)                  :: currIdx
-            type(node),     intent(in)                  :: nodePool(:)
+            type(KdNode),     intent(in)                :: nodePool(:)
             real(kind=real64), intent(in)               :: radius
             integer, intent(inout)                      :: arrSize
-            type(nodePtr), allocatable, intent(inout)   :: res(:)
+            type(KdNodePtr), allocatable, intent(inout) :: res(:)
             character(len=*), intent(in)                :: metric
         end subroutine rNN
 
-        !=======================================================!
+        !======================================================================================!
 
 
         end interface
@@ -38,7 +39,7 @@ submodule (KdTree) SearchSubmod
 
             integer                    :: arrSize, is, i, j
             character(len=9)           :: m
-            type(nodePtr), allocatable :: tmp(:)
+            type(KdNodePtr), allocatable :: tmp(:)
 
             if (this%rootIdx .eq. 0_int64)     error stop "rNN_Node: tree is empty (call build first?)"
             if (.not. associated(target%p))    error stop "rNN_Node: target is null"
@@ -121,20 +122,27 @@ submodule (KdTree) SearchSubmod
 
         module procedure rNN_Centroid
 
-            integer                    :: arrSize, is, i
-            character(len=9)           :: m
-            type(node)                 :: dummyNode
-            type(nodePtr), allocatable :: tmp(:)
+            integer                      :: arrSize, is, i
+            character(len=9)             :: m
+            type(KdNode)                 :: dummyNode
+            type(KdNodePtr), allocatable :: tmp(:)
 
-            if (this%rootIdx .eq. 0_int64)      error stop "rNN_Centroid: tree is empty (call build first?)"
-            if (size(centroid) .ne. this%dim)   error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
-            if (radius .lt. 0.0_real64)         error stop "rNN_Centroid: negative radius"
+            if (this%rootIdx .eq. 0_int64) then      
+                error stop "rNN_Centroid: tree is empty (call build first?)"
+            else if (size(centroid) .ne. this%dim) then    
+                error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
+            else if (radius .lt. 0.0_real64) then 
+                error stop "rNN_Centroid: negative radius"
+            end if 
 
             if(.not. present(bufferSize)) then
                 is = 1000
             else
-                if (bufferSize .le. 0) error stop "rNN_Centroid: invalid bufferSize"
-                is = bufferSize
+                if (bufferSize .le. 0) then
+                    error stop "rNN_Centroid: invalid bufferSize"
+                else 
+                    is = bufferSize
+                end if 
             end if
 
             if (.not. present(metric)) then
@@ -175,7 +183,9 @@ submodule (KdTree) SearchSubmod
 
             ! stamp each dispatched copy with the current removal counter
             do i = 1, size(res)
-                if (associated(res(i)%p)) res(i)%p%numRemovesSnapshot = this%numRemoves
+                if (associated(res(i)%p)) then 
+                    res(i)%p%numRemovesSnapshot = this%numRemoves
+                end if
             end do
 
         end procedure rNN_Centroid

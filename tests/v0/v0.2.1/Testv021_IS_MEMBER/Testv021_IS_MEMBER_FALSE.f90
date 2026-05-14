@@ -1,5 +1,5 @@
 program Testv021_IS_MEMBER_FALSE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call isMemberFalse()
@@ -8,14 +8,14 @@ program Testv021_IS_MEMBER_FALSE
         !> Checks if a node is a member after a tree is destroyed then rebuilt 
         subroutine isMemberFalse()
             
-            type(Tree)   :: t1, t2
+            type(KdTree)   :: t1, t2
             real(real64) :: coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64,  &
                 3.0_real64, 4.0_real64,  &
                 5.0_real64, 6.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:) 
+            type(KdNodePtr), allocatable :: res(:) 
             real(real64) :: centroid(2)  = [0.0_real64, 0.0_real64]
-            type(Node), pointer :: n
+            type(KdNode), pointer :: n
 
             call t1%build(coords)
             res = t1%rNN_Centroid(centroid, 100.0_real64)

@@ -1,5 +1,5 @@
 program Testv020_DUPLICATES_FOUR_AXIS_RNN_MANHATTAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -8,7 +8,7 @@ program Testv020_DUPLICATES_FOUR_AXIS_RNN_MANHATTAN
         !> 4D tree, all 9 points at (5,5,5,5). rNN_Centroid at (5,5,5,5) r=0.01, manhattan:
         !! all 9 at distance 0, expect 9 results.
         subroutine duplicatesFourAxis_rNN_Manhattan()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(4, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
@@ -19,7 +19,7 @@ program Testv020_DUPLICATES_FOUR_AXIS_RNN_MANHATTAN
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [4, 9])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], 0.01_real64, metric='manhattan')

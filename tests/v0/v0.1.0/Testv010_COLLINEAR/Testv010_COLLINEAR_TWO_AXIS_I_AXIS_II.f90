@@ -1,5 +1,5 @@
 program Testv010_COLLINEAR_TWO_AXIS_I_AXIS_II
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -9,7 +9,7 @@ program Testv010_COLLINEAR_TWO_AXIS_I_AXIS_II
         !! values, leaving axis 3 as the only discriminating dimension.
         !! Set comparison absorbs sibling-order ambiguity.
         subroutine collinearTwo_AxisIAxisII()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 6) = reshape(  &
                 [5.0_real64, 4.0_real64,  2.0_real64,    &
                 5.0_real64, 4.0_real64,  1.0_real64,    &

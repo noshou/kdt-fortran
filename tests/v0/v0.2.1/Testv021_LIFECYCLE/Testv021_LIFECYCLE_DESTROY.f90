@@ -1,5 +1,5 @@
 program Testv021_LIFECYCLE_DESTROY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call lifecycleDestroy()
@@ -7,7 +7,7 @@ program Testv021_LIFECYCLE_DESTROY
         
         !> checks internal state of tree after it is built and destroyed
         subroutine lifecycleDestroy()
-            type(Tree)      :: t
+            type(KdTree)      :: t
             real(real64)    :: coords(4, 7) = reshape(                                &
                 [3.0_real64, 1.0_real64, -13.31_real64,        0.92_real64,         &
                 1.0_real64, 4.0_real64,  34.14_real64,       92.0_real64,          &

@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_RNN_CENTROID_FINDS_ADDED_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call rnnCentroidFindsAddedEuclidean()
@@ -7,13 +7,13 @@ program Testv030_ADD_NODES_RNN_CENTROID_FINDS_ADDED_EUCLIDEAN
         !> Build far-away pts; add 3 near origin. rNN_Centroid at origin, r=1.5 (euclidean)
         !! must find all 3 added nodes and none of the original 4.
         subroutine rnnCentroidFindsAddedEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [50.0_real64, 50.0_real64, -50.0_real64,  50.0_real64, &
                 50.0_real64, -50.0_real64, -50.0_real64, -50.0_real64], [2, 4])
             real(real64)               :: new_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(init_coords)
             call t%addNodes(new_coords)

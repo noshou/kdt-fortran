@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_SET_REBUILD_RATIO_VIA_BUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call setRebuildRatioViaBuild()
@@ -8,7 +8,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_VIA_BUILD
         !! Also verifies ratio resets to 0.25 after destroy, and a second build without
         !! the param leaves ratio at 0.25 (the post-destroy default).
         subroutine setRebuildRatioViaBuild()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])

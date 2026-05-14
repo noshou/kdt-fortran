@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_COLLINEAR_ONE_AXIS_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call collinearOneAxisRnnEuclidean()
@@ -7,13 +7,13 @@ program Testv030_ADD_NODES_COLLINEAR_ONE_AXIS_RNN_EUCLIDEAN
         !> Build 2D tree with 2 non-collinear pts. Add 5 pts collinear along x-axis (y=0).
         !! rNN_Centroid at (2,0) r=2.5 (euclidean) must find all 5 added collinear pts.
         subroutine collinearOneAxisRnnEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 2) = reshape( &
                 [0.0_real64, 100.0_real64, 100.0_real64, 0.0_real64], [2, 2])
             real(real64)               :: col_coords(2, 5) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, &
                  3.0_real64, 0.0_real64, 4.0_real64, 0.0_real64], [2, 5])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(init_coords)
             call t%addNodes(col_coords)

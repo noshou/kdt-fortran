@@ -1,5 +1,5 @@
 program Testv010_ONE_POINT
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call onePoint()
@@ -8,7 +8,7 @@ program Testv010_ONE_POINT
 
         !> Single point → root only.
         subroutine onePoint()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 1) = reshape([1.0_real64, 2.0_real64], [2, 1])
             character(len=*), parameter :: expected(*) = [character(len=64) :: &
                 '[axis=1] (1.000, 2.000)']

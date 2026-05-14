@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V020_RNN_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call v020RnnChebyshev()
@@ -12,8 +12,8 @@ program Testv030_MULTITHREAD_V020_RNN_CHEBYSHEV
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdTree)                 :: t
+                    type(KdNodePtr), allocatable :: res(:)
                     ! 4 pts: (1,0),(0.6,0.8),(0.9,0.9),(1.9,0.9)
                     ! chebyshev r=0.8 from (0,0): max(0.6,0.8)=0.8 in; others out -> 1 node
                     real(real64) :: coords(2, 4) = reshape( &

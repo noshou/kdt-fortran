@@ -1,7 +1,6 @@
-submodule(KdTree) BuildSubmod
+submodule(KdTreeFortran) BuildSubmod
     implicit none 
     contains 
-        
         module procedure build
 
             integer(int64), allocatable :: indices(:)
@@ -113,7 +112,7 @@ submodule(KdTree) BuildSubmod
             targetIdx                   &
             ) result(median)
             
-            type(node), intent(in)          :: nodes(:)
+            type(KdNode), intent(in)          :: nodes(:)
             integer(int64), intent(inout)   :: indices(:)
             integer(int64), intent(in)      :: lowerIdx, upperIdx, axis, targetIdx
             integer(int64), intent(inout)   :: middleBounds(2)
@@ -184,7 +183,7 @@ submodule(KdTree) BuildSubmod
             pivot                                   &
             )
 
-            type(node), intent(in)         :: nodes(:)
+            type(KdNode), intent(in)         :: nodes(:)
             integer(int64), intent(inout)  :: indices(:), middleBounds(2)
             integer(int64), intent(in)     :: lowerIdx, upperIdx, axis
             integer(int64)                 :: i, tmp, lowerMiddleIdx, upperMiddleIdx

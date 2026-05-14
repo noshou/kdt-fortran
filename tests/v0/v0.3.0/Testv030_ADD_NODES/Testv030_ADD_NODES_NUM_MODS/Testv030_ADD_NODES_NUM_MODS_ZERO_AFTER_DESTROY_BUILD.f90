@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call numModsZeroAfterDestroyBuild()
@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD
         !> Leaf inserts raise numMods; destroy resets it to 0; rebuild keeps it at 0.
         !! Also verifies getRebuildRatio resets to 0.25 after destroy.
         subroutine numModsZeroAfterDestroyBuild()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &

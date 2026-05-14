@@ -1,19 +1,19 @@
 program Testv030_ADD_NODES_DUPLICATES_THREE_AXIS_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call duplicatesThreeAxisRnnEuclidean()
     contains
         !> Build 3D tree with 2 distinct pts. Add 5 duplicate pts at (5,5,5).
         subroutine duplicatesThreeAxisRnnEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(3, 2) = reshape( &
                 [1.0_real64, 1.0_real64, 1.0_real64, 9.0_real64, 9.0_real64, 9.0_real64], [3, 2])
             real(real64)               :: dup_coords(3, 5) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [3, 5])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(init_coords)
             call t%addNodes(dup_coords)

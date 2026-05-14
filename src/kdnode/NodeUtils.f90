@@ -1,4 +1,4 @@
-submodule(KdTree) NodeUtils
+submodule(KdTreeFortran) NodeUtils
     implicit none
     contains
 

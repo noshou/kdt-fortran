@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_BUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call numModsZeroAfterBuild()
     contains
         !> getNumMods returns 0 immediately after build; getRebuildRatio is 0.25; all state valid.
         subroutine numModsZeroAfterBuild()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 5) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, &
                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 5])

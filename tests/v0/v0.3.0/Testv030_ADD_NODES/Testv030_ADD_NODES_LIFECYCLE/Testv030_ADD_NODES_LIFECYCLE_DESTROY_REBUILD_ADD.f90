@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_LIFECYCLE_DESTROY_REBUILD_ADD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call addNodesLifecycleDestroyRebuildAdd()
     contains
         !> destroy then rebuild then addNodes must succeed and have correct pop.
         subroutine addNodesLifecycleDestroyRebuildAdd()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
             real(real64)   :: new_coords(2, 2) = reshape( &

@@ -4,7 +4,7 @@
 !! (0.6,0.8) has L1=1.4, (0.9,0.9) has L1=1.8, (1.9,0.9) has L1=2.8.
 program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_MANHATTAN
 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -12,14 +12,14 @@ program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_MANHATTAN
     contains
 
         subroutine singleNodeQuery_rNN_Centroid_Manhattan()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 4) = reshape( &
                 [1.0_real64, 0.0_real64,  &
                 0.6_real64, 0.8_real64,  &
                 0.9_real64, 0.9_real64,  &
                 1.9_real64, 0.9_real64], [2, 4])
             real(real64)               :: centroid(2) = [0.0_real64, 0.0_real64]
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid(centroid, 1.0_real64, metric='manhattan')

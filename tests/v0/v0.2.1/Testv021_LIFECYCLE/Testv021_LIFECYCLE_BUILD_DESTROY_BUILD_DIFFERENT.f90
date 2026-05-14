@@ -1,5 +1,5 @@
 program Testv021_LIFECYCLE_BUILD_DESTROY_BUILD_DIFFERENT
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call lifecycleBuildDestroyBuildDifferent()
@@ -8,7 +8,7 @@ program Testv021_LIFECYCLE_BUILD_DESTROY_BUILD_DIFFERENT
         !> checks internal state of tree after it is built with 
         !! one set of coords, destroyed, then rebuilt with new set
         subroutine lifecycleBuildDestroyBuildDifferent()
-            type(Tree)      :: t
+            type(KdTree)      :: t
             real(real64)    :: coords1(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64,  &
                 3.0_real64, 4.0_real64,  &

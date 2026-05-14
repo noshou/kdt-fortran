@@ -1,4 +1,4 @@
-submodule(KdTree) NodeGetters
+submodule(KdTreeFortran) NodeGetters
     implicit none 
     contains 
 
@@ -11,7 +11,7 @@ submodule(KdTree) NodeGetters
         end procedure getCoords
 
         module procedure getSplitAxis
-            splitsaxs = this%splitAxis
+            splitAxs = this%splitAxis
         end procedure getSplitAxis
 
 end submodule NodeGetters

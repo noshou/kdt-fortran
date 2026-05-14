@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call setRebuildRatioGet()
@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
         !> getRebuildRatio returns 0.25 by default; setRebuildRatio changes it; all tree state consistent.
         !! Also verifies ratio persists across addNodes (not reset by addNodes).
         subroutine setRebuildRatioGet()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &

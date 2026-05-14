@@ -1,5 +1,5 @@
 program Testv021_EXACT_BUFFER_SIZE_RNN_NODE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -8,7 +8,7 @@ program Testv021_EXACT_BUFFER_SIZE_RNN_NODE
 
         !> bufferSize equals the result count exactly — no resize should occur.
         subroutine exactBufferSize_rNN_Node()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(3, 10) = reshape( &
                 [0.1_real64, 0.0_real64, 0.0_real64, &
                  0.2_real64, 0.0_real64, 0.0_real64, &
@@ -20,7 +20,7 @@ program Testv021_EXACT_BUFFER_SIZE_RNN_NODE
                  0.0_real64, 0.3_real64, 0.0_real64, &
                  0.0_real64, 0.4_real64, 0.0_real64, &
                  0.0_real64, 0.5_real64, 0.0_real64], [3, 10])
-            type(NodePtr), allocatable :: res(:), centroid_res(:)
+            type(KdNodePtr), allocatable :: res(:), centroid_res(:)
             integer                    :: i
 
             call t%build(coords)

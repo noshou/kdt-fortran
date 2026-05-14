@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_ZERO_ADD_STATE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call zeroAddState()
@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_ZERO_ADD_STATE
         !> addNodes with a zero-column coordsList silently succeeds: pop, numMods,
         !! getRebuildRatio, and all tree state flags remain unchanged.
         subroutine zeroAddState()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])

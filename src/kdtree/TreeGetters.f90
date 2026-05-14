@@ -1,4 +1,4 @@
-submodule(KdTree) TreeGetters 
+submodule(KdTreeFortran) TreeGetters 
     implicit none 
     contains 
         module procedure getDim    

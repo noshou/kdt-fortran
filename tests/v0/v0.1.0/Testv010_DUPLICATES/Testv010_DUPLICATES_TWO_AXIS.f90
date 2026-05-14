@@ -1,5 +1,5 @@
 program Testv010_DUPLICATES_TWO_AXIS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -11,7 +11,7 @@ program Testv010_DUPLICATES_TWO_AXIS
         !! the build handles full duplicates without infinite recursion and
         !! emits the expected node-multiset.
         subroutine duplicatesTwoAxis()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 9) = reshape( &
                 [5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, &

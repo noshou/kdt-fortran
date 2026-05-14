@@ -1,18 +1,18 @@
 program Testv030_ADD_NODES_IS_MEMBER_ORIGINAL_AFTER_REBUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesIsMemberOriginalAfterRebuild()
     contains
         !> A node from the old tree is not a member after destroy + rebuild.
         subroutine addNodesIsMemberOriginalAfterRebuild()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
             real(real64)               :: new_coords(2, 2) = reshape( &
                 [1.0_real64, 1.0_real64, 4.0_real64, 4.0_real64], [2, 2])
-            type(NodePtr), allocatable :: res(:)
-            type(Node),    pointer     :: n
+            type(KdNodePtr), allocatable :: res(:)
+            type(KdNode),    pointer     :: n
 
             call t%build(coords)
             res = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.01_real64)

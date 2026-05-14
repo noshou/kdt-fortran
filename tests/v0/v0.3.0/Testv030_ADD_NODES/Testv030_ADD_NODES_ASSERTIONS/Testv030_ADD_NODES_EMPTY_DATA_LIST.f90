@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_EMPTY_DATA_LIST
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesEmptyDataList()
     contains
         !> addNodes with a zero-size data list must error stop.
         subroutine addNodesEmptyDataList()
-            type(Tree)       :: t
+            type(KdTree)       :: t
             real(real64)     :: init_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
             character(len=1) :: init_data(3) = ['A', 'B', 'C']

@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_DIM_MISMATCH
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesDimMismatch()
     contains
         !> addNodes with wrong dimension must error stop.
         subroutine addNodesDimMismatch()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, 5.0_real64, 6.0_real64], [2, 3])
             real(real64) :: bad_coords(3, 2) = reshape( &

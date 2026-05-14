@@ -1,5 +1,5 @@
 program Testv020_DUPLICATES_ONE_AXIS_RNN_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -8,12 +8,12 @@ program Testv020_DUPLICATES_ONE_AXIS_RNN_CHEBYSHEV
         !> 1D tree, all 9 points at (5). rNN_Centroid at (5) r=0.01, chebyshev:
         !! all 9 at distance 0, expect 9 results.
         subroutine duplicatesOneAxis_rNN_Chebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(1, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64, &
                  5.0_real64, 5.0_real64, 5.0_real64], [1, 9])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)
             res = t%rNN_Centroid([5.0_real64], 0.01_real64, metric='chebyshev')

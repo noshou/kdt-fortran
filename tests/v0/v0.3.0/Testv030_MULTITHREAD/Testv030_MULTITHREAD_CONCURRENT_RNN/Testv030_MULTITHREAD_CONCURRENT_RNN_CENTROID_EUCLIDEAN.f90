@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call concurrentRnnCentroidEuclidean()
@@ -8,7 +8,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_EUCLIDEAN
         !! 4 threads concurrently call rNN_Centroid at (1,1) r=1.5 (euclidean).
         !! Expected: 5 nodes within r=1.0 (the cross-shaped neighborhood of center).
         subroutine concurrentRnnCentroidEuclidean()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 9) = reshape( &
                 [0.0_real64, 0.0_real64, &
                 1.0_real64, 0.0_real64, &
@@ -27,7 +27,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_EUCLIDEAN
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(t, failed)
             do i = 1, 4
                 block
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdNodePtr), allocatable :: res(:)
                     res = t%rNN_Centroid([1.0_real64, 1.0_real64], 1.0_real64, metric='euclidean')
                     if (size(res) .ne. 5) then
                         !$OMP CRITICAL

@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_POP_UNINITIALIZED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: int64
     implicit none
     call getPopUninitialized()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_POP_UNINITIALIZED
 
         !> getPop must return 0 before build is called.
         subroutine getPopUninitialized()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             integer(int64) :: n
 
             n = t%getPop()

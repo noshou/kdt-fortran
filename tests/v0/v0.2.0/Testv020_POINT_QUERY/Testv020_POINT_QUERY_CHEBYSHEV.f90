@@ -2,7 +2,7 @@
 !! Node at (1,1), query point (4,2): expected L∞ distance = 3.0.
 program Testv020_POINT_QUERY_CHEBYSHEV
 
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,7 +10,7 @@ program Testv020_POINT_QUERY_CHEBYSHEV
     contains
 
         subroutine pointQuery_Chebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(2, 10) = reshape( &
                 [1.0_real64, 1.0_real64, &
                 2.0_real64, 1.0_real64,  &
@@ -22,7 +22,7 @@ program Testv020_POINT_QUERY_CHEBYSHEV
                 3.0_real64, 2.0_real64,  &
                 4.0_real64, 2.0_real64,  &
                 5.0_real64, 2.0_real64], [2, 10])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             real(real64), allocatable  :: point(:)
             real(real64)               :: dist
 

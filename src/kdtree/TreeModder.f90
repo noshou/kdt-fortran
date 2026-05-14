@@ -1,12 +1,16 @@
-submodule(KdTree) TreeModder
+submodule(KdTreeFortran) TreeModder
     use iso_fortran_env, only: int64, real64
     implicit none
     contains
 
         module procedure setRebuildRatio
-            if (ratio .le. 0.0_real64) error stop "setRebuildRatio: rebuildRatio must be greater than zero!"
-            if (ratio .ge. 1.0_real64) error stop "setRebuildRatio: rebuildRatio must be less than 1!"
-            this%rebuildRatio = ratio
+            if (ratio .le. 0.0_real64) then 
+                error stop "setRebuildRatio: rebuildRatio must be greater than zero!"
+            else if (ratio .ge. 1.0_real64) then 
+                error stop "setRebuildRatio: rebuildRatio must be less than 1!"
+            else 
+                this%rebuildRatio = ratio
+            end if
         end procedure setRebuildRatio
 
         !> rebuilds a tree after node pool has been modified. 
@@ -14,7 +18,7 @@ submodule(KdTree) TreeModder
         !! must ensure that tree and node state 
         !! invariants are preserved BEFORE calling rebuild
         subroutine rebuild(t)
-            type(tree), intent(inout) :: t
+            type(KdTree), intent(inout) :: t
             integer(int64), allocatable :: indices(:)
             integer(int64)              :: i
             
@@ -35,7 +39,7 @@ submodule(KdTree) TreeModder
 
             logical                 :: isInit, hasData, rootHasData, hasRoot
             integer(int64)          :: dataListSize, i, dim, pop, numNodeToAdd, tid, currIdx
-            type(Node), pointer     :: nodePoolTmp(:)
+            type(KdNode), pointer   :: nodePoolTmp(:)
 
             ! initialize state variables
             call this%associatedRoot(hasRoot)
@@ -69,7 +73,8 @@ submodule(KdTree) TreeModder
                 end if
             end if
 
-            ! realloc nodePool — serialized: nodePool pointer, pop, and currNodeId are all shared state
+            ! realloc nodePool — serialized: nodePool pointer, pop, 
+            ! and currNodeId are all shared state
             !$OMP CRITICAL (tree_mutate)
             pop = numNodeToAdd + this%pop
             tid = this%getTreeId()
@@ -81,13 +86,15 @@ submodule(KdTree) TreeModder
                 this%currNodeId       = this%currNodeId + 1_int64
                 nodePoolTmp(i)%nodeId = this%currNodeId
                 !$OMP END ATOMIC
-                nodePoolTmp(i)%numRemovesSnapshot               = this%numRemoves
-                nodePoolTmp(i)%coords(:)                        =  coordsList(:, i-this%pop)
-                nodePoolTmp(i)%hasData                          =  hasData
-                nodePoolTmp(i)%lch                              =  0_int64
-                nodePoolTmp(i)%rch                              =  0_int64
-                if (nodePoolTmp(i)%hasData) nodePoolTmp(i)%data = dataList(i-this%pop)
-                nodePoolTmp(i)%treeId                           = tid
+                nodePoolTmp(i)%numRemovesSnapshot   = this%numRemoves
+                nodePoolTmp(i)%coords(:)            =  coordsList(:, i-this%pop)
+                nodePoolTmp(i)%hasData              =  hasData
+                nodePoolTmp(i)%lch                  =  0_int64
+                nodePoolTmp(i)%rch                  =  0_int64
+                nodePoolTmp(i)%treeId               = tid
+                if (nodePoolTmp(i)%hasData) then 
+                    nodePoolTmp(i)%data = dataList(i-this%pop)
+                end if
             end do
             deallocate(this%nodePool)
             this%nodePool => nodePoolTmp

@@ -1,5 +1,5 @@
 program Testv010_EMPTY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call empty()
@@ -8,7 +8,7 @@ program Testv010_EMPTY
 
         !> Empty input → empty-tree marker.
         subroutine empty()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 0)
             character(len=*), parameter :: expected(*) = [character(len=64) :: &
                 '**empty tree**']

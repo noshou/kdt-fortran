@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_INTERNAL_STATE_REBUILD_BOUNDARY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call mtRebuildBoundary()
@@ -24,8 +24,8 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_REBUILD_BOUNDARY
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdTree)                 :: t
+                    type(KdNodePtr), allocatable :: res(:)
                     integer(int64)             :: numMods, pop
 
                     call t%build(init_coords)

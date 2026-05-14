@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_DIM_FREED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call getDimFreed()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_DIM_FREED
 
         !> getDim must return 0 after build then destroy.
         subroutine getDimFreed()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: coords(2, 3) = reshape( &
                 [1.0_real64, 2.0_real64,               &
                  3.0_real64, 4.0_real64,               &

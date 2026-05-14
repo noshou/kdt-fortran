@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_POP_POPULATED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call getPopPopulated()
@@ -8,7 +8,7 @@ program Testv021_TREE_GETTERS_GET_POP_POPULATED
         !> getPop must return n after building with n points.
         subroutine getPopPopulated()
             integer, parameter :: N = 5
-            type(Tree)         :: t
+            type(KdTree)         :: t
             real(real64)       :: coords(2, N) = reshape( &
                 [1.0_real64, 2.0_real64,                  &
                  3.0_real64, 4.0_real64,                  &

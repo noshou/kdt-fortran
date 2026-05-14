@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_GET_POP_MULTI
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call addNodesGetPopMulti()
     contains
         !> getPop must return initial + n after adding n nodes at once.
         subroutine addNodesGetPopMulti()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
                  0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])

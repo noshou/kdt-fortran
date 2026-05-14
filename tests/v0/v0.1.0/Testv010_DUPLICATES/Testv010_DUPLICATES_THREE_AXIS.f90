@@ -1,5 +1,5 @@
 program Testv010_DUPLICATES_THREE_AXIS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call duplicatesThreeAxis()
@@ -8,7 +8,7 @@ program Testv010_DUPLICATES_THREE_AXIS
         !! the build handles full duplicates without infinite recursion and
         !! emits the expected node-multiset.
         subroutine duplicatesThreeAxis()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 9) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, &
                 5.0_real64, 5.0_real64, 5.0_real64, &

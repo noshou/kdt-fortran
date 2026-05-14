@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V010_DUPLICATES_ALL_CASES
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call v010DuplicatesAllCases()
@@ -13,8 +13,8 @@ program Testv030_MULTITHREAD_V010_DUPLICATES_ALL_CASES
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t1, t2, t3, t4
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdTree)                 :: t1, t2, t3, t4
+                    type(KdNodePtr), allocatable :: res(:)
                     integer                    :: k
 
                     real(real64) :: dup1(1, 9) = reshape([(5.0_real64, k=1,9)], [1, 9])

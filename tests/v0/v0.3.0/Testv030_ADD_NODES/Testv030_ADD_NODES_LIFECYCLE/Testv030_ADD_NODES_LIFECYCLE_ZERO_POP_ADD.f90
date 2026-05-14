@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_LIFECYCLE_ZERO_POP_ADD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call zeroPopsAdd()
@@ -8,11 +8,11 @@ program Testv030_ADD_NODES_LIFECYCLE_ZERO_POP_ADD
         !! 0+N > 0.25*0=0.0 always triggers rebuild on first add (N > 0 is always true).
         !! Verifies state after zero-pop build, then pop/numMods/rNN after add.
         subroutine zeroPopsAdd()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: zero_coords(2, 0)
             real(real64)               :: new_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer(int64)             :: pop, numMods
             logical                    :: isInit, nodePoolAssoc, rootAssoc
 

@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_DATA_RNN_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesDataRnnChebyshev()
@@ -7,14 +7,14 @@ program Testv030_ADD_NODES_DATA_RNN_CHEBYSHEV
         !> Build 3 pts with data far from origin. addNodes 2 near-origin pts with data ['D','E'].
         !! rNN_Centroid at origin r=1.5 (chebyshev) returns the 2 added nodes with correct data.
         subroutine addNodesDataRnnChebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 3) = reshape( &
                 [50.0_real64, 50.0_real64, -50.0_real64, 50.0_real64, 50.0_real64, -50.0_real64], [2, 3])
             character(len=1)           :: init_data(3) = ['A', 'B', 'C']
             real(real64)               :: new_coords(2, 2) = reshape( &
                 [1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 2])
             character(len=1)           :: new_data(2) = ['D', 'E']
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: i
             logical                    :: foundD = .false., foundE = .false.
 

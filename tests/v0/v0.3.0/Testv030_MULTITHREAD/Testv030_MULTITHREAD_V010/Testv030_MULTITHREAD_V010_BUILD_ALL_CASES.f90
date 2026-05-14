@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V010_BUILD_ALL_CASES
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call v010BuildAllCases()
@@ -13,7 +13,7 @@ program Testv030_MULTITHREAD_V010_BUILD_ALL_CASES
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)   :: t1, t2, t3, t4, t5, t6
+                    type(KdTree)   :: t1, t2, t3, t4, t5, t6
 
                     real(real64) :: one_pt(1, 1) = reshape([1.0_real64], [1, 1])
                     real(real64) :: two_pts(2, 2) = reshape( &

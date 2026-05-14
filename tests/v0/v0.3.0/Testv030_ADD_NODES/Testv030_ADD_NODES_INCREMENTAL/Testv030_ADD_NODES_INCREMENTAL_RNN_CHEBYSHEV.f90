@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_INCREMENTAL_RNN_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call incrementalRnnChebyshev()
@@ -7,12 +7,12 @@ program Testv030_ADD_NODES_INCREMENTAL_RNN_CHEBYSHEV
         !> Add one node at a time at (k*100, 0); after each add verify rNN_Centroid
         !! at that point with r=0.5 (chebyshev) finds exactly 1 node.
         subroutine incrementalRnnChebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)               :: step(2, 1)
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: k
 
             call t%build(init_coords)

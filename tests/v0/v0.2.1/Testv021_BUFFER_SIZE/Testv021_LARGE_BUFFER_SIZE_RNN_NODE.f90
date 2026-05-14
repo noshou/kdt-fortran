@@ -1,5 +1,5 @@
 program Testv021_LARGE_BUFFER_SIZE_RNN_NODE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -10,9 +10,9 @@ program Testv021_LARGE_BUFFER_SIZE_RNN_NODE
         !! Result count is verified against a brute-force euclidean scan each iteration.
         subroutine largeBufferSize_rNN_Node()
             integer, parameter         :: N = 1000, NDIM = 3, NITER = 1000
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(NDIM, N), target_coords(NDIM)
-            type(NodePtr), allocatable :: res(:), centroid_res(:)
+            type(KdNodePtr), allocatable :: res(:), centroid_res(:)
             real(real64)               :: d, r
             integer                    :: i, j, expected
 

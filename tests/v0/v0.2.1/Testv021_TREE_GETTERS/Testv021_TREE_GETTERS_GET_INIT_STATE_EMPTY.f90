@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_INIT_STATE_EMPTY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call getInitStateEmpty()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_INIT_STATE_EMPTY
 
         !> getInitState must return .true. after build with zero points.
         subroutine getInitStateEmpty()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(3, 0)
             logical      :: isInit
 

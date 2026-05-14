@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_INDEPENDENT_TREES_BUILD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call independentTreesBuild()
@@ -22,7 +22,7 @@ program Testv030_MULTITHREAD_INDEPENDENT_TREES_BUILD
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed, treeIds)
             do i = 1, 4
                 block
-                    type(Tree)     :: t
+                    type(KdTree)     :: t
                     integer(int64) :: pop, dim
 
                     call t%build(coords)

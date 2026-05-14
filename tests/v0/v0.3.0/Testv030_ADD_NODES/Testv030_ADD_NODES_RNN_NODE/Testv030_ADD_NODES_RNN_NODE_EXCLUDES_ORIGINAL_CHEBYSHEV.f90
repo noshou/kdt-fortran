@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_RNN_NODE_EXCLUDES_ORIGINAL_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call rnnNodeExcludesOriginalChebyshev()
@@ -7,13 +7,13 @@ program Testv030_ADD_NODES_RNN_NODE_EXCLUDES_ORIGINAL_CHEBYSHEV
         !> Build 3 near-origin pts; add 2 far pts.
         !! rNN_Node from (0,0) with small radius must find only original nodes.
         subroutine rnnNodeExcludesOriginalChebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
             real(real64)               :: new_coords(2, 2) = reshape( &
                 [100.0_real64, 100.0_real64, 200.0_real64, 200.0_real64], [2, 2])
-            type(NodePtr), allocatable :: anchor(:), res(:)
-            type(NodePtr)              :: target
+            type(KdNodePtr), allocatable :: anchor(:), res(:)
+            type(KdNodePtr)              :: target
 
             call t%build(init_coords)
             anchor = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.01_real64)

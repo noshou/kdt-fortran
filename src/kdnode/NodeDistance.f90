@@ -1,4 +1,4 @@
-submodule(KdTree) NodeDistance
+submodule(KdTreeFortran) NodeDistance
     implicit none 
     contains 
 

@@ -1,5 +1,5 @@
 program Testv021_DEFAULT_BUFFER_SIZE_RNN_CENTROID
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
@@ -7,7 +7,7 @@ program Testv021_DEFAULT_BUFFER_SIZE_RNN_CENTROID
     contains
 
         subroutine defaultBufferSize_rNN_Centroid()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: coords(3, 6) = reshape( &
                 [5.0_real64, 1.0_real64,  0.92_real64,            &
                  4.0_real64, 2.0_real64,  0.42_real64,             &
@@ -16,7 +16,7 @@ program Testv021_DEFAULT_BUFFER_SIZE_RNN_CENTROID
                  1.0_real64, 5.0_real64, -93131913.0_real64,       &
                  0.0_real64, 0.0_real64,  0.0_real64], [3, 6])
             real(real64)               :: centroid(3) = [2.5_real64, 2.5_real64, 0.0_real64]
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: i
 
             call t%build(coords)

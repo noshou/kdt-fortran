@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V021_IS_MEMBER
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call v021IsMember()
@@ -13,11 +13,11 @@ program Testv030_MULTITHREAD_V021_IS_MEMBER
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t
+                    type(KdTree)                 :: t
                     real(real64)               :: coords(2, 3) = reshape( &
                         [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
-                    type(NodePtr), allocatable :: res(:)
-                    type(Node),    pointer     :: n
+                    type(KdNodePtr), allocatable :: res(:)
+                    type(KdNode),    pointer     :: n
 
                     ! node is member
                     call t%build(coords)

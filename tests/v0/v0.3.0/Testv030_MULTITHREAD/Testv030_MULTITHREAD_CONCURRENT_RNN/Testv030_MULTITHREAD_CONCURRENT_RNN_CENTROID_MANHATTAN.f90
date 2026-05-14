@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_MANHATTAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call concurrentRnnCentroidManhattan()
@@ -7,7 +7,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_MANHATTAN
         !> 4 threads concurrently call rNN_Centroid at (1,1) r=1.5 (manhattan).
         !! pts within manhattan 1.5 of (1,1): (1,0)[1],(0,1)[1],(1,1)[0],(2,1)[1],(1,2)[1] = 5.
         subroutine concurrentRnnCentroidManhattan()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(2, 9) = reshape( &
                 [0.0_real64, 0.0_real64, &
                 1.0_real64, 0.0_real64, &
@@ -26,7 +26,7 @@ program Testv030_MULTITHREAD_CONCURRENT_RNN_CENTROID_MANHATTAN
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(t, failed)
             do i = 1, 4
                 block
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdNodePtr), allocatable :: res(:)
                     res = t%rNN_Centroid([1.0_real64, 1.0_real64], 1.5_real64, metric='manhattan')
                     if (size(res) .ne. 5) then
                         !$OMP CRITICAL

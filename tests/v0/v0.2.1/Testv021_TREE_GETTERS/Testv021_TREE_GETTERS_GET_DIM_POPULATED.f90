@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_DIM_POPULATED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call getDimPopulated()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_DIM_POPULATED
 
         !> getDim must return k after building with k-dimensional points.
         subroutine getDimPopulated()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: coords(4, 3) = reshape( &
                 [1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, &
                  5.0_real64, 6.0_real64, 7.0_real64, 8.0_real64, &

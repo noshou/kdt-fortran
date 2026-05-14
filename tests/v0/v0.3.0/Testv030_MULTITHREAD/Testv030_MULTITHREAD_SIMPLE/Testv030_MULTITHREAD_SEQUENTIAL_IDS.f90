@@ -1,10 +1,10 @@
 program Testv030_MULTITHREAD_SEQUENTIAL_IDS
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
 
     integer(int64), parameter :: N = 4
-    type(Tree)         :: trees(N)
+    type(KdTree)         :: trees(N)
     real(real64)       :: coords(2, 3) = reshape( &
         [1.0_real64, 2.0_real64,  &
         3.0_real64, 4.0_real64,  &

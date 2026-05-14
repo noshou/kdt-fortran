@@ -1,5 +1,5 @@
 program Testv021_TREE_GETTERS_GET_POP_EMPTY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call getPopEmpty()
@@ -7,7 +7,7 @@ program Testv021_TREE_GETTERS_GET_POP_EMPTY
 
         !> getPop must return 0 after build with zero points.
         subroutine getPopEmpty()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: coords(3, 0)
             integer(int64) :: n
 

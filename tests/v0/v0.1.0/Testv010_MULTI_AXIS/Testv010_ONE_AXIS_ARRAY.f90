@@ -1,5 +1,5 @@
 program Testv010_ONE_AXIS_ARRAY
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call oneAxisArray()
@@ -7,7 +7,7 @@ program Testv010_ONE_AXIS_ARRAY
 
         !> 1D, 7 distinct points.
         subroutine oneAxisArray()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: coords(1, 7) = reshape( &
                 [3.0_real64, 1.0_real64, 4.0_real64, 1.0_real64, &
                 5.0_real64, 9.0_real64, 2.0_real64], [1, 7])

@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V021_LIFECYCLE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call v021Lifecycle()
@@ -13,7 +13,7 @@ program Testv030_MULTITHREAD_V021_LIFECYCLE
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)   :: t
+                    type(KdTree)   :: t
                     logical      :: assertNodePool, assertRoot, assertInitState
                     integer(int64) :: pop, dim
                     real(real64) :: coords(3, 5) = reshape( &

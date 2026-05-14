@@ -1,14 +1,14 @@
 program Testv030_MULTITHREAD_CONCURRENT_ADD_RNN_CHEBYSHEV
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call concurrentAddRnnChebyshev()
     contains
         subroutine concurrentAddRnnChebyshev()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)               :: all_coords(2, 3, 4)
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer                    :: i, j
 
             do i = 1, 4

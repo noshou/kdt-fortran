@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_DUPLICATES_STATE
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call duplicatesState()
@@ -9,7 +9,7 @@ program Testv030_ADD_NODES_DUPLICATES_STATE
         !! 0+2 > 0.25*(10-2)=2.0 -> FALSE: leaf insert, numMods=2.
         !! Verifies pop=10 (duplicates not deduplicated) and numMods=2.
         subroutine duplicatesState()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &

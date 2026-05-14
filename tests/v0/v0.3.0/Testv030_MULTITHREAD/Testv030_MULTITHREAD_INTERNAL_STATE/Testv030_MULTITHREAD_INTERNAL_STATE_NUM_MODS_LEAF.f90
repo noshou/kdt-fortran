@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_INTERNAL_STATE_NUM_MODS_LEAF
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call numModsLeaf()
@@ -8,7 +8,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_NUM_MODS_LEAF
         !! 0.25*40=10.0 >> 4, so all adds are guaranteed leaf inserts regardless
         !! of CRITICAL-section ordering. Final numMods=4, pop=44.
         subroutine numModsLeaf()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 40)
             real(real64) :: per_thread(2, 1, 4)
             integer      :: i

@@ -1,18 +1,18 @@
 program Testv030_ADD_NODES_IS_MEMBER_ADDED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call addNodesIsMemberAdded()
     contains
         !> A node returned by rNN after addNodes must be a member.
         subroutine addNodesIsMemberAdded()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 50.0_real64, &
                 50.0_real64, 60.0_real64, 60.0_real64, 60.0_real64], [2, 4])
             real(real64)               :: new_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
-            type(NodePtr), allocatable :: res(:)
-            type(Node),    pointer     :: n
+            type(KdNodePtr), allocatable :: res(:)
+            type(KdNode),    pointer     :: n
 
             call t%build(init_coords)
             call t%addNodes(new_coords)

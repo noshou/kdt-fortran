@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call numModsAccumulates()
@@ -10,7 +10,7 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
         !!   add 2: 1+2 > 0.9*9=8.1 -> FALSE, leaf, mods=3, pop=11
         !!   add 1: 3+1 > 0.9*11=9.9 -> FALSE, leaf, mods=4, pop=12
         subroutine numModsAccumulates()
-            type(Tree)   :: t
+            type(KdTree)   :: t
             real(real64) :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &

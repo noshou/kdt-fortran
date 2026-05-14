@@ -1,13 +1,13 @@
-submodule(KdTree:SearchSubmod) RnnModule
+submodule(KdTreeFortran:SearchSubmod) RnnModule
     implicit none
     contains
         module procedure rNN
-            real(kind=real64)          :: delta
-            type(nodePtr), allocatable :: tmp(:)
-            integer(int64)             :: axis
-            integer                    :: i
-            type(node), pointer        :: copy
-            logical                    :: withinRadius
+            real(kind=real64)            :: delta
+            type(KdNodePtr), allocatable :: tmp(:)
+            integer(int64)               :: axis
+            integer                      :: i
+            type(KdNode), pointer        :: copy
+            logical                      :: withinRadius
 
             if (currIdx .ne. 0_int64) then
 
@@ -40,10 +40,14 @@ submodule(KdTree:SearchSubmod) RnnModule
                 delta = target%coords(axis) - nodePool(currIdx)%coords(axis)
                 if (delta < 0) then
                     call rNN(target, nodePool(currIdx)%lch, nodePool, radius, res, arrSize, metric)
-                    if (-delta .le. radius) call rNN(target, nodePool(currIdx)%rch, nodePool, radius, res, arrSize, metric)
+                    if (-delta .le. radius) then 
+                        call rNN(target, nodePool(currIdx)%rch, nodePool, radius, res, arrSize, metric)
+                    end if
                 else
                     call rNN(target, nodePool(currIdx)%rch, nodePool, radius, res, arrSize, metric)
-                    if (delta .le. radius)  call rNN(target, nodePool(currIdx)%lch, nodePool, radius, res, arrSize, metric)
+                    if (delta .le. radius) then   
+                        call rNN(target, nodePool(currIdx)%lch, nodePool, radius, res, arrSize, metric)
+                    end if
                 end if
             end if
         end procedure rNN

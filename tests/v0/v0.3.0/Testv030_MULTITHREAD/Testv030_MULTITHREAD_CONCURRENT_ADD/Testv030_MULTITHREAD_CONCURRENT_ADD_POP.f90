@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_CONCURRENT_ADD_POP
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call concurrentAddPop()
@@ -7,7 +7,7 @@ program Testv030_MULTITHREAD_CONCURRENT_ADD_POP
         !> 4 threads each add 3 nodes concurrently to the same tree.
         !! The CRITICAL section in addNodes serializes access; final pop must be exact.
         subroutine concurrentAddPop()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)   :: all_coords(2, 3, 4)
             integer        :: i, j

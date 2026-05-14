@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_REBUILD_BOUNDARY_ACCUMULATED
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call rebuildBoundaryAccumulated()
@@ -11,7 +11,7 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_ACCUMULATED
         !!   add 1: 3+1 > 0.5*7=3.5 -> TRUE,  rebuild, mods=0, pop=8
         !! All 8 nodes findable after final rebuild.
         subroutine rebuildBoundaryAccumulated()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
                 20.0_real64, 0.0_real64, 30.0_real64, 0.0_real64], [2, 4])
@@ -19,7 +19,7 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_ACCUMULATED
                 [40.0_real64, 0.0_real64, 50.0_real64, 0.0_real64], [2, 2])
             real(real64)               :: batch2(2, 1) = reshape([60.0_real64, 0.0_real64], [2, 1])
             real(real64)               :: batch3(2, 1) = reshape([70.0_real64, 0.0_real64], [2, 1])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
             integer(int64)             :: numMods, pop
 
             call t%build(init_coords)

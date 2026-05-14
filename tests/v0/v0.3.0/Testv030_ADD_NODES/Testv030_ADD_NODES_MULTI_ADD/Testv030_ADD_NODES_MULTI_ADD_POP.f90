@@ -1,12 +1,12 @@
 program Testv030_ADD_NODES_MULTI_ADD_POP
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call multiAddPop()
     contains
         !> Three consecutive addNodes calls; final pop must equal initial + sum of added.
         subroutine multiAddPop()
-            type(Tree)     :: t
+            type(KdTree)     :: t
             real(real64)   :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)   :: batch1(2, 3) = reshape( &
                 [1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64], [2, 3])

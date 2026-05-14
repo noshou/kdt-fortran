@@ -1,5 +1,5 @@
 program Testv030_ADD_NODES_MULTI_ADD_RNN_EUCLIDEAN
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
     call multiAddRnnEuclidean()
@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_MULTI_ADD_RNN_EUCLIDEAN
         !> Three addNodes calls add pts at x=1..9, y=0. All 10 pts are searchable.
         !! rNN_Centroid at (4.5,0) r=5 (euclidean) must find all 10 pts.
         subroutine multiAddRnnEuclidean()
-            type(Tree)                 :: t
+            type(KdTree)                 :: t
             real(real64)               :: init_coords(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)               :: batch1(2, 3) = reshape( &
                 [1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, 3.0_real64, 0.0_real64], [2, 3])
@@ -15,7 +15,7 @@ program Testv030_ADD_NODES_MULTI_ADD_RNN_EUCLIDEAN
                 [4.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 6.0_real64, 0.0_real64], [2, 3])
             real(real64)               :: batch3(2, 3) = reshape( &
                 [7.0_real64, 0.0_real64, 8.0_real64, 0.0_real64, 9.0_real64, 0.0_real64], [2, 3])
-            type(NodePtr), allocatable :: res(:)
+            type(KdNodePtr), allocatable :: res(:)
 
             call t%build(init_coords)
             call t%addNodes(batch1)

@@ -1,5 +1,5 @@
 program Testv030_MULTITHREAD_V010_COLLINEAR_ALL_CASES
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64, int64
     implicit none
     call v010CollinearAllCases()
@@ -13,8 +13,8 @@ program Testv030_MULTITHREAD_V010_COLLINEAR_ALL_CASES
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)                 :: t1, t2, t3
-                    type(NodePtr), allocatable :: res(:)
+                    type(KdTree)                 :: t1, t2, t3
+                    type(KdNodePtr), allocatable :: res(:)
 
                     ! 2D collinear along axis 1 (x-axis): (1,0),(2,0),...,(7,0)
                     real(real64) :: col1(2, 7) = reshape( &

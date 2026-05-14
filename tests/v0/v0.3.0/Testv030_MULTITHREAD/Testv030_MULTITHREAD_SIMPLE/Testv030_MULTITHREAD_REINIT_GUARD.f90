@@ -1,9 +1,9 @@
 program Testv030_MULTITHREAD_REINIT_GUARD
-    use KdTree
+    use KdTreeFortran
     use iso_fortran_env, only: real64
     implicit none
 
-    type(Tree)   :: t
+    type(KdTree)   :: t
     real(real64) :: coords(2, 3) = reshape( &
         [1.0_real64, 2.0_real64,  &
         3.0_real64, 4.0_real64,  &
