@@ -9,14 +9,14 @@ program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_BUILD
             type(Tree)   :: t
             real(real64) :: coords(2, 5) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, 4.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 5])
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 5])
             integer(int64) :: numMods, pop, dim
             real(real64)   :: ratio
             logical        :: isInit, nodePoolAssoc, rootAssoc
 
             call t%build(coords)
-            numMods = getNumMods(t)
-            ratio   = getRebuildRatio(t)
+            numMods = t%getNumMods() 
+            ratio   = t%getRebuildRatio()
             pop     = t%getPop()
             dim     = t%getDim()
             call t%getInitState(isInit)

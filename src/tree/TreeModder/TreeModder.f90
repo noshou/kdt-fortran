@@ -105,7 +105,9 @@ submodule(KdTree) TreeModder
             
             else
 
-                ! no need for rebuild; insert new nodes at leaves
+                ! no need for rebuild; insert new nodes at leaves.
+                ! rootIdx=0 (empty tree) can never reach this branch: the rebuild condition
+                ! simplifies to numNodeToAdd > 0, which is always true when pop was zero.
                 do i = this%pop-numNodeToAdd + 1, this%pop
                     currIdx = this%rootIdx
                     do

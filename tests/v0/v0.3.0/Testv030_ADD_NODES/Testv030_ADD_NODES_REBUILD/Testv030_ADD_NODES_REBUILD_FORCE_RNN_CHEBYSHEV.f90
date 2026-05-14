@@ -17,7 +17,7 @@ program Testv030_ADD_NODES_REBUILD_FORCE_RNN_CHEBYSHEV
 
             call t%build(init_coords)
             call t%addNodes(new_coords)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             ! Chebyshev: from (0,0) r=4: (0,0)[0],(3,0)[3],(0,4)[4],(3,4)[4] all inside
             res = t%rNN_Centroid([0.0_real64, 0.0_real64], 4.0_real64, metric='chebyshev')
 

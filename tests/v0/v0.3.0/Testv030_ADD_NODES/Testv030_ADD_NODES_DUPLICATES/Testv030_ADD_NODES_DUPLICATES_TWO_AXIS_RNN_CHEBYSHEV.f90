@@ -10,7 +10,7 @@ program Testv030_ADD_NODES_DUPLICATES_TWO_AXIS_RNN_CHEBYSHEV
                 [1.0_real64, 1.0_real64, 9.0_real64, 9.0_real64], [2, 2])
             real(real64)               :: dup_coords(2, 5) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [2, 5])
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [2, 5])
             type(NodePtr), allocatable :: res(:)
 
             call t%build(init_coords)

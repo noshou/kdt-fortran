@@ -9,7 +9,7 @@ program Testv030_ADD_NODES_LIFECYCLE_DESTROY_AFTER_ADD
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64,  0.0_real64, &
-                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
+                0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
             real(real64) :: new_coords(2, 2) = reshape( &
                 [3.0_real64, 3.0_real64, 7.0_real64, 7.0_real64], [2, 2])
             logical :: assertNodePool, assertRoot, assertInitState

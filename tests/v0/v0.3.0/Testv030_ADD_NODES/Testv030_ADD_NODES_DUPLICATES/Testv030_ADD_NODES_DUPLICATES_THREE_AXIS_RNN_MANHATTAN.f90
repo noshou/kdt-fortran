@@ -10,8 +10,8 @@ program Testv030_ADD_NODES_DUPLICATES_THREE_AXIS_RNN_MANHATTAN
                 [1.0_real64, 1.0_real64, 1.0_real64, 9.0_real64, 9.0_real64, 9.0_real64], [3, 2])
             real(real64)               :: dup_coords(3, 5) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [3, 5])
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [3, 5])
             type(NodePtr), allocatable :: res(:)
 
             call t%build(init_coords)

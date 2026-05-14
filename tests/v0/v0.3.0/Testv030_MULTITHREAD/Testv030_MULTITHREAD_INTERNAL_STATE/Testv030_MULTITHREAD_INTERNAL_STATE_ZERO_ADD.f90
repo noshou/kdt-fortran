@@ -9,7 +9,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_ZERO_ADD
         subroutine mtZeroAdd()
             real(real64)   :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             integer        :: i
             logical        :: failed = .false.
 
@@ -25,8 +25,8 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_ZERO_ADD
                     call t%build(init_coords)
                     call t%addNodes(zero_coords)
 
-                    numMods = getNumMods(t)
-                    ratio   = getRebuildRatio(t)
+                    numMods = t%getNumMods()
+                    ratio   = t%getRebuildRatio()
                     pop     = t%getPop()
                     call t%getInitState(isInit)
                     call t%associatedNodePool(nodePoolAssoc)
@@ -35,7 +35,9 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_ZERO_ADD
                     if (numMods .ne. 0_int64 .or. pop .ne. 4_int64 .or. &
                         ratio .ne. 0.25_real64 .or. .not. isInit .or. &
                         .not. nodePoolAssoc .or. .not. rootAssoc) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                            !$OMP CRITICAL
+                            failed = .true.
+                            !$OMP END CRITICAL
                     end if
                 end block
             end do

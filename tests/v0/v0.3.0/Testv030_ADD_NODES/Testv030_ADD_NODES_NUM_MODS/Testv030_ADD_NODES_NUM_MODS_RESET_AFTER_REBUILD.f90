@@ -13,7 +13,7 @@ program Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
-                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
+                0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
             real(real64) :: leaf_coord(2, 1)  = reshape([100.0_real64, 100.0_real64], [2, 1])
             real(real64) :: rebuild_coords(2, 2) = reshape( &
                 [200.0_real64, 200.0_real64, 300.0_real64, 300.0_real64], [2, 2])
@@ -24,7 +24,7 @@ program Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD
 
             ! leaf insert
             call t%addNodes(leaf_coord)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             pop     = t%getPop()
             if (numMods .ne. 1_int64 .or. pop .ne. 5_int64) then
                 write(*, '(A)')    '--- Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD ---'
@@ -36,7 +36,7 @@ program Testv030_ADD_NODES_NUM_MODS_RESET_AFTER_REBUILD
 
             ! rebuild: 1+2 > ceiling(0.25*5)=2 -> 3 > 2 -> true
             call t%addNodes(rebuild_coords)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             pop     = t%getPop()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)

@@ -40,7 +40,9 @@ program Testv030_MULTITHREAD_V021_DATA
                     end do
 
                     if (.not. (found4 .and. found6) .or. size(res) .ne. 2) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

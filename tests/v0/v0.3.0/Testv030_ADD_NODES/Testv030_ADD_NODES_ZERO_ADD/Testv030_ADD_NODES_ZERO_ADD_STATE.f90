@@ -10,7 +10,7 @@ program Testv030_ADD_NODES_ZERO_ADD_STATE
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)   :: zero_coords(2, 0)
             integer(int64) :: numMods, pop, dim
             real(real64)   :: ratio
@@ -19,8 +19,8 @@ program Testv030_ADD_NODES_ZERO_ADD_STATE
             call t%build(init_coords)
             call t%addNodes(zero_coords)
 
-            numMods = getNumMods(t)
-            ratio   = getRebuildRatio(t)
+            numMods = t%getNumMods()
+            ratio   = t%getRebuildRatio()
             pop     = t%getPop()
             dim     = t%getDim()
             call t%getInitState(isInit)

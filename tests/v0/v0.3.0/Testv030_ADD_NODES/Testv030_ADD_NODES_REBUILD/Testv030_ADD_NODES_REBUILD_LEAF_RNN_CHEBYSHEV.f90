@@ -18,7 +18,7 @@ program Testv030_ADD_NODES_REBUILD_LEAF_RNN_CHEBYSHEV
 
             call t%build(init_coords)
             call t%addNodes(new_coords)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             res = t%rNN_Centroid([50.0_real64, 50.0_real64], 0.1_real64, metric='chebyshev')
 
             if (numMods .ne. 1_int64) then

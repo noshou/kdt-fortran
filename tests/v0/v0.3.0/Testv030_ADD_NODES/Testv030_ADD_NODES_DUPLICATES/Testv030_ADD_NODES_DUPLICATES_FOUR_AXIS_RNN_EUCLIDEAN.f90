@@ -9,12 +9,12 @@ program Testv030_ADD_NODES_DUPLICATES_FOUR_AXIS_RNN_EUCLIDEAN
             type(Tree)                 :: t
             real(real64)               :: init_coords(4, 2) = reshape( &
                 [1.0_real64, 1.0_real64, 1.0_real64, 1.0_real64, &
-                 9.0_real64, 9.0_real64, 9.0_real64, 9.0_real64], [4, 2])
+                9.0_real64, 9.0_real64, 9.0_real64, 9.0_real64], [4, 2])
             real(real64)               :: dup_coords(4, 5) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
-                 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [4, 5])
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, &
+                5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], [4, 5])
             type(NodePtr), allocatable :: res(:)
 
             call t%build(init_coords)

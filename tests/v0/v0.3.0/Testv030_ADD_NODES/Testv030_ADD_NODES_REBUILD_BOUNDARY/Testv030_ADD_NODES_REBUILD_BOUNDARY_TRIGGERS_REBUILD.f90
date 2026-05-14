@@ -11,10 +11,10 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_TRIGGERS_REBUILD
             type(Tree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
-                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
+                0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
             real(real64)               :: new_coords(2, 3) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 60.0_real64, &
-                 70.0_real64, 70.0_real64], [2, 3])
+                70.0_real64, 70.0_real64], [2, 3])
             type(NodePtr), allocatable :: res(:)
             integer(int64)             :: numMods, pop
             logical                    :: isInit, nodePoolAssoc, rootAssoc
@@ -23,7 +23,7 @@ program Testv030_ADD_NODES_REBUILD_BOUNDARY_TRIGGERS_REBUILD
             call t%setRebuildRatio(0.5_real64)
             call t%addNodes(new_coords)
 
-            numMods = getNumMods(t)
+            numMods = t%getNumMods()
             pop     = t%getPop()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)

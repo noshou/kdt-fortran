@@ -31,8 +31,8 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_NUM_MODS_LEAF
             end do
             !$OMP END PARALLEL DO
 
-            numMods = getNumMods(t)
-            pop     = t%getPop()
+            numMods = t%getNumMods()
+            pop = t%getPop()
 
             if (numMods .ne. 4_int64) then
                 write(*, '(A)')    '--- Testv030_MULTITHREAD_INTERNAL_STATE_NUM_MODS_LEAF ---'

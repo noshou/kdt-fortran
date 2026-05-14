@@ -32,17 +32,29 @@ program Testv030_MULTITHREAD_V020_RNN_CHEBYSHEV
                     call t%build(coords)
                     ! chebyshev r=0.8: only (0.6,0.8) in (max=0.8 <= 0.8)
                     res = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.8_real64, metric='chebyshev')
-                    if (size(res) .ne. 1) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return; end if
+                    if (size(res) .ne. 1) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t%destroy()
                     call t%build(dup_coords)
                     res = t%rNN_Centroid([5.0_real64, 5.0_real64], 0.01_real64, metric='chebyshev')
-                    if (size(res) .ne. 9) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return; end if
+                    if (size(res) .ne. 9) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t%destroy()
                     call t%build(col_coords)
                     res = t%rNN_Centroid([4.0_real64, 0.0_real64], 3.5_real64, metric='chebyshev')
-                    if (size(res) .ne. 7) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return; end if
+                    if (size(res) .ne. 7) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
                 end block
             end do
             !$OMP END PARALLEL DO

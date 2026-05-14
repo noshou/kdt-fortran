@@ -10,10 +10,10 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_PREVENTS_REBUILD
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64) :: new_coords(2, 3) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 60.0_real64, &
-                 70.0_real64, 70.0_real64], [2, 3])
+                70.0_real64, 70.0_real64], [2, 3])
             real(real64)   :: ratio
             integer(int64) :: numMods, pop
             logical        :: isInit, nodePoolAssoc, rootAssoc
@@ -22,8 +22,8 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_PREVENTS_REBUILD
             call t%setRebuildRatio(0.9_real64)
             call t%addNodes(new_coords)
 
-            ratio   = getRebuildRatio(t)
-            numMods = getNumMods(t)
+            ratio   = t%getRebuildRatio()
+            numMods = t%getNumMods()
             pop     = t%getPop()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)

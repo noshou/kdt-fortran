@@ -28,7 +28,9 @@ program Testv030_MULTITHREAD_V021_LIFECYCLE
                     call t%associatedRoot(assertRoot)
                     call t%getInitState(assertInitState)
                     if (assertNodePool .or. assertRoot .or. assertInitState) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     ! after build
@@ -38,8 +40,12 @@ program Testv030_MULTITHREAD_V021_LIFECYCLE
                     call t%associatedRoot(assertRoot)
                     call t%getInitState(assertInitState)
                     if (pop .ne. 5_int64 .or. dim .ne. 3_int64 .or. &
-                        .not. assertNodePool .or. .not. assertRoot .or. .not. assertInitState) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        .not. assertNodePool .or. .not. assertRoot  &
+                        .or. .not. assertInitState                  &
+                        ) then
+                            !$OMP CRITICAL
+                            failed = .true.
+                            !$OMP END CRITICAL
                     end if
 
                     ! after destroy
@@ -48,7 +54,9 @@ program Testv030_MULTITHREAD_V021_LIFECYCLE
                     call t%associatedRoot(assertRoot)
                     call t%getInitState(assertInitState)
                     if (assertNodePool .or. assertRoot .or. assertInitState) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     ! after rebuild
@@ -56,7 +64,9 @@ program Testv030_MULTITHREAD_V021_LIFECYCLE
                     pop = t%getPop()
                     call t%getInitState(assertInitState)
                     if (pop .ne. 5_int64 .or. .not. assertInitState) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

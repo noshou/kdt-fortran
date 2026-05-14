@@ -24,11 +24,15 @@ program Testv030_MULTITHREAD_ADD_NODES_THEN_RNN_EUCLIDEAN
             do i = 1, 4
                 block
                     type(NodePtr), allocatable :: res(:)
+                    
                     ! centroid (1.5,1.5) r=1.5 euclidean: finds pts within 1.5 of center
                     res = t%rNN_Centroid([1.5_real64, 1.5_real64], 1.5_real64, metric='euclidean')
+                    
                     ! (1,1)[d=sqrt(0.5)~0.7],(2,1)[d=sqrt(0.5)],(1,2)[d=sqrt(0.5)],(2,2)[d=sqrt(0.5)],(0.5,0.5)[d=sqrt(2)~1.4]
                     if (size(res) .ne. 5) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

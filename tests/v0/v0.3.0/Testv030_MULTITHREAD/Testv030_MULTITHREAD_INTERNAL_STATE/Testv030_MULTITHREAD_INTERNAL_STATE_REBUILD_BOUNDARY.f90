@@ -13,7 +13,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_REBUILD_BOUNDARY
         subroutine mtRebuildBoundary()
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
-                 20.0_real64, 0.0_real64, 30.0_real64, 0.0_real64], [2, 4])
+                20.0_real64, 0.0_real64, 30.0_real64, 0.0_real64], [2, 4])
             real(real64) :: batch1(2, 2) = reshape( &
                 [40.0_real64, 0.0_real64, 50.0_real64, 0.0_real64], [2, 2])
             real(real64) :: batch2(2, 1) = reshape([60.0_real64, 0.0_real64], [2, 1])
@@ -32,26 +32,37 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_REBUILD_BOUNDARY
                     call t%setRebuildRatio(0.5_real64)
 
                     call t%addNodes(batch1)
-                    numMods = getNumMods(t); pop = t%getPop()
+                    numMods = t%getNumMods()
+                    pop = t%getPop()
                     if (numMods .ne. 2_int64 .or. pop .ne. 6_int64) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     call t%addNodes(batch2)
-                    numMods = getNumMods(t); pop = t%getPop()
+                    numMods = t%getNumMods()
+                    pop = t%getPop()
                     if (numMods .ne. 3_int64 .or. pop .ne. 7_int64) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     call t%addNodes(batch3)
-                    numMods = getNumMods(t); pop = t%getPop()
+                    numMods = t%getNumMods()
+                    pop = t%getPop()
                     if (numMods .ne. 0_int64 .or. pop .ne. 8_int64) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     res = t%rNN_Centroid([35.0_real64, 0.0_real64], 40.0_real64, metric='euclidean')
                     if (size(res) .ne. 8) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

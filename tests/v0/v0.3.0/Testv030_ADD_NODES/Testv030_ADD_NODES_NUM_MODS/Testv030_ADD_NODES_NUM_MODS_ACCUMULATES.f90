@@ -13,9 +13,9 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
             type(Tree)   :: t
             real(real64) :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
-                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
+                4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
             real(real64) :: batch1(2, 1) = reshape([100.0_real64, 0.0_real64], [2, 1])
             real(real64) :: batch2(2, 2) = reshape( &
                 [200.0_real64, 0.0_real64, 300.0_real64, 0.0_real64], [2, 2])
@@ -26,7 +26,7 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
             call t%setRebuildRatio(0.9_real64)
 
             call t%addNodes(batch1)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             pop     = t%getPop()
             if (numMods .ne. 1_int64 .or. pop .ne. 9_int64) then
                 write(*, '(A)')    '--- Testv030_ADD_NODES_NUM_MODS_ACCUMULATES ---'
@@ -37,7 +37,7 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
             end if
 
             call t%addNodes(batch2)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             pop     = t%getPop()
             if (numMods .ne. 3_int64 .or. pop .ne. 11_int64) then
                 write(*, '(A)')    '--- Testv030_ADD_NODES_NUM_MODS_ACCUMULATES ---'
@@ -48,7 +48,7 @@ program Testv030_ADD_NODES_NUM_MODS_ACCUMULATES
             end if
 
             call t%addNodes(batch3)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             pop     = t%getPop()
             if (numMods .ne. 4_int64 .or. pop .ne. 12_int64) then
                 write(*, '(A)')    '--- Testv030_ADD_NODES_NUM_MODS_ACCUMULATES ---'

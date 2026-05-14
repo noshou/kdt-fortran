@@ -10,9 +10,9 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
             type(Tree)   :: t
             real(real64) :: init_coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
-                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
+                4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
             real(real64) :: new_coords(2, 1) = reshape([50.0_real64, 50.0_real64], [2, 1])
             real(real64)   :: ratio
             integer(int64) :: numMods, pop, dim
@@ -21,7 +21,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
             call t%build(init_coords)
 
             ! default ratio must be 0.25
-            ratio = getRebuildRatio(t)
+            ratio = t%getRebuildRatio()
             if (ratio .ne. 0.25_real64) then
                 write(*, '(A)')      '--- Testv030_ADD_NODES_SET_REBUILD_RATIO_GET ---'
                 write(*, '(A,F8.4)') 'expected default getRebuildRatio = 0.25, got: ', ratio
@@ -30,30 +30,31 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_GET
 
             ! change ratio and verify all state
             call t%setRebuildRatio(0.6_real64)
-            ratio      = getRebuildRatio(t)
-            numMods    = getNumMods(t)
+            ratio      = t%getRebuildRatio()
+            numMods    = t%getNumMods()
             pop        = t%getPop()
             dim        = t%getDim()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)
             call t%associatedRoot(rootAssoc)
-            if (ratio .ne. 0.6_real64 .or. numMods .ne. 0_int64 .or. pop .ne. 8_int64 .or. &
-                dim .ne. 2_int64 .or. .not. isInit .or. .not. nodePoolAssoc .or. .not. rootAssoc) then
-                write(*, '(A)')      '--- Testv030_ADD_NODES_SET_REBUILD_RATIO_GET ---'
-                write(*, '(A,F8.4)') 'expected ratio = 0.6, got: ', ratio
-                write(*, '(A,I0)')   'expected numMods = 0, got: ', numMods
-                write(*, '(A,I0)')   'expected pop = 8, got: ', pop
-                write(*, '(A,I0)')   'expected dim = 2, got: ', dim
-                write(*, '(A,L2)')   'initialized:   ', isInit
-                write(*, '(A,L2)')   'nodePool:      ', nodePoolAssoc
-                write(*, '(A,L2)')   'root:          ', rootAssoc
-                stop 1
+            if (ratio .ne. 0.6_real64 .or. numMods .ne. 0_int64 .or. pop .ne. 8_int64 .or.       &
+                dim .ne. 2_int64 .or. .not. isInit .or. .not. nodePoolAssoc .or. .not. rootAssoc &
+                ) then
+                    write(*, '(A)')      '--- Testv030_ADD_NODES_SET_REBUILD_RATIO_GET ---'
+                    write(*, '(A,F8.4)') 'expected ratio = 0.6, got: ', ratio
+                    write(*, '(A,I0)')   'expected numMods = 0, got: ', numMods
+                    write(*, '(A,I0)')   'expected pop = 8, got: ', pop
+                    write(*, '(A,I0)')   'expected dim = 2, got: ', dim
+                    write(*, '(A,L2)')   'initialized:   ', isInit
+                    write(*, '(A,L2)')   'nodePool:      ', nodePoolAssoc
+                    write(*, '(A,L2)')   'root:          ', rootAssoc
+                    stop 1
             end if
 
             ! ratio must survive a leaf-insert addNodes (0+1 > ceiling(0.6*8)=5 => 1>5 => false)
             call t%addNodes(new_coords)
-            ratio   = getRebuildRatio(t)
-            numMods = getNumMods(t)
+            ratio   = t%getRebuildRatio()
+            numMods = t%getNumMods()
             pop     = t%getPop()
             if (ratio .ne. 0.6_real64 .or. numMods .ne. 1_int64 .or. pop .ne. 9_int64) then
                 write(*, '(A)')      '--- Testv030_ADD_NODES_SET_REBUILD_RATIO_GET ---'

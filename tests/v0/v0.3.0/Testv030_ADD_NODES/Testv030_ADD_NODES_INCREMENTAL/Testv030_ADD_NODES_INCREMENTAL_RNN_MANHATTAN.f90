@@ -10,7 +10,7 @@ program Testv030_ADD_NODES_INCREMENTAL_RNN_MANHATTAN
             type(Tree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)               :: step(2, 1)
             type(NodePtr), allocatable :: res(:)
             integer                    :: k

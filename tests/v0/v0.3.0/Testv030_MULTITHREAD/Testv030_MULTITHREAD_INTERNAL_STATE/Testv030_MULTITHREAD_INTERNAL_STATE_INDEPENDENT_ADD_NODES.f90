@@ -11,7 +11,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_INDEPENDENT_ADD_NODES
         subroutine independentAddNodesState()
             real(real64)   :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)   :: new_coords(2, 2) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 60.0_real64], [2, 2])
             integer        :: i
@@ -31,8 +31,8 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_INDEPENDENT_ADD_NODES
                     call t%addNodes(new_coords)
                     treeIds(i) = t%getTreeId()
 
-                    numMods = getNumMods(t)
-                    ratio   = getRebuildRatio(t)
+                    numMods = t%getNumMods()
+                    ratio   = t%getRebuildRatio()
                     pop     = t%getPop()
                     call t%getInitState(isInit)
                     call t%associatedNodePool(nodePoolAssoc)
@@ -41,7 +41,9 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_INDEPENDENT_ADD_NODES
                     if (numMods .ne. 2_int64 .or. pop .ne. 6_int64 .or. &
                         ratio .ne. 0.9_real64 .or. .not. isInit .or. &
                         .not. nodePoolAssoc .or. .not. rootAssoc) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                            !$OMP CRITICAL
+                            failed = .true.
+                            !$OMP END CRITICAL
                     end if
                 end block
             end do

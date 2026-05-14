@@ -46,7 +46,8 @@ program Testv030_MULTITHREAD_INDEPENDENT_TREES_BUILD
             end if
             if (treeIds(1) .eq. treeIds(2) .or. treeIds(1) .eq. treeIds(3) .or. &
                 treeIds(1) .eq. treeIds(4) .or. treeIds(2) .eq. treeIds(3) .or. &
-                treeIds(2) .eq. treeIds(4) .or. treeIds(3) .eq. treeIds(4)) then
+                treeIds(2) .eq. treeIds(4) .or. treeIds(3) .eq. treeIds(4)      &
+                ) then
                 write(*, '(A)') '--- Testv030_MULTITHREAD_INDEPENDENT_TREES_BUILD ---'
                 write(*, '(A)') 'concurrent builds produced duplicate treeIds'
                 stop 1

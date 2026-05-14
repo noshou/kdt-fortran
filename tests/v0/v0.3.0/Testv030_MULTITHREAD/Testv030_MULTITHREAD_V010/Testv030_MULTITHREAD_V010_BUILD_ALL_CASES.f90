@@ -13,8 +13,7 @@ program Testv030_MULTITHREAD_V010_BUILD_ALL_CASES
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(failed)
             do i = 1, 4
                 block
-                    type(Tree)     :: t1, t2, t3, t4, t5, t6
-                    integer(int64) :: pop, dim
+                    type(Tree)   :: t1, t2, t3, t4, t5, t6
 
                     real(real64) :: one_pt(1, 1) = reshape([1.0_real64], [1, 1])
                     real(real64) :: two_pts(2, 2) = reshape( &
@@ -40,12 +39,46 @@ program Testv030_MULTITHREAD_V010_BUILD_ALL_CASES
                         9.0_real64, 2.0_real64,  734.35_real64,    0.00_real64,  &
                         2.0_real64, 6.0_real64,  -93.13_real64,    0.94_real64], [4, 7])
 
-                    call t1%build(one_pt);     if (t1%getPop() .ne. 1_int64 .or. t1%getDim() .ne. 1_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
-                    call t2%build(two_pts);    if (t2%getPop() .ne. 2_int64 .or. t2%getDim() .ne. 2_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
-                    call t3%build(one_axis);   if (t3%getPop() .ne. 7_int64 .or. t3%getDim() .ne. 1_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
-                    call t4%build(two_axis);   if (t4%getPop() .ne. 7_int64 .or. t4%getDim() .ne. 2_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
-                    call t5%build(three_axis); if (t5%getPop() .ne. 7_int64 .or. t5%getDim() .ne. 3_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
-                    call t6%build(four_axis);  if (t6%getPop() .ne. 7_int64 .or. t6%getDim() .ne. 4_int64) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    call t1%build(one_pt)
+                    if (t1%getPop() .ne. 1_int64 .or. t1%getDim() .ne. 1_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
+                    
+                    call t2%build(two_pts)
+                    if (t2%getPop() .ne. 2_int64 .or. t2%getDim() .ne. 2_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
+                    
+                    call t3%build(one_axis)
+                    if (t3%getPop() .ne. 7_int64 .or. t3%getDim() .ne. 1_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
+                    
+                    call t4%build(two_axis)
+                    if (t4%getPop() .ne. 7_int64 .or. t4%getDim() .ne. 2_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
+                    
+                    call t5%build(three_axis); if (t5%getPop() .ne. 7_int64 .or. t5%getDim() .ne. 3_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
+                    
+                    call t6%build(four_axis)
+                    if (t6%getPop() .ne. 7_int64 .or. t6%getDim() .ne. 4_int64) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
                 end block
             end do
             !$OMP END PARALLEL DO

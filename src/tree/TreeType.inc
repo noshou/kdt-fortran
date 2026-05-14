@@ -19,9 +19,11 @@ real(real64)         :: rebuildRatio = 0.25_real64  !> if modifications > rebuil
         procedure    :: getInitState
         procedure    :: getTreeId
         procedure    :: setRebuildRatio
+        procedure    :: getRebuildRatio
         procedure    :: associatedNodePool
         procedure    :: associatedRoot
         procedure    :: addNodes
+        procedure    :: getNumMods
         procedure    :: assert
         procedure    :: destroy
         final        :: finalizer

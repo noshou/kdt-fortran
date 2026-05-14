@@ -11,13 +11,13 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_VIA_BUILD
             type(Tree)   :: t
             real(real64) :: coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)   :: ratio
             integer(int64) :: pop, dim
             logical        :: isInit
 
             call t%build(coords, rebuildRatio=0.75_real64)
-            ratio = getRebuildRatio(t)
+            ratio = t%getRebuildRatio()
             pop   = t%getPop()
             dim   = t%getDim()
             call t%getInitState(isInit)
@@ -34,7 +34,7 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_VIA_BUILD
             ! destroy resets ratio to 0.25; rebuild without param keeps 0.25
             call t%destroy()
             call t%build(coords)
-            ratio = getRebuildRatio(t)
+            ratio = t%getRebuildRatio()
             if (ratio .ne. 0.25_real64) then
                 write(*, '(A)')      '--- Testv030_ADD_NODES_SET_REBUILD_RATIO_VIA_BUILD ---'
                 write(*, '(A,F8.4)') 'expected ratio = 0.25 after destroy+rebuild, got: ', ratio

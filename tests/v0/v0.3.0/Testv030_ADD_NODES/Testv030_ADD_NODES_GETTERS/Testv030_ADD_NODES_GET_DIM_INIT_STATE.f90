@@ -9,12 +9,12 @@ program Testv030_ADD_NODES_GET_DIM_INIT_STATE
             type(Tree)     :: t
             real(real64)   :: init_coords(3, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 0.0_real64, &
-                 1.0_real64, 0.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 0.0_real64, 1.0_real64], [3, 4])
+                1.0_real64, 0.0_real64, 0.0_real64, &
+                0.0_real64, 1.0_real64, 0.0_real64, &
+                0.0_real64, 0.0_real64, 1.0_real64], [3, 4])
             real(real64)   :: new_coords(3, 2) = reshape( &
                 [5.0_real64, 5.0_real64, 5.0_real64, &
-                 6.0_real64, 6.0_real64, 6.0_real64], [3, 2])
+                6.0_real64, 6.0_real64, 6.0_real64], [3, 2])
             integer(int64) :: dim
             logical        :: isInit
 

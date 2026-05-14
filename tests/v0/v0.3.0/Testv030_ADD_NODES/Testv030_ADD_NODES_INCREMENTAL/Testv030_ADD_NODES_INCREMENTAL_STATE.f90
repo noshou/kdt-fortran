@@ -13,7 +13,7 @@ program Testv030_ADD_NODES_INCREMENTAL_STATE
             type(Tree)   :: t
             real(real64) :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, &
-                 0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
+                0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 4])
             real(real64)   :: step(2, 1)
             integer(int64) :: numMods, pop, expMods, expPop, k
             real(real64)   :: ratio
@@ -29,8 +29,8 @@ program Testv030_ADD_NODES_INCREMENTAL_STATE
 
                 expMods = k
                 expPop  = 4_int64 + k
-                numMods = getNumMods(t)
-                ratio   = getRebuildRatio(t)
+                numMods = t%getNumMods() 
+                ratio   = t%getRebuildRatio()
                 pop     = t%getPop()
                 call t%getInitState(isInit)
                 call t%associatedNodePool(nodePoolAssoc)

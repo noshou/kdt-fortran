@@ -17,7 +17,7 @@ program Testv030_ADD_NODES_REBUILD_FORCE_RNN_EUCLIDEAN
 
             call t%build(init_coords)
             call t%addNodes(new_coords)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods()
             res = t%rNN_Centroid([1.5_real64, 2.0_real64], 5.0_real64, metric='euclidean')
 
             if (numMods .ne. 0_int64) then

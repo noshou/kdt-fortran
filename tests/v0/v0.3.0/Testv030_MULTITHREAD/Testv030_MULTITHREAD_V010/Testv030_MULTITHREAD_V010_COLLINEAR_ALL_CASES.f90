@@ -32,15 +32,27 @@ program Testv030_MULTITHREAD_V010_COLLINEAR_ALL_CASES
 
                     call t1%build(col1)
                     res = t1%rNN_Centroid([4.0_real64, 0.0_real64], 3.5_real64)
-                    if (size(res) .ne. 7) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 7) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t2%build(col2)
                     res = t2%rNN_Centroid([0.0_real64, 4.0_real64], 3.5_real64)
-                    if (size(res) .ne. 7) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 7) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t3%build(col3)
                     res = t3%rNN_Centroid([0.0_real64, 0.0_real64, 4.0_real64], 3.5_real64)
-                    if (size(res) .ne. 7) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 7) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
                 end block
             end do
             !$OMP END PARALLEL DO

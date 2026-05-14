@@ -10,9 +10,9 @@ program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD
             type(Tree)   :: t
             real(real64) :: coords(2, 8) = reshape( &
                 [0.0_real64, 1.0_real64, 2.0_real64, 3.0_real64, &
-                 4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
-                 0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
+                4.0_real64, 5.0_real64, 6.0_real64, 7.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64, &
+                0.0_real64, 0.0_real64, 0.0_real64, 0.0_real64], [2, 8])
             real(real64) :: new_coords(2, 1) = reshape([50.0_real64, 0.0_real64], [2, 1])
             integer(int64) :: numMods, pop
             real(real64)   :: ratio
@@ -23,7 +23,7 @@ program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD
             call t%addNodes(new_coords)
 
             ! verify non-zero mods before destroy
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             if (numMods .ne. 1_int64) then
                 write(*, '(A)')    '--- Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD ---'
                 write(*, '(A,I0)') 'expected numMods=1 before destroy, got: ', numMods
@@ -33,8 +33,8 @@ program Testv030_ADD_NODES_NUM_MODS_ZERO_AFTER_DESTROY_BUILD
             call t%destroy()
             call t%build(coords)
 
-            numMods = getNumMods(t)
-            ratio   = getRebuildRatio(t)
+            numMods = t%getNumMods() 
+            ratio   = t%getRebuildRatio()
             pop     = t%getPop()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)

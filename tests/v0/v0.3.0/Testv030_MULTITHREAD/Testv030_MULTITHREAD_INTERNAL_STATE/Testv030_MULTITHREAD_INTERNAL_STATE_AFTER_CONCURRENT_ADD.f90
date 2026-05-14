@@ -32,7 +32,7 @@ program Testv030_MULTITHREAD_INTERNAL_STATE_AFTER_CONCURRENT_ADD
             !$OMP END PARALLEL DO
 
             pop   = t%getPop()
-            ratio = getRebuildRatio(t)
+            ratio = t%getRebuildRatio()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)
             call t%associatedRoot(rootAssoc)

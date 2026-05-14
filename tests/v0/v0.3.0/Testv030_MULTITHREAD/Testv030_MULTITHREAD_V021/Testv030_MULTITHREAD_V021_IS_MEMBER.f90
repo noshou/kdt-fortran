@@ -24,19 +24,25 @@ program Testv030_MULTITHREAD_V021_IS_MEMBER
                     res = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.01_real64)
                     n => res(1)%p
                     if (.not. t%isMember(n)) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     ! node not member after destroy
                     call t%destroy()
                     if (t%isMember(n)) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
 
                     ! node not member after rebuild (new treeId)
                     call t%build(coords)
                     if (t%isMember(n)) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; return
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

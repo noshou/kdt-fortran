@@ -22,10 +22,13 @@ program Testv030_MULTITHREAD_ADD_NODES_THEN_RNN_CHEBYSHEV
             do i = 1, 4
                 block
                     type(NodePtr), allocatable :: res(:)
+                    
                     ! centroid (0,0) r=1.5 chebyshev: (0,0)[0],(1,0)[1],(0,1)[1] -> 3 nodes
                     res = t%rNN_Centroid([0.0_real64, 0.0_real64], 1.5_real64, metric='chebyshev')
                     if (size(res) .ne. 3) then
-                        !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
                     end if
                 end block
             end do

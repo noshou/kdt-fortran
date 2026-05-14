@@ -24,19 +24,35 @@ program Testv030_MULTITHREAD_V010_DUPLICATES_ALL_CASES
 
                     call t1%build(dup1)
                     res = t1%rNN_Centroid([5.0_real64], 0.01_real64)
-                    if (size(res) .ne. 9) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 9) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t2%build(dup2)
                     res = t2%rNN_Centroid([5.0_real64, 5.0_real64], 0.01_real64)
-                    if (size(res) .ne. 9) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 9) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t3%build(dup3)
                     res = t3%rNN_Centroid([5.0_real64, 5.0_real64, 5.0_real64], 0.01_real64)
-                    if (size(res) .ne. 9) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 9) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
 
                     call t4%build(dup4)
                     res = t4%rNN_Centroid([5.0_real64, 5.0_real64, 5.0_real64, 5.0_real64], 0.01_real64)
-                    if (size(res) .ne. 9) then; !$OMP CRITICAL; failed = .true.; !$OMP END CRITICAL; end if
+                    if (size(res) .ne. 9) then
+                        !$OMP CRITICAL
+                        failed = .true.
+                        !$OMP END CRITICAL
+                    end if
                 end block
             end do
             !$OMP END PARALLEL DO

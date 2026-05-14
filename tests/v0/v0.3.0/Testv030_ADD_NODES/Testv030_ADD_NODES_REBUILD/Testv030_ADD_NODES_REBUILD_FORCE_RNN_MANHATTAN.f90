@@ -17,7 +17,7 @@ program Testv030_ADD_NODES_REBUILD_FORCE_RNN_MANHATTAN
 
             call t%build(init_coords)
             call t%addNodes(new_coords)
-            numMods = getNumMods(t)
+            numMods = t%getNumMods() 
             ! Manhattan: from (0,0) r=5: (0,0)[0],(3,0)[3],(0,4)[4] inside; (3,4)[7] outside
             res = t%rNN_Centroid([0.0_real64, 0.0_real64], 5.0_real64, metric='manhattan')
 

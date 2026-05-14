@@ -4,13 +4,14 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_FORCES_REBUILD
     implicit none
     call setRebuildRatioForcesRebuild()
     contains
+
         !> With rebuildRatio=0.01, ceiling(0.01*4)=1; adding 2 nodes: 0+2>1 -> rebuild.
         !! numMods=0 after; all 6 nodes findable; full tree state valid.
         subroutine setRebuildRatioForcesRebuild()
             type(Tree)                 :: t
             real(real64)               :: init_coords(2, 4) = reshape( &
                 [0.0_real64, 0.0_real64, 10.0_real64, 0.0_real64, &
-                 0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
+                0.0_real64, 10.0_real64, 10.0_real64, 10.0_real64], [2, 4])
             real(real64)               :: new_coords(2, 2) = reshape( &
                 [50.0_real64, 50.0_real64, 60.0_real64, 60.0_real64], [2, 2])
             type(NodePtr), allocatable :: res(:)
@@ -22,8 +23,8 @@ program Testv030_ADD_NODES_SET_REBUILD_RATIO_FORCES_REBUILD
             call t%setRebuildRatio(0.01_real64)
             call t%addNodes(new_coords)
 
-            ratio   = getRebuildRatio(t)
-            numMods = getNumMods(t)
+            ratio   = t%getRebuildRatio()
+            numMods = t%getNumMods()
             pop     = t%getPop()
             call t%getInitState(isInit)
             call t%associatedNodePool(nodePoolAssoc)

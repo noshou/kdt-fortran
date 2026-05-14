@@ -21,7 +21,7 @@ program Testv021_DATA_INPUT_SIZE_MISMATCH_POPULATED_DATA
             character(len=1)    :: data(4) = ['1', '2', '3', '4']
             
             call t%build(coords, data)
-            write(*, '(A)'), '--- dataInputSizeMismatchPopulatedData ---'
+            write(*, '(A)') '--- dataInputSizeMismatchPopulatedData ---'
             write(*, *) 'expected program to fail, but ran successfully'
 
         end subroutine dataInputSizeMismatchPopulatedData
