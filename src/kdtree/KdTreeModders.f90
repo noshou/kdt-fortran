@@ -151,4 +151,105 @@ submodule(KdTreeFortran) KdTreeModders
 
         end procedure addNodes
 
+
+        module procedure rmvNodes
+            logical                      :: isInit, hasIds, hasEps, hasRad, hasCrd
+            integer                      :: sizeRad, sizeCrd, sizeDim, sizeIds, buffSze
+            integer(int64)               :: dim
+            character(len=9)             :: mtr
+            type(KdNodePtr), allocatable :: foundNodes(:)
+
+            ! state variables
+            call this%getInitState(isInit)
+            hasIds = present(ids)
+            hasEps = present(epsilon)
+            hasCrd = present(coordsList)
+            hasRad = present(radii)
+            dim    = this%dim
+            if (.not.hasRad) then; sizeRad=0; else; sizeRad=size(radii);        end if
+            if (.not.hasCrd) then; sizeCrd=0; else; sizeCrd=size(coordsList,1); end if
+            if (.not.hasCrd) then; sizeDim=0; else; sizeDim=size(coordsList,2); end if
+            if (.not.hasIds) then; sizeIds=0; else; sizeIds=size(ids);          end if 
+
+            ! assertion checks
+            if (.not. isInit) then 
+                error stop "rmvNodes: tree uninitialized (call this%build() first?)"
+            else if (hasRad .and. .not. hasCrd) then 
+                error stop "rmvNodes: radii must be supplied with a list of coordinates"  
+            else if (hasRad .and. sizeRad .ne. sizeCrd) then 
+                error stop "rmvNodes: number of radii must match number of coordinates"
+            else if (hasCrd .and. ((sizeDim .eq. 0) .or. (sizeCrd .eq. 0))) then 
+                error stop "rmvNodes: coordsList is empty"
+            else if (hasCrd .and. (sizeDim .ne. dim)) then 
+                error stop "rmvNodes: dimension of coordinates must match dimension of tree"
+            else if (hasIds .and. (sizeIds .eq. 0)) then 
+                error stop "rmvNodes: ids is empty"
+            else if (.not. (hasIds .or. hasCrd)) then 
+                error stop "rmvNodes: must supply ids or coordsList"
+            end if
+            if (present(bufferSize)) then 
+                if (bufferSize .le. 0) then 
+                    error stop "rmvNodes: invalid bufferSize"
+                else 
+                    buffSze = bufferSize
+                end if 
+            else 
+                buffSze = 1000
+            end if
+
+            if (.not. present(metric)) then
+                mtr = 'euclidean'
+            else
+                select case (metric)
+                    case ('euclidean'); mtr = 'euclidean'
+                    case ('manhattan'); mtr = 'manhattan'
+                    case ('chebyshev'); mtr = 'chebyshev'
+                    case default;       error stop "rmvNodes: unknown metric"
+                end select
+            end if
+
+            ! if only ids present, must do linear scan for ids. 
+            ! least efficient method O(n*size(ids)), worst case is O(n^2)
+            if (hasIds .and. (.not. hasCrd)) then 
+                foundNodes = rmvNodes_FindLinearScan(this, ids)
+            end if
+
+        end procedure rmvNodes
+
+        function rmvNodes_FindLinearScan(t, ids) result(foundNodes)
+            type(KdTree), intent(in)     :: t
+            integer(int64), intent(in)   :: ids(:)
+            type(KdNodePtr), allocatable :: foundNodes(:)
+            
+            type(KdNode), pointer        :: copy
+            integer(int64)               :: i, j, numFound
+
+            ! Count exact matches to determine final array size
+            numFound = 0_int64
+            do i = 1_int64, t%pop 
+                do j = 1_int64, size(ids)
+                    if (t%nodePool(i)%nodeId == ids(j)) then
+                        numFound = numFound + 1_int64
+                        exit
+                    end if
+                end do 
+            end do
+
+            ! Allocate the final array 
+            allocate(foundNodes(numFound))
+
+            ! Allocate and populate the final pointers directly
+            numFound = 0_int64
+            do i = 1_int64, t%pop 
+                do j = 1_int64, size(ids)
+                    if (t%nodePool(i)%nodeId == ids(j)) then
+                        numFound = numFound + 1_int64
+                        allocate(copy, source=t%nodePool(i))
+                        foundNodes(numFound)%p => copy
+                        exit
+                    end if
+                end do 
+            end do
+
+        end function rmvNodes_FindLinearScan
 end submodule KdTreeModders

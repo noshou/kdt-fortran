@@ -1,24 +1,35 @@
 submodule(KdTreeFortran) KdTreeRnn
     implicit none
     contains
-        
-        module procedure rNN
-            real(kind=real64)                            :: delta
-            type(KdNodePtr),  allocatable                :: tmp(:)
-            integer(int64)                               :: axis
-            integer                                      :: i
-            type(KdNode),  pointer                       :: copy
-            logical                                      :: withinRadius
 
-            if (currIdx .ne. 0_int64) then
+        module procedure rNN
+            integer(int64), allocatable  :: stack(:), stmp(:)
+            integer(int64)               :: stackTop, stackSize, node
+            real(kind=real64)            :: delta
+            type(KdNodePtr), allocatable :: tmp(:)
+            integer(int64)               :: axis
+            integer                      :: i
+            type(KdNode), pointer        :: copy
+            logical                      :: withinRadius
+
+            if (currIdx .eq. 0_int64) return
+
+            stackSize = 64_int64
+            allocate(stack(stackSize))
+            stackTop  = 1_int64
+            stack(1)  = currIdx
+
+            do while (stackTop > 0_int64)
+                node     = stack(stackTop)
+                stackTop = stackTop - 1_int64
 
                 select case (metric)
                     case ('euclidean')
-                        withinRadius = target%euclideanDist(nodePool(currIdx)) .le. radius
+                        withinRadius = target%euclideanDist(nodePool(node)) .le. radius
                     case ('manhattan')
-                        withinRadius = target%manhattanDist(nodePool(currIdx)) .le. radius
+                        withinRadius = target%manhattanDist(nodePool(node)) .le. radius
                     case ('chebyshev')
-                        withinRadius = target%chebyshevDist(nodePool(currIdx)) .le. radius
+                        withinRadius = target%chebyshevDist(nodePool(node)) .le. radius
                     case default
                         error stop "rNN: unknown metric"
                 end select
@@ -33,56 +44,42 @@ submodule(KdTreeFortran) KdTreeRnn
                         call move_alloc(from=tmp, to=res)
                     end if
                     arrSize = arrSize + 1
-                    allocate(copy, source=nodePool(currIdx))
+                    allocate(copy, source=nodePool(node))
                     res(arrSize)%p => copy
                 end if
 
-                axis  = nodePool(currIdx)%splitAxis
-                delta = target%coords(axis) - nodePool(currIdx)%coords(axis)
-                if (delta < 0) then
-                    call rNN(                   &
-                        target,                 &
-                        nodePool(currIdx)%lch,  &
-                        nodePool,               &
-                        radius,                 &
-                        res,                    &
-                        arrSize,                &
-                        metric                  &
-                    )
-                    if (-delta .le. radius) then 
-                    call rNN(                   &
-                        target,                 &
-                        nodePool(currIdx)%rch,  &
-                        nodePool,               &
-                        radius,                 &
-                        res,                    &
-                        arrSize,                &
-                        metric                  &
-                    )
+                axis  = nodePool(node)%splitAxis
+                delta = target%coords(axis) - nodePool(node)%coords(axis)
+
+                ! grow stack if needed before pushing up to 2 children
+                if (stackTop + 2 > stackSize) then
+                    stackSize = stackSize * 2_int64
+                    allocate(stmp(stackSize))
+                    stmp(1:stackTop) = stack(1:stackTop)
+                    call move_alloc(from=stmp, to=stack)
+                end if
+
+                if (delta < 0.0_real64) then
+                    if (nodePool(node)%lch .ne. 0_int64) then
+                        stackTop         = stackTop + 1_int64
+                        stack(stackTop)  = nodePool(node)%lch
+                    end if
+                    if (-delta .le. radius .and. nodePool(node)%rch .ne. 0_int64) then
+                        stackTop         = stackTop + 1_int64
+                        stack(stackTop)  = nodePool(node)%rch
                     end if
                 else
-                    call rNN(                   &
-                        target,                 &
-                        nodePool(currIdx)%rch,  &
-                        nodePool,               &
-                        radius,                 &
-                        res,                    &
-                        arrSize,                &
-                        metric                  &
-                    )
-                    if (delta .le. radius) then   
-                    call rNN(                   &
-                        target,                 &
-                        nodePool(currIdx)%lch,  &
-                        nodePool,               &
-                        radius,                 &
-                        res,                    &
-                        arrSize,                &
-                        metric                  &
-                    )
+                    if (nodePool(node)%rch .ne. 0_int64) then
+                        stackTop         = stackTop + 1_int64
+                        stack(stackTop)  = nodePool(node)%rch
+                    end if
+                    if (delta .le. radius .and. nodePool(node)%lch .ne. 0_int64) then
+                        stackTop         = stackTop + 1_int64
+                        stack(stackTop)  = nodePool(node)%lch
                     end if
                 end if
-            end if
+            end do
+
         end procedure rNN
 
         module procedure rNN_Node
@@ -91,22 +88,22 @@ submodule(KdTreeFortran) KdTreeRnn
             character(len=9)           :: m
             type(KdNodePtr), allocatable :: tmp(:)
 
-            if (this%rootIdx .eq. 0_int64) then 
+            if (this%rootIdx .eq. 0_int64) then
                 error stop "rNN_Node: tree is empty (call build first?)"
-            else if (.not. associated(target%p)) then 
+            else if (.not. associated(target%p)) then
                 error stop "rNN_Node: target is null"
-            else if (radius .lt. 0.0_real64) then 
+            else if (radius .lt. 0.0_real64) then
                 error stop "rNN_Node: negative radius"
-            else if (.not. this%isMember(target%p)) then 
+            else if (.not. this%isMember(target%p)) then
                 error stop "rNN_Node: target is not a member of tree"
             end if
 
             if(.not. present(bufferSize)) then
                 is = 1000
             else
-                if (bufferSize .le. 0) then 
+                if (bufferSize .le. 0) then
                     error stop "rNN_Node: invalid bufferSize"
-                else 
+                else
                     is = bufferSize
                 end if
             end if
@@ -184,22 +181,22 @@ submodule(KdTreeFortran) KdTreeRnn
             type(KdNode)                 :: dummyNode
             type(KdNodePtr), allocatable :: tmp(:)
 
-            if (this%rootIdx .eq. 0_int64) then      
+            if (this%rootIdx .eq. 0_int64) then
                 error stop "rNN_Centroid: tree is empty (call build first?)"
-            else if (size(centroid) .ne. this%dim) then    
+            else if (size(centroid) .ne. this%dim) then
                 error stop "rNN_Centroid: dimension of centroid must match dimension of tree"
-            else if (radius .lt. 0.0_real64) then 
+            else if (radius .lt. 0.0_real64) then
                 error stop "rNN_Centroid: negative radius"
-            end if 
+            end if
 
             if(.not. present(bufferSize)) then
                 is = 1000
             else
                 if (bufferSize .le. 0) then
                     error stop "rNN_Centroid: invalid bufferSize"
-                else 
+                else
                     is = bufferSize
-                end if 
+                end if
             end if
 
             if (.not. present(metric)) then
@@ -248,7 +245,7 @@ submodule(KdTreeFortran) KdTreeRnn
 
             ! stamp each dispatched copy with the current removal counter
             do i = 1, size(res)
-                if (associated(res(i)%p)) then 
+                if (associated(res(i)%p)) then
                     res(i)%p%numRemovesSnapshot = this%numRemoves
                 end if
             end do

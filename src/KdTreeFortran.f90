@@ -435,7 +435,47 @@ module KdTreeFortran
             class(*), intent(in), optional  :: dataList(:)
         end subroutine addNodes
 
-        !==========================================================================!
+        !> Each present argument acts as an independent filter: nodes matching
+        !! any criterion are removed (union). coordsList alone removes nodes at
+        !! exact coordinates; coordsList + radii removes all nodes within radii(i)
+        !! of coordsList(:,i); ids removes nodes by id. Any combination of
+        !! coordsList (with or without radii) and ids is valid.
+        !! 
+        !! Note:
+        !! Only supplying ids is very inefficient, since a linear scan of 
+        !! the node pool is required. Function degenerates to O(n*size(ids)).
+        !!
+        !! @param[in] coordsList  (k, n) array of target coordinates
+        !! @param[in] radii       n radii paired with coordsList; 
+        !!                        if omitted, finds match w/ tolerance of epsilon
+        !! @param[in] ids         ids of nodes to remove
+        !! @param[in] epsilon     tolerance for coordinate matching; 
+        !!                        defaults to 1e-15
+        !! @param[in] metric      'euclidean' (default), 'manhattan', 'chebyshev'
+        !! @param[in] bufferSize  initial capacity of list of matches 
+        !!                        before reallocation (default 1000)
+        !!
+        !! @return    numRmv      total number of nodes removed
+        module function rmvNodes(   &
+            this,                   &
+            coordsList,             &
+            radii,                  &
+            ids,                    &
+            epsilon,                &
+            metric,                 &
+            bufferSize              &
+        ) result(numRmv)
+            class(KdTree),    intent(inout)        :: this
+            real(real64),     intent(in), optional :: radii(:)
+            real(real64),     intent(in), optional :: coordsList(:,:)
+            integer(int64),   intent(in), optional :: ids(:)
+            real(real64),     intent(in), optional :: epsilon
+            character(len=*), intent(in), optional :: metric
+            integer,          intent(in), optional :: bufferSize
+            integer                                :: numRmv
+        end function rmvNodes
+
+        !===================================================================================!
 
         !================================================! 
         !========= search_modules/KdTreeRnn.f90 =========! 
@@ -451,8 +491,8 @@ module KdTreeFortran
         !! @param[in]    radius   search radius
         !! @param[inout] res      result buffer; doubles in size when full
         !! @param[inout] arrSize  number of results written into res so far
-        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'
-        recursive module subroutine rNN(    &
+        !! @param[in]    metric   'euclidean', (default) 'manhattan', 'chebyshev'
+        module subroutine rNN(    &
             target,                         &
             currIdx,                        &
             nodePool,                       &
@@ -478,8 +518,7 @@ module KdTreeFortran
         !! @param[in] radius        the search radius; error stop if negative
         !! @param[in] bufferSize    optional initial result buffer size; defaults to 1000;
         !!                          doubles when full; error stop if <= 0
-        !! @param[in] metric        optional metric ('euclidean', 'manhattan', 'chebyshev');
-        !!                          error stop if unrecognised
+        !! @param[in] metric        'euclidean', (default) 'manhattan', 'chebyshev'
         !! @param[in] excludeTarget if .true., removes the target node from the returned list
         !!
         !! @return list of nodes within the search radius
@@ -508,8 +547,7 @@ module KdTreeFortran
         !! @param[in] radius      the search radius; error stop if negative
         !! @param[in] bufferSize  optional initial result buffer size; defaults to 1000;
         !!                        doubles when full; error stop if <= 0
-        !! @param[in] metric      optional metric ('euclidean', 'manhattan', 'chebyshev');
-        !!                        error stop if unrecognised
+        !! @param[in] metric     'euclidean', (default) 'manhattan', 'chebyshev'
         !!
         !! @return list of nodes within the search radius
         module function rNN_Centroid(   &
