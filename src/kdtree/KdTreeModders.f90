@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) TreeModder
+submodule(KdTreeFortran) KdTreeModders
     use iso_fortran_env, only: int64, real64
     implicit none
     contains
@@ -151,4 +151,4 @@ submodule(KdTreeFortran) TreeModder
 
         end procedure addNodes
 
-end submodule TreeModder
+end submodule KdTreeModders

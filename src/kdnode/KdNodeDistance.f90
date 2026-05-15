@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) NodeDistance
+submodule(KdTreeFortran) KdNodeDistance
     implicit none 
     contains 
 
@@ -52,4 +52,4 @@ submodule(KdTreeFortran) NodeDistance
             dist = maxval(abs(point - this%coords))
         end procedure chebyshevDistPoint
 
-end submodule NodeDistance
+end submodule KdNodeDistance

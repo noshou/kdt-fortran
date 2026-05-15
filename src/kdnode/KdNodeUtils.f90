@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) NodeUtils
+submodule(KdTreeFortran) KdNodeUtils
     implicit none
     contains
 
@@ -50,5 +50,15 @@ submodule(KdTreeFortran) NodeUtils
             call destroyNodePtr(this)
         end procedure finalizerNodePtr
 
+        module procedure destroyNodeBucket
+            integer :: i
+            do i = 1, size(this%nodes)
+                call this%nodes(i)%destroy()
+            end do
+        end procedure destroyNodeBucket
 
-end submodule NodeUtils
+        module procedure finalizerNodeBucket
+            call destroyNodeBucket(this)
+        end procedure finalizerNodeBucket
+
+end submodule KdNodeUtils

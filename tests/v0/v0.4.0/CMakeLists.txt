@@ -1,0 +1,3 @@
+add_subdirectory(Testv040_FIND_NODES_ASSERTIONS)
+add_subdirectory(Testv040_FIND_NODES_COORDS)
+add_subdirectory(Testv040_FIND_NODES_IDS)

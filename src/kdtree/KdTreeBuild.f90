@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) BuildSubmod
+submodule(KdTreeFortran) KdTreeBuild
     implicit none 
     contains 
         module procedure build
@@ -215,4 +215,4 @@ submodule(KdTreeFortran) BuildSubmod
         end subroutine quickSelectPartition
 
 
-end submodule BuildSubmod
+end submodule KdTreeBuild

@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) TreeGetters 
+submodule(KdTreeFortran) KdTreeGetters 
     implicit none 
     contains 
         module procedure getDim    
@@ -25,4 +25,4 @@ submodule(KdTreeFortran) TreeGetters
             numMods = this%modifications
         end procedure getNumMods
 
-end submodule TreeGetters
+end submodule KdTreeGetters

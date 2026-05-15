@@ -8,6 +8,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 include(AddKdTest)
+include(AddKdTestOmp)
 
 add_subdirectory(src)
 

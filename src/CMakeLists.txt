@@ -1,14 +1,13 @@
 add_library(kdtreefortran
 	KdTreeFortran.f90
-	kdnode/NodeDistance.f90
-	kdnode/NodeGetters.f90
-	kdnode/NodeUtils.f90
-	kdtree/BuildSubmod.f90
-	kdtree/TreeGetters.f90
-	kdtree/TreeUtils.f90
-	kdtree/SearchSubmod.f90
-	kdtree/RnnModule.f90
-	kdtree/TreeModder.f90
+	kdnode/KdNodeDistance.f90
+	kdnode/KdNodeGetters.f90
+	kdnode/KdNodeUtils.f90
+	kdtree/KdTreeBuild.f90
+	kdtree/KdTreeGetters.f90
+	kdtree/KdTreeUtils.f90
+	kdtree/search_modules/KdTreeRnn.f90
+	kdtree/KdTreeModders.f90
 )
 
 target_include_directories(kdtreefortran PUBLIC

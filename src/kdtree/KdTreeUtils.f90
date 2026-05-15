@@ -1,4 +1,4 @@
-submodule(KdTreeFortran) TreeUtils
+submodule(KdTreeFortran) KdTreeUtils
     use iso_fortran_env, only: output_unit, int64, real64
     implicit none
     contains
@@ -200,4 +200,4 @@ submodule(KdTreeFortran) TreeUtils
             call destroy(this)
         end procedure finalizer
 
-end submodule TreeUtils
+end submodule KdTreeUtils

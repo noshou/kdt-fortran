@@ -3,18 +3,8 @@ module KdTreeFortran
     use iso_fortran_env, only: int64, real64, output_unit
     implicit none
     private
-    public                  :: KdTree, KdNode, KdNodePtr
+    public                  :: KdTree, KdNode, KdNodePtr, KdNodeBucket
     integer(int64), save    :: nextTreeId = 0_int64
-
-    !> Pointer to an owned copy of a Node returned by a search.
-    !! p is always a pointer to a heap-allocated copy; call destroy() or let it
-    !! go out of scope to free the copy.
-    type :: KdNodePtr
-        type(KdNode), pointer :: p    => null()
-        contains
-            procedure       :: destroy => destroyNodePtr
-            final           :: finalizerNodePtr
-    end type KdNodePtr
 
     type :: KdNode
         private
@@ -39,43 +29,62 @@ module KdTreeFortran
             procedure                   :: getSplitAxis
     end type KdNode
     
+    !> Pointer to an owned copy of a Node returned by a search.
+    !! p is always a pointer to a heap-allocated copy; call destroy() or let it
+    !! go out of scope to free the copy.
+    type :: KdNodePtr
+        type(KdNode), pointer :: p    => null()
+        contains
+            procedure         :: destroy => destroyNodePtr
+            final             :: finalizerNodePtr
+    end type KdNodePtr
+
+    type :: KdNodeBucket
+        type(KdNodePtr), allocatable :: nodes(:)
+        contains
+            procedure         :: destroy => destroyNodeBucket
+            final             :: finalizerNodeBucket
+    end type KdNodeBucket
+
     !> A kd-tree
     type :: KdTree
     private
-    integer(int64)       :: dim = 0_int64, pop = 0_int64, TreeId = 0_int64
-    integer(int64)       :: currNodeId = 0_int64, numRemoves = 0_int64
-    logical              :: initialized = .false.       !> true iff tree%build() is called successfully
-    type(KdNode), pointer  :: nodePool(:) => null()     !> pool of allocated nodes
-    integer(int64)       :: rootIdx = 0_int64           !> index into nodePool for the root; 0 = empty
-    integer(int64)       :: modifications = 0_int64     !> total number of insertions/deletions on tree
-    real(real64)         :: rebuildRatio = 0.25_real64  !> if modifications > rebuildRatio * pop, trigger rebuild 
+    integer(int64)        :: dim = 0_int64, pop = 0_int64, TreeId = 0_int64
+    integer(int64)        :: currNodeId = 0_int64, numRemoves = 0_int64
+    logical               :: initialized = .false.       !> true iff tree%build() is called successfully
+    type(KdNode), pointer :: nodePool(:) => null()       !> pool of allocated nodes
+    integer(int64)        :: rootIdx = 0_int64           !> index into nodePool for the root; 0 = empty
+    integer(int64)        :: modifications = 0_int64     !> total number of insertions/deletions on tree
+    real(real64)          :: rebuildRatio = 0.25_real64  !> if modifications > rebuildRatio * pop, trigger rebuild 
 
         contains
-            procedure    :: getDim
-            procedure    :: getPop
-            procedure    :: build
-            procedure    :: printTree
-            procedure    :: rNN_Node
-            procedure    :: rNN_Centroid
-            procedure    :: isMember
-            procedure    :: getInitState
-            procedure    :: getTreeId
-            procedure    :: setRebuildRatio
-            procedure    :: getRebuildRatio
-            procedure    :: associatedNodePool
-            procedure    :: associatedRoot
-            procedure    :: addNodes
-            procedure    :: getNumMods
-            procedure    :: assert
-            procedure    :: destroy
-            final        :: finalizer
+            procedure     :: getDim
+            procedure     :: getPop
+            procedure     :: build
+            procedure     :: printTree
+            procedure     :: rNN_Node
+            procedure     :: rNN_Centroid
+            procedure     :: isMember
+            procedure     :: getInitState
+            procedure     :: getTreeId
+            procedure     :: setRebuildRatio
+            procedure     :: getRebuildRatio
+            procedure     :: associatedNodePool
+            procedure     :: associatedRoot
+            procedure     :: addNodes
+            procedure     :: getNumMods
+            procedure     :: assert
+            procedure     :: destroy
+            procedure     :: rNN_Coords
+            procedure     :: rNN_Ids
+            final         :: finalizer
     end type KdTree
 
     interface
         
-        !===================================!
-        !========= NodeGetters.f90 =========!
-        !===================================!
+        !=====================================!
+        !========= KdNodeGetters.f90 =========!
+        !=====================================!
 
         !> Returns the data stored in this node.
         !! The dynamic type of the result matches 
@@ -101,9 +110,9 @@ module KdTreeFortran
 
         !=================================================!
 
-        !====================================!
-        !========= NodeDistance.f90 =========!
-        !====================================!
+        !======================================!
+        !========= KdNodeDistance.f90 =========!
+        !======================================!
 
         !> Calculates the euclidean distance between two Nodes
         !! @param[in] that The Node to calculate distance from          
@@ -169,9 +178,10 @@ module KdTreeFortran
         end function chebyshevDistPoint
 
         !==========================================================!
-        !=================================!
-        !========= NodeUtils.f90 =========!
-        !=================================!
+        
+        !===================================!
+        !========= KdNodeUtils.f90 =========!
+        !===================================!
 
         !> Recursively prints this Node and its subtree in pre-order.
         !! @param[in] depth the depth of this Node
@@ -202,11 +212,22 @@ module KdTreeFortran
             type(KdNodePtr), intent(inout)  :: this
         end subroutine finalizerNodePtr
 
+        !> Frees node ptrs in node bucket.
+        module subroutine destroyNodeBucket(this)
+            class(KdNodeBucket), intent(inout) :: this
+        end subroutine destroyNodeBucket
+
+        !> Frees node ptrs in node bucket when bucket goes out of scope.
+        module subroutine finalizerNodeBucket(this)
+            type(KdNodeBucket), intent(inout)  :: this
+        end subroutine finalizerNodeBucket
+
+
         !================================================================!
 
-        !===================================!
-        !========= TreeGetters.f90 =========!
-        !===================================!
+        !=====================================!
+        !========= KdTreeGetters.f90 =========!
+        !=====================================!
 
         !> Returns the dimension (number of splitting axis) of the tree
         module function getDim(this) result(k)
@@ -252,9 +273,9 @@ module KdTreeFortran
 
         !==================================================================!
 
-        !=================================!
-        !========= TreeUtils.f90 =========!
-        !=================================!
+        !===================================!
+        !========= KdTreeUtils.f90 =========!
+        !===================================!
 
         !> Prints the entire tree in post-order.
         !! @param[in] unit  optional output unit (defaults to stdout)
@@ -338,7 +359,7 @@ module KdTreeFortran
         !=========================================================================!
 
         !===================================! 
-        !========= BuildSubmod.f90 =========! 
+        !========= KdTreeBuild.f90 =========! 
         !===================================!
 
         !> Builds a balanced Kd-Tree from a set of points.
@@ -380,9 +401,9 @@ module KdTreeFortran
 
         !====================================================================================!
 
-        !==================================!
-        !========= TreeModder.f90 =========!
-        !==================================!
+        !=====================================!
+        !========= KdTreeModders.f90 =========!
+        !=====================================!
 
         !> Overwrites rebuildRatio. Must be in (0, 1).
         !! Not thread-safe; do not call concurrently with addNodes().
@@ -416,9 +437,38 @@ module KdTreeFortran
 
         !==========================================================================!
 
-        !====================================! 
-        !========= SearchSubmod.f90 =========! 
-        !====================================! 
+        !================================================! 
+        !========= search_modules/KdTreeRnn.f90 =========! 
+        !================================================! 
+        
+        !> Radius Nearest Neighbour search. Walks the kd-tree from currIdx,
+        !! appending matching nodes to res and pruning subtrees whose
+        !! splitting hyperplane lies further than radius from target.
+        !! @param[in]    target   the query node (used as the search centre)
+        !! @param[in]    currIdx  nodePool index of the current subtree root; 
+        !!                        0 terminates recursion
+        !! @param[in]    nodePool the tree's node pool
+        !! @param[in]    radius   search radius
+        !! @param[inout] res      result buffer; doubles in size when full
+        !! @param[inout] arrSize  number of results written into res so far
+        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'
+        recursive module subroutine rNN(    &
+            target,                         &
+            currIdx,                        &
+            nodePool,                       &
+            radius,                         &
+            res,                            &
+            arrSize,                        &
+            metric                          &
+        )
+                type(KdNode),      intent(in)                :: target
+                integer(int64),    intent(in)                :: currIdx
+                type(KdNode),      intent(in)                :: nodePool(:)
+                real(kind=real64), intent(in)                :: radius
+                integer,           intent(inout)             :: arrSize
+                type(KdNodePtr),  allocatable, intent(inout) :: res(:)
+                character(len=*), intent(in)                 :: metric
+        end subroutine rNN 
 
         !> Performs radius nearest neighbour search on a target node
         !!
@@ -477,15 +527,65 @@ module KdTreeFortran
 
         end function rNN_Centroid
 
-        !>
-        module function searchByCoords(this, id, coords) result(res)
-            class(KdTree),  intent(in)  :: this
-            integer(int64), intent(in)  :: id
-            real(real64),   intent(in)  :: coords(:)
-            type(KdNode)                :: res
-        end function searchByCoords
+        !> Search the tree for nodes matching a set of query coordinates.
+        !!
+        !! coords(:,:) is laid out as (ndim, nQuery), one column per query point.
+        !! Returns a parallel array res(nQuery) of KdNodeBucket; res(i) holds all
+        !! nodes within epsilon of coords(:,i). If no match is found for query i,
+        !! res(i) is empty (size 0).
+        !!
+        !! @param metric     distance metric: 'euclidean' (default) or 'manhattan'
+        !! @param epsilon    match radius (default 1e-15)
+        !! @param bufferSize initial capacity of each bucket before reallocation (default 1000)
+        !!
+        !! @return res a NodeBucket containing results
+        module function rNN_Coords( &
+            this,                         &
+            coords,                       &
+            metric,                       &
+            epsilon,                      &
+            bufferSize                    &
+        ) result(res)
+            class(KdTree),      intent(in)           :: this
+            real(real64),       intent(in)           :: coords(:,:)
+            character(len=*),   intent(in), optional :: metric 
+            real(real64),       intent(in), optional :: epsilon
+            integer,            intent(in), optional :: bufferSize
+            type(KdNodeBucket), allocatable          :: res(:)
+        end function rNN_Coords
 
-        !======================================================================================!    
+        !> Search the tree for nodes matching both a coordinate and a node id.
+        !!
+        !! coords(:,:) is laid out as (ndim, nQuery); ids(nQuery) is a parallel
+        !! array of target node ids. For each query i, the search first collects
+        !! all nodes within epsilon of coords(:,i), then filters to those whose
+        !! id equals ids(i). Returns a parallel array res(nQuery) of KdNodeBucket;
+        !! res(i) is empty if no node satisfies both criteria.
+        !!
+        !! @param metric     distance metric: 'euclidean' (default) or 'manhattan'
+        !! @param epsilon    match radius (default 1e-15)
+        !! @param bufferSize initial capacity of each bucket before reallocation (default 1000)
+        !!
+        !! @return res a NodeBucket containing results
+        module function rNN_Ids( &
+            this,                      &
+            coords,                    &
+            ids,                       &
+            metric,                    &
+            epsilon,                   &
+            bufferSize                 &
+        ) result(res)
+            class(KdTree),      intent(in)           :: this
+            real(real64),       intent(in)           :: coords(:,:)
+            integer(int64),     intent(in)           :: ids(:)
+            character(len=*),   intent(in), optional :: metric 
+            real(real64),       intent(in), optional :: epsilon
+            integer,            intent(in), optional :: bufferSize
+            type(KdNodeBucket), allocatable          :: res(:)
+        end function rNN_Ids
+
+        !=====================================================================================!
+        
     end interface
 
 end module KdTreeFortran
