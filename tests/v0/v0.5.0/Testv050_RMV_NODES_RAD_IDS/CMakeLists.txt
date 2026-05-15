@@ -1,0 +1,2 @@
+add_kdtest(Testv050_RMV_NODES_RAD_IDS_MATCH)
+add_kdtest(Testv050_RMV_NODES_RAD_IDS_NO_FILTER)

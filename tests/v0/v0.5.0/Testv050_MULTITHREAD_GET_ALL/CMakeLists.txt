@@ -1,0 +1,1 @@
+add_kdtest_omp(Testv050_MULTITHREAD_GET_ALL_CONCURRENT)

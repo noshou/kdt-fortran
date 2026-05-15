@@ -1,0 +1,8 @@
+add_kdtest(Testv050_LIN_SCAN_UNINITIALIZED   WILL_FAIL)
+add_kdtest(Testv050_LIN_SCAN_EMPTY_TREE)
+add_kdtest(Testv050_LIN_SCAN_EMPTY_IDS)
+add_kdtest(Testv050_LIN_SCAN_SINGLE_MATCH)
+add_kdtest(Testv050_LIN_SCAN_MULTI_MATCH)
+add_kdtest(Testv050_LIN_SCAN_NO_MATCH)
+add_kdtest(Testv050_LIN_SCAN_LIFECYCLE)
+add_kdtest(Testv050_LIN_SCAN_MULTI_ROUND)

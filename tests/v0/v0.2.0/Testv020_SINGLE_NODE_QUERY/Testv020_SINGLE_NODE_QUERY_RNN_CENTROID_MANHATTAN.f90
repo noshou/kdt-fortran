@@ -1,6 +1,6 @@
 !> rNN_Centroid with metric='manhattan'.
 !! Geometry: 4 points in 2D, centroid at origin, radius 1.0.
-!! Expected: 1 node — only (1,0) has Manhattan distance exactly 1;
+!! Expected: 1 node -> only (1,0) has Manhattan distance exactly 1;
 !! (0.6,0.8) has L1=1.4, (0.9,0.9) has L1=1.8, (1.9,0.9) has L1=2.8.
 program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_MANHATTAN
 

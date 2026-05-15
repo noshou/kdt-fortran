@@ -1,0 +1,3 @@
+add_kdtest(Testv050_RMV_NODES_IDS_SINGLE_ID)
+add_kdtest(Testv050_RMV_NODES_IDS_MULTI_IDS)
+add_kdtest(Testv050_RMV_NODES_IDS_NO_MATCH)

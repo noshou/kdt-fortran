@@ -1,0 +1,2 @@
+add_kdtest(Testv050_RMV_NODES_COORDS_IDS_MATCH)
+add_kdtest(Testv050_RMV_NODES_COORDS_IDS_ID_MISS)

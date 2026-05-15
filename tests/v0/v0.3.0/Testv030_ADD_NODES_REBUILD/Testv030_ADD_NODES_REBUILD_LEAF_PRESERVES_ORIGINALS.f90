@@ -7,7 +7,7 @@ program Testv030_ADD_NODES_REBUILD_LEAF_PRESERVES_ORIGINALS
         !> Build 8 nodes on x-axis (0,0)..(7,0); add 1 node as a leaf insert
         !! (0+1 <= 0.25*8=2.0). rNN_Centroid at (3.5,0) r=4 encloses all 9 (max dist=3.5).
         !! This differs from IS_MEMBER (which only checks isMember) and LEAF_RNN_*
-        !! (which only find the newly added leaf) — here we verify original nodes
+        !! (which only find the newly added leaf) -> here we verify original nodes
         !! remain reachable via search after a leaf-structural change.
         subroutine leafPreservesOriginals()
             type(KdTree)                 :: t

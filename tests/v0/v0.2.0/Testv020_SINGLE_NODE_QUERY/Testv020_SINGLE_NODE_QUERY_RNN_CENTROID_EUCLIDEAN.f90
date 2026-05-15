@@ -1,6 +1,6 @@
 !> rNN_Centroid with metric='euclidean'.
 !! Geometry: 4 points in 2D, centroid at origin, radius 1.0.
-!! Expected: 2 nodes — (1,0) and (0.6,0.8) both lie on the unit Euclidean sphere.
+!! Expected: 2 nodes -> (1,0) and (0.6,0.8) both lie on the unit Euclidean sphere.
 program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_EUCLIDEAN
 
     use KdTreeFortran

@@ -23,7 +23,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV_NON_MEMBER
 
             centroid_res = t2%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
 
-            ! target belongs to t2 — must error stop
+            ! target belongs to t2 -> must error stop
             res = t1%rNN_Node(centroid_res(1), 1.0_real64, metric='chebyshev')
             write(*, '(A)') '--- Testv020_SINGLE_NODE_QUERY_RNN_NODE_CHEBYSHEV_NON_MEMBER ---'
             write(*, '(A)') 'expected error stop, but rNN_Node returned normally'

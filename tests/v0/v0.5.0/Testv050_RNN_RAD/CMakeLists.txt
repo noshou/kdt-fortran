@@ -1,0 +1,7 @@
+add_kdtest(Testv050_RNN_RAD_UNINITIALIZED   WILL_FAIL)
+add_kdtest(Testv050_RNN_RAD_EMPTY_TREE)
+add_kdtest(Testv050_RNN_RAD_SINGLE_QUERY)
+add_kdtest(Testv050_RNN_RAD_MULTI_QUERY)
+add_kdtest(Testv050_RNN_RAD_NO_HIT)
+add_kdtest(Testv050_RNN_RAD_LIFECYCLE)
+add_kdtest(Testv050_RNN_RAD_MULTI_ROUND)

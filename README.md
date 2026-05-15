@@ -1,6 +1,334 @@
-# kdt-fortran
+# KdTreeFortran
 
 A thread safe balanced kd-tree in modern Fortran, with radius nearest-neighbour search.
+
+---
+
+## v0.5.0
+
+### New API
+
+#### `rmvNodes(coordsList, radii, ids, epsilon, metric, bufferSize)`
+
+Physically removes nodes from the tree and always triggers a full rebuild (lch/rch indices shift after compaction). Returns the number of nodes actually removed.
+
+Five dispatch branches based on which optional arguments are present:
+
+
+| Arguments present              | Branch       | Notes                                                               |
+| ------------------------------ | ------------ | ------------------------------------------------------------------- |
+| `coordsList` only              | `rNN_Coords` | removes nodes within `epsilon` of each query point                  |
+| `ids` only                     | `linScan`    | removes all nodes whose `nodeId` appears in `ids`; O(n × size(ids)) |
+| `coordsList` + `ids`           | `rNN_Ids`    | paired: removes node at `coords(:,i)` whose id equals `ids(i)`      |
+| `coordsList` + `radii`         | `rNN_Rad`    | removes nodes within `radii(i)` of `coords(:,i)`                    |
+| `coordsList` + `radii` + `ids` | `rNN_RadIds` | spatial search then id-set filter                                   |
+
+
+```fortran
+integer :: n
+
+! remove by coordinate (epsilon match)
+real(real64) :: q(2,1) = reshape([1.0_real64, 2.0_real64], [2,1])
+n = t%rmvNodes(coordsList=q)
+
+! remove all nodes within radius 0.5 of two query points
+real(real64) :: qs(2,2) = reshape([0.0_real64,0.0_real64, 1.0_real64,0.0_real64], [2,2])
+real(real64) :: rs(2)   = [0.5_real64, 0.5_real64]
+n = t%rmvNodes(coordsList=qs, radii=rs)
+
+! remove by node id
+integer(int64) :: ids(2) = [3_int64, 7_int64]
+n = t%rmvNodes(ids=ids)
+```
+
+
+| Parameter    | Type                | Default       | Notes                                           |
+| ------------ | ------------------- | ------------- | ----------------------------------------------- |
+| `coordsList` | `real(real64)(:,:)` | ->            | shape `[dim, nQuery]`; required unless ids-only |
+| `radii`      | `real(real64)(:)`   | ->            | length `nQuery`; requires `coordsList`          |
+| `ids`        | `integer(int64)(:)` | ->            | node ids to remove or filter by                 |
+| `epsilon`    | `real(real64)`      | `1e-15`       | coord-match tolerance (no-radii branches)       |
+| `metric`     | `character(*)`      | `'euclidean'` | `'euclidean'`, `'manhattan'`, `'chebyshev'`     |
+| `bufferSize` | `integer`           | `1000`        | initial rNN buffer capacity; must be `> 0`      |
+
+
+**Error guards** (`error stop`): uninitialized tree; neither `coordsList` nor `ids` supplied; `radii` without `coordsList`; `size(radii) .ne. size(coordsList,2)`; empty `coordsList`; dim mismatch; empty `ids`; `size(coordsList,2) .ne. size(ids)` when no radii; unknown metric; `bufferSize <= 0`.
+
+**Empty-tree behaviour:** If the tree has `pop=0` (all nodes previously removed), all 5 branches return `numRmv=0` without error. The tree remains initialized.
+
+**After removal:** `getNumRemoves` reflects the cumulative total of all nodes physically deleted. `getNumMods` resets to 0 (rebuild always runs on any actual removal).
+
+#### `getNumRemoves()`
+
+Returns the cumulative count of nodes physically removed from this tree instance. Incremented by `numRmv` after each successful `rmvNodes` call that removes at least one node; reset to 0 by `destroy()`.
+
+```fortran
+integer(int64) :: n
+n = t%getNumRemoves()   ! 0 after build; increases with each rmvNodes call
+```
+
+#### `getAllNodes()`
+
+Returns a deep-copied `KdNodePtr` array of length `pop` containing every node currently in the tree pool. Each copy has `numRemovesSnapshot` pre-stamped to the current `numRemoves`, so `isMember` takes the fast path immediately on all returned nodes. Returns a zero-length array when `pop=0`. Error stops on an uninitialized tree.
+
+```fortran
+type(KdNodePtr), allocatable :: nodes(:)
+nodes = t%getAllNodes()                  ! length == t%getPop()
+! nodes(i)%p is a pointer to a deep copy; isMember takes the fast path
+```
+
+Primary use case: iterating over the entire live node set, e.g. for graph construction or post-processing.
+
+#### `getAllCoords()`
+
+Returns a `real(real64)(dim, pop)` array of all node coordinates in pool order. Column `i` is the coordinate of `nodePool(i)`. Returns a `(dim, 0)` array when `pop=0`. Error stops on an uninitialized tree.
+
+```fortran
+real(real64), allocatable :: coords(:,:)
+coords = t%getAllCoords()    ! shape [dim, pop]
+! Feed directly into rNN_Coords for a batch search over all nodes (e.g. DBSCAN)
+res = t%rNN_Coords(coords, epsilon=r)
+```
+
+Primary use case: batch rNN queries over every node (DBSCAN, k-hop neighbour graphs).
+
+#### `rNN_Rad(coords, radii, metric, bufferSize)`
+
+Searches the tree for all nodes within a per-query radius. `coords` is shape `[dim, nQuery]` and `radii` is a parallel array of length `nQuery` -> `radii(i)` is the search radius for `coords(:,i)`. Returns a parallel array `res(nQuery)` of `KdNodeBucket`.
+
+```fortran
+real(real64) :: q(2, 2) = reshape([0.0_real64, 0.0_real64, 5.0_real64, 5.0_real64], [2, 2])
+real(real64) :: r(2)    = [1.5_real64, 3.0_real64]
+type(KdNodeBucket), allocatable :: res(:)
+
+res = t%rNN_Rad(q, r)
+res = t%rNN_Rad(q, r, metric='manhattan')
+```
+
+Unlike `rNN_Coords` (single shared `epsilon`), each query gets its own radius. Use when query points have different neighbourhood sizes -> adaptive DBSCAN, variable-resolution grids.
+
+
+| Parameter    | Type                | Default       | Notes                                       |
+| ------------ | ------------------- | ------------- | ------------------------------------------- |
+| `coords`     | `real(real64)(:,:)` | ->            | shape `[dim, nQuery]`                       |
+| `radii`      | `real(real64)(:)`   | ->            | length `nQuery`; each must be `>= 0`        |
+| `metric`     | `character(*)`      | `'euclidean'` | `'euclidean'`, `'manhattan'`, `'chebyshev'` |
+| `bufferSize` | `integer`           | `1000`        | initial rNN buffer; must be `> 0`           |
+
+
+**Error guards** (`error stop`): uninitialized tree; dim mismatch; `size(radii) .ne. size(coords, 2)`; any `radii(i) < 0`; unrecognised metric; `bufferSize <= 0`. Returns empty buckets when tree has zero nodes.
+
+#### `rNN_RadIds(coords, radii, ids, metric, bufferSize)`
+
+Per-query radius search followed by filtering to nodes whose `nodeId` appears anywhere in `ids`. `ids` is an **unordered set** -> not paired with `coords` columns. Any node in radius that matches any id in the set is returned.
+
+```fortran
+real(real64)    :: q(2, 2)   = reshape([0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64], [2, 2])
+real(real64)    :: r(2)      = [2.0_real64, 2.0_real64]
+integer(int64)  :: wanted(2) = [3_int64, 7_int64]
+type(KdNodeBucket), allocatable :: res(:)
+
+res = t%rNN_RadIds(q, r, wanted)
+```
+
+`res(i)%nodes` is empty if no node within `radii(i)` of `coords(:,i)` has an id in `ids`.
+
+
+| Parameter    | Type                | Default       | Notes                                       |
+| ------------ | ------------------- | ------------- | ------------------------------------------- |
+| `coords`     | `real(real64)(:,:)` | n/a           | shape `[dim, nQuery]`                       |
+| `radii`      | `real(real64)(:)`   | n/a           | length `nQuery`; paired with coords         |
+| `ids`        | `integer(int64)(:)` | n/a           | unordered id set; not paired with coords    |
+| `metric`     | `character(*)`      | `'euclidean'` | `'euclidean'`, `'manhattan'`, `'chebyshev'` |
+| `bufferSize` | `integer`           | `1000`        | initial rNN buffer; must be `> 0`           |
+
+
+**Error guards** (`error stop`): same as `rNN_Rad`, plus empty `ids` array.
+
+#### `linScan(ids)`
+
+O(n × k) linear scan of the node pool returning all nodes whose `nodeId` appears in `ids`. Returns a `KdNodePtr` array (not bucketed). Returns a zero-length array when `pop=0` or `ids` is empty. Prefer coordinate-based search when location is known — use `linScan` when you have IDs but no coordinates.
+
+```fortran
+integer(int64)               :: ids(2) = [1_int64, 4_int64]
+type(KdNodePtr), allocatable :: res(:)
+
+res = t%linScan(ids)
+! size(res) == number of matched nodes (0..size(ids))
+```
+
+**Error guards** (`error stop`): uninitialized tree. Returns empty (not an error) when `pop=0` or `ids` is empty.
+
+#### `KdNode%getId()`
+
+Returns the unique `integer(int64)` id assigned to a node at insertion time. IDs are assigned sequentially starting from 1 per tree instance (`build` assigns 1…pop; each `addNodes` call continues from the previous counter). Use the returned id to drive `rmvNodes(ids=...)`, `linScan`, or `rNN_Ids`/`rNN_RadIds` filters.
+
+```fortran
+type(KdNodePtr), allocatable :: nodes(:)
+integer(int64)               :: id
+
+nodes = t%getAllNodes()
+id    = nodes(1)%p%getId()       ! id >= 1
+
+! Pass back to rmvNodes to remove by id:
+integer(int64) :: target(1)
+target(1) = id
+n = t%rmvNodes(ids=target)
+```
+
+### Internal implementation
+
+#### Physical deletion and rebuild
+
+`rmvNodes` always performs a full rebuild after any removal. This is necessary because `lch`/`rch` fields are pool indices that all shift when nodes are compacted out of the array. The search phase runs outside the critical section (read-only); pool compaction and rebuild are serialized under `!$OMP CRITICAL (tree_mutate)`.
+
+The keepMask is re-evaluated inside the critical section against the current pool. When two threads both try to remove the same node, only the first thread through the critical section will find the node present; subsequent threads see an already-absent id and remove nothing. This ensures idempotent concurrent removal.
+
+#### Empty-tree state after full removal
+
+When `newPop = 0` after compaction:
+
+- `nodePool` is deallocated and set to `null()`
+- `pop = 0`, `rootIdx = 0`, `modifications = 0`
+- `initialized = .true.` is preserved -> the tree can still receive `addNodes` or further `rmvNodes` calls
+
+#### `isMember` interaction after removal
+
+`numRemovesSnapshot` on each dispatched `KdNodePtr` copy is stamped with `this%numRemoves` at search time. After `rmvNodes` increments `this%numRemoves`, old `KdNodePtr` copies fail the fast path and fall through to a full pool scan. A removed node is not found in the scan, so `isMember` correctly returns `.false.`. Surviving nodes are found in the scan and return `.true.`.
+
+#### New source file
+
+`src/kdtree/search_modules/KdTreeLinScan.f90` — submodule implementing `linScan`: a two-pass O(n × k) scan that collects all pool nodes whose `nodeId` appears in the supplied `ids` array. Each matched node is deep-copied and its `numRemovesSnapshot` is stamped before being placed in the result.
+
+### Thread safety model (updated)
+
+
+| Operation                                                 | Concurrent-safe?                                                        |
+| --------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `rNN_*` searches on a shared tree                         | Yes -> read-only, no locking                                            |
+| `addNodes` on the same tree from multiple threads         | Yes -> serialized via `!$OMP CRITICAL (tree_mutate)`                    |
+| `rmvNodes` on the same tree from multiple threads         | Yes -> search is read-only; compaction+rebuild serialized               |
+| `rmvNodes` concurrent with `addNodes`                     | Yes -> both serialized under same critical region                       |
+| `rmvNodes` on an empty tree (pop=0) from multiple threads | Yes -> search helpers handle pop=0; critical region trivially skips     |
+| Same node removed concurrently by N threads               | Yes -> keepMask re-checked inside critical; only 1 thread does the work |
+| `getAllNodes`/`getAllCoords` from multiple threads        | Yes -> read-only pool traversal, no locking                             |
+| `build` and `addNodes`/`rmvNodes` on the same tree        | No -> `build` is not guarded                                            |
+| `destroy` concurrently with anything                      | No                                                                      |
+
+
+### Test coverage added in v0.5.0
+
+#### `Testv050_RMV_NODES/`
+
+
+| Suite            | What is tested                                                                                                                                                                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ASSERTIONS`     | All 10 error guards: uninitialized tree, no args, radii without coords, radii size mismatch, empty coords, dim mismatch, empty ids, coords+ids size mismatch (no radii), bad metric, bad buffer size                                                                      |
+| `LIFECYCLE`      | Zero removal (no match), remove one, remove multiple, remove all (pop=0), rmvNodes on already-empty tree (all 5 branches, no crash, numRmv=0)                                                                                                                             |
+| `INTERNAL_STATE` | pop after removal; getNumRemoves (=0 after build, accumulates across calls); mods reset to 0 after rebuild; isInit preserved; nodePool+root still associated after partial removal; empty-tree state (nodePool=null, root=null, isInit=T); multi-call accumulation        |
+| `IS_MEMBER`      | Removed node returns false (slow path, node gone from pool); surviving node found before removal returns true (slow path, node found in pool); node found after removal returns true (fast path, numRemovesSnapshot matches); node added after removal cycle returns true |
+| `REBUILD`        | rNN correct after rebuild with euclidean, manhattan, and chebyshev metrics                                                                                                                                                                                                |
+| `COORDS`         | Single hit, multi-query, no match, manhattan metric, chebyshev metric                                                                                                                                                                                                     |
+| `IDS`            | Single id, multiple ids, no match (non-existent id)                                                                                                                                                                                                                       |
+| `COORDS_IDS`     | Coord+id both match → removed; coord matches but id wrong → no removal                                                                                                                                                                                                    |
+| `RAD`            | Multiple nodes in radius, no hit, manhattan metric                                                                                                                                                                                                                        |
+| `RAD_IDS`        | Radius finds multiple but id filter restricts to 1; id set misses all nearby nodes → no removal                                                                                                                                                                           |
+
+
+#### `Testv050_MULTITHREAD/`
+
+
+| Suite            | What is tested                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `INTERNAL_STATE` | pop, numRemoves, numMods (=0 after rebuild), isInit+associations -> all checked after 4 concurrent rmvNodes calls                                                                                                                                                                                                                                                                                                                     |
+| `CONCURRENT_RMV` | Disjoint-set removal (pop=0 after 4 threads drain the tree); rNN correct after concurrent corner removal; all threads on empty tree return numRmv=0 without crash; concurrent same-node removal -> only 1 removal despite 4 threads (keepMask deduplication); 4 independent-tree threads each exercise all 3 isMember paths after rmvNodes (removed=false slow path, surviving-before=true slow path, surviving-after=true fast path) |
+
+
+#### `Testv050_GET_ALL_NODES/`
+
+
+| Suite           | What is tested                                                                                                              |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `UNINITIALIZED` | error stop when called before `build`                                                                                       |
+| `EMPTY_TREE`    | returns size=0 after `rmvNodes` drains the tree (pop=0, initialized=T)                                                      |
+| `CORRECT_COUNT` | `size(nodes) == t%getPop()` on a freshly built tree                                                                         |
+| `IS_MEMBER`     | all returned nodes pass `isMember` immediately (numRemovesSnapshot pre-stamped → fast path)                                 |
+| `AFTER_RMV`     | partial removal → correct reduced count; all survivors pass `isMember`                                                      |
+| `SNAPSHOT`      | rmv+addNodes cycle (pop=4): all returned nodes pass `isMember` -> verifies snapshot stamp via observable isMember behaviour |
+
+
+#### `Testv050_GET_ALL_COORDS/`
+
+
+| Suite            | What is tested                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `UNINITIALIZED`  | error stop when called before `build`                                                                                     |
+| `EMPTY_TREE`     | returns shape [dim,0] after `rmvNodes` drains the tree                                                                    |
+| `CORRECT_SHAPE`  | returned array has shape [dim, pop]                                                                                       |
+| `CORRECT_VALUES` | each column fed back into `rNN_Coords(epsilon=0)` finds at least one node -> every returned coordinate exists in the tree |
+| `AFTER_RMV`      | partial removal → shape [dim, survivors]; column count matches remaining pop                                              |
+
+
+#### `Testv050_MULTITHREAD_GET_ALL/`
+
+
+| Suite        | What is tested                                                                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CONCURRENT` | 4 threads concurrently call `getAllNodes` and `getAllCoords` on a read-only tree; all calls return correct count and all nodes pass `isMember` |
+
+
+#### `Testv050_LIN_SCAN/`
+
+
+| Suite           | What is tested                                                                                           |
+| --------------- | -------------------------------------------------------------------------------------------------------- |
+| `UNINITIALIZED` | error stop when called before `build`                                                                    |
+| `EMPTY_TREE`    | returns size=0 after `rmvNodes` drains tree (pop=0, initialized=T)                                       |
+| `EMPTY_IDS`     | returns size=0 when ids array has length 0                                                               |
+| `SINGLE_MATCH`  | single id in ids → exactly 1 node returned with correct id                                               |
+| `MULTI_MATCH`   | 3 ids from a 5-node tree → 3 nodes returned, all with ids in the query set                               |
+| `NO_MATCH`      | id=0 (never assigned) → returns empty                                                                    |
+| `LIFECYCLE`     | build → linScan (found) → rmvNodes → linScan (gone) → addNodes → linScan (new ids found)                 |
+| `MULTI_ROUND`   | 3 alternating add/remove/search rounds; ids updated each round; removed nodes absent, live nodes present |
+
+
+#### `Testv050_RNN_RAD/`
+
+
+| Suite           | What is tested                                                                                         |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| `UNINITIALIZED` | error stop when called before `build`                                                                  |
+| `EMPTY_TREE`    | returns empty bucket after tree drained to pop=0                                                       |
+| `SINGLE_QUERY`  | 5-node cross, radius=1.1 from centre → 5 nodes                                                         |
+| `MULTI_QUERY`   | 2 queries with different radii; each captures only its local cluster                                   |
+| `NO_HIT`        | query far from all nodes with tiny radius → empty bucket                                               |
+| `LIFECYCLE`     | search → addNodes → search → rmvNodes → search; counts match pop at each step                          |
+| `MULTI_ROUND`   | 3 alternating add/remove rounds; large radius always captures the whole tree; counts equal pop exactly |
+
+
+#### `Testv050_RNN_RAD_IDS/`
+
+
+| Suite           | What is tested                                                                                              |
+| --------------- | ----------------------------------------------------------------------------------------------------------- |
+| `UNINITIALIZED` | error stop when called before `build`                                                                       |
+| `EMPTY_TREE`    | returns empty bucket after tree drained to pop=0                                                            |
+| `SINGLE_QUERY`  | radius captures 3 nodes; ids set contains only 1 id → exactly 1 node returned                               |
+| `MULTI_QUERY`   | 2 queries, shared ids set with 2 entries; each query finds only its own centre (the other is out of radius) |
+| `NO_HIT`        | a) radius captures nodes but no id matches; b) id exists but is outside radius — both return empty          |
+| `LIFECYCLE`     | origin id before/after add → still found; after rmvNodes removes origin → not found                         |
+| `MULTI_ROUND`   | 3 rounds of add/remove; ids updated per round; removed ids absent, live ids present                         |
+
+
+#### `Testv050_MULTITHREAD_SEARCH/`
+
+
+| Suite         | What is tested                                                                                                   |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `LIN_SCAN`    | 4 threads concurrently call `linScan` on a read-only tree; all return correct count                              |
+| `RNN_RAD`     | 4 threads concurrently call `rNN_Rad` on a read-only tree; all return correct node count per query               |
+| `RNN_RAD_IDS` | 4 threads concurrently call `rNN_RadIds` on a read-only tree; all return exactly 1 node (the id-filtered centre) |
+
 
 ---
 
@@ -20,11 +348,11 @@ type :: KdNodeBucket
 end type KdNodeBucket
 ```
 
-`nodes` is empty (`size 0`) when a query has no match. Call `%destroy()` to free the owned node copies, or let the bucket go out of scope — a `final` finalizer runs automatically.
+`nodes` is empty (`size 0`) when a query has no match. Call `%destroy()` to free the owned node copies, or let the bucket go out of scope -> a `final` finalizer runs automatically.
 
 #### `rNN_Coords(coords, metric, epsilon, bufferSize)`
 
-Searches the tree for nodes matching a set of query coordinates. `coords` is a `real(real64)` array of shape `[dim, nQuery]` — one column per query point. Returns a parallel array `res(nQuery)` of `KdNodeBucket`; `res(i)%nodes` holds all nodes within `epsilon` of `coords(:,i)`.
+Searches the tree for nodes matching a set of query coordinates. `coords` is a `real(real64)` array of shape `[dim, nQuery]` -> one column per query point. Returns a parallel array `res(nQuery)` of `KdNodeBucket`; `res(i)%nodes` holds all nodes within `epsilon` of `coords(:,i)`.
 
 ```fortran
 real(real64) :: query(2, 3) = reshape([...], [2, 3])
@@ -38,7 +366,7 @@ res = t%rNN_Coords(query, metric='manhattan', epsilon=1.0_real64)
 
 | Parameter    | Type                | Default       | Notes                                       |
 | ------------ | ------------------- | ------------- | ------------------------------------------- |
-| `coords`     | `real(real64)(:,:)` | —             | shape `[dim, nQuery]`                       |
+| `coords`     | `real(real64)(:,:)` | n/a           | shape `[dim, nQuery]`                       |
 | `metric`     | `character(*)`      | `'euclidean'` | `'euclidean'`, `'manhattan'`, `'chebyshev'` |
 | `epsilon`    | `real(real64)`      | `1e-15`       | search radius; must be `>= 0`               |
 | `bufferSize` | `integer`           | `1000`        | initial rNN buffer; must be `> 0`           |
@@ -198,13 +526,13 @@ When no removals have occurred since a node was dispatched (`target%numRemovesSn
 ### Thread safety model
 
 
-| Operation                                            | Concurrent-safe?                                    |
-| ---------------------------------------------------- | --------------------------------------------------- |
-| `rNN_Centroid` / `rNN_Node` on a shared tree         | Yes — read-only, no locking                         |
-| `addNodes` on the same tree from multiple threads    | Yes — serialized via `!$OMP CRITICAL (tree_mutate)` |
-| `build` on independent trees from multiple threads   | Yes — only `nextTreeId` increment is atomic         |
-| `build` and `addNodes` on the same tree concurrently | No — `build` is not guarded                         |
-| `destroy` concurrently with anything                 | No                                                  |
+| Operation                                            | Concurrent-safe?                                     |
+| ---------------------------------------------------- | ---------------------------------------------------- |
+| `rNN_Centroid` / `rNN_Node` on a shared tree         | Yes -> read-only, no locking                         |
+| `addNodes` on the same tree from multiple threads    | Yes -> serialized via `!$OMP CRITICAL (tree_mutate)` |
+| `build` on independent trees from multiple threads   | Yes -> only `nextTreeId` increment is atomic         |
+| `build` and `addNodes` on the same tree concurrently | No -> `build` is not guarded                         |
+| `destroy` concurrently with anything                 | No                                                   |
 
 
 ### Source module additions / changes

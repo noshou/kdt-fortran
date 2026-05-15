@@ -1,6 +1,6 @@
 !> rNN_Centroid with metric='chebyshev'.
 !! Geometry: 4 points in 2D, centroid at origin, radius 1.0.
-!! Expected: 3 nodes — (1,0) L∞=1, (0.6,0.8) L∞=0.8, (0.9,0.9) L∞=0.9;
+!! Expected: 3 nodes -> (1,0) L∞=1, (0.6,0.8) L∞=0.8, (0.9,0.9) L∞=0.9;
 !! (1.9,0.9) has L∞=1.9 and is excluded.
 program Testv020_SINGLE_NODE_QUERY_RNN_CENTROID_CHEBYSHEV
 

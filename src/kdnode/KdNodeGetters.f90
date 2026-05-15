@@ -14,4 +14,8 @@ submodule(KdTreeFortran) KdNodeGetters
             splitAxs = this%splitAxis
         end procedure getSplitAxis
 
+        module procedure getId
+            id = this%nodeId
+        end procedure getId
+
 end submodule KdNodeGetters

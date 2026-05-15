@@ -25,7 +25,7 @@ submodule(KdTreeFortran) KdTreeUtils
                 res = .false.
                 return
             end if
-            ! Step 2: no removals since this copy was dispatched — node must still exist
+            ! Step 2: no removals since this copy was dispatched -> node must still exist
             if (target%numRemovesSnapshot .eq. this%numRemoves) then
                 res = .true.
                 return
@@ -145,7 +145,7 @@ submodule(KdTreeFortran) KdTreeUtils
 
             if (size(actual) .ne. size(expected)) then
                 write(*, '(A,I0,A,I0)') '--- ' // testName // ' FAILED: node count mismatch &
-                    &— expected ', size(expected), ', got ', size(actual)
+                    &-> expected ', size(expected), ', got ', size(actual)
                 call dumpLines('  expected:', expected)
                 call dumpLines('  got:     ', actual)
                 stop 1

@@ -20,7 +20,7 @@ program Testv020_NON_MEMBER_RNN_NODE
 
             centroid_res = t2%rNN_Centroid(centroid, 1000.0_real64)
 
-            ! node2 belongs to t2 — must error stop
+            ! node2 belongs to t2 -> must error stop
             res = t1%rNN_Node(centroid_res(1), 1000.0_real64)
             write(*, '(A)') '--- Testv020_NON_MEMBER_RNN_NODE ---'
             write(*, '(A)') 'expected error stop, but rNN_Node returned normally'

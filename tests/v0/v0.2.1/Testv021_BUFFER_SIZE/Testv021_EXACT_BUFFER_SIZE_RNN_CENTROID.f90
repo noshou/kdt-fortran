@@ -6,7 +6,7 @@ program Testv021_EXACT_BUFFER_SIZE_RNN_CENTROID
     call exactBufferSize_rNN_Centroid()
     contains
 
-        !> bufferSize equals the result count exactly — no resize should occur.
+        !> bufferSize equals the result count exactly -> no resize should occur.
         subroutine exactBufferSize_rNN_Centroid()
             type(KdTree)                 :: t
             real(real64)               :: coords(3, 10) = reshape( &

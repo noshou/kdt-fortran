@@ -22,7 +22,7 @@ program Testv020_SINGLE_NODE_QUERY_RNN_NODE_DEFAULT
 
             call t%build(coords)
 
-            ! locate P1=(1,0) — only point within Euclidean distance 0.01 of (1,0)
+            ! locate P1=(1,0) -> only point within Euclidean distance 0.01 of (1,0)
             centroid_res = t%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
 
             res = t%rNN_Node(centroid_res(1), 1.0_real64)

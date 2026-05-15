@@ -1,0 +1,3 @@
+add_kdtest(Testv050_RMV_NODES_RAD_MULTIPLE)
+add_kdtest(Testv050_RMV_NODES_RAD_NO_HIT)
+add_kdtest(Testv050_RMV_NODES_RAD_MANHATTAN)

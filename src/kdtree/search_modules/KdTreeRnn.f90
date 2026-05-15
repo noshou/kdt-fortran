@@ -252,7 +252,7 @@ submodule(KdTreeFortran) KdTreeRnn
 
         end procedure rNN_Centroid
 
-        subroutine assert_rNNCoordsAndIds(t, coords, epsilon, metric, name, bufferSize, ids)
+        subroutine assert_rNN(t, coords, epsilon, metric, name, bufferSize, ids)
             type(KdTree),      intent(in)           :: t
             real(real64),      intent(in)           :: coords(:,:)
             character(len=*),  intent(in)           :: name
@@ -297,14 +297,14 @@ submodule(KdTreeFortran) KdTreeRnn
                     stop 1
                 end if
             end if
-        end subroutine assert_rNNCoordsAndIds
+        end subroutine assert_rNN
 
         module procedure rNN_Coords
             integer                      :: i, bs
             real(real64)                 :: e
             type(KdNodePtr), allocatable :: nptrs(:)
 
-            call assert_rNNCoordsAndIds(   &
+            call assert_rNN(   &
                 this,               &
                 coords,             &
                 epsilon,            &
@@ -351,7 +351,7 @@ submodule(KdTreeFortran) KdTreeRnn
             real(real64)                 :: e
             type(KdNodePtr), allocatable :: nptrsTmp(:)
 
-            call assert_rNNCoordsAndIds(   &
+            call assert_rNN(   &
                 this,               &
                 coords,             &
                 epsilon,            &
@@ -392,5 +392,85 @@ submodule(KdTreeFortran) KdTreeRnn
 
         end procedure rNN_Ids
 
+        module procedure rNN_Rad
+            
+            integer                      :: i, bs
+            type(KdNodePtr), allocatable :: nptrs(:)
 
+            ! assertion checks
+            call assert_rNN(this, coords=coords, metric=metric, name='rNN_Rad', bufferSize=bufferSize)
+            if (size(radii) .ne. size(coords, 2)) then 
+                error stop "rNN_Rad: number of radii must match number of coordinates"
+            end if
+
+            if (present(bufferSize)) then
+                bs = bufferSize
+            else
+                bs = 1000
+            end if
+
+            allocate(res(size(coords, 2)))
+            if (this%pop .eq. 0_int64) then 
+                do i = 1, size(coords, 2)
+                    allocate(res(i)%nodes(0))
+                end do
+                return
+            end if
+            
+            do i = 1, size(coords, 2)
+                nptrs = this%rNN_Centroid(  &
+                    coords(:,i),            &
+                    radii(i),               &
+                    bs,                     &
+                    metric                  &
+                )
+                allocate(res(i)%nodes, source=nptrs)
+            end do
+        end procedure rNN_Rad
+
+        module procedure rNN_RadIds
+            integer                      :: i, j, k, nMatch
+            type(KdNodeBucket), allocatable :: resTmp(:)
+            type(KdNodePtr),    allocatable :: nptrTmp(:)
+            ! assertion checks
+            call assert_rNN(          &
+                this,                 &
+                coords=coords,        &
+                metric=metric,        &
+                name='rNN_RadIds',    &
+                bufferSize=bufferSize &
+            )
+
+            if (size(radii) .ne. size(coords, 2)) then
+                error stop "rNN_RadIds: number of radii must match number of coordinates"
+            else if (size(ids) .eq. 0) then
+                error stop "rNN_RadIds: ids must not be empty"
+            end if
+            
+            ! spatial query: find all nodes within radii(i) of coords(:,i)
+            resTmp = this%rNN_Rad(coords, radii, metric, bufferSize)
+            allocate(res(size(resTmp)))
+            do i = 1, size(resTmp)
+                
+                ! filter bucket i: keep only nodes whose id appears in ids
+                allocate(nptrTmp(size(resTmp(i)%nodes)))
+                nMatch = 0
+                do j = 1, size(resTmp(i)%nodes)
+                    do k = 1, size(ids)
+                        if (resTmp(i)%nodes(j)%p%nodeId .eq. ids(k)) then
+                            nMatch = nMatch + 1
+                            nptrTmp(nMatch) = resTmp(i)%nodes(j)
+                            exit
+                        end if
+                    end do
+                end do
+                
+                ! pack matched nodes into result bucket; empty if none matched
+                allocate(res(i)%nodes(nMatch))
+                if (nMatch .gt. 0) then 
+                    res(i)%nodes = nptrTmp(1:nMatch)
+                end if
+                deallocate(nptrTmp)
+            end do
+        end procedure rNN_RadIds
 end submodule KdTreeRnn

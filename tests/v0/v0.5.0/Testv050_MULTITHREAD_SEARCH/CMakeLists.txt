@@ -1,0 +1,3 @@
+add_kdtest_omp(Testv050_MULTITHREAD_SEARCH_LIN_SCAN)
+add_kdtest_omp(Testv050_MULTITHREAD_SEARCH_RNN_RAD)
+add_kdtest_omp(Testv050_MULTITHREAD_SEARCH_RNN_RAD_IDS)

@@ -4,24 +4,24 @@ submodule(KdTreeFortran) KdTreeModders
     contains
 
         module procedure setRebuildRatio
-            if (ratio .le. 0.0_real64) then 
+            if (ratio .le. 0.0_real64) then
                 error stop "setRebuildRatio: rebuildRatio must be greater than zero!"
-            else if (ratio .ge. 1.0_real64) then 
+            else if (ratio .ge. 1.0_real64) then
                 error stop "setRebuildRatio: rebuildRatio must be less than 1!"
-            else 
+            else
                 this%rebuildRatio = ratio
             end if
         end procedure setRebuildRatio
 
-        !> rebuilds a tree after node pool has been modified. 
+        !> rebuilds a tree after node pool has been modified.
         !!
-        !! must ensure that tree and node state 
+        !! must ensure that tree and node state
         !! invariants are preserved BEFORE calling rebuild
         subroutine rebuild(t)
             type(KdTree), intent(inout) :: t
             integer(int64), allocatable :: indices(:)
             integer(int64)              :: i
-            
+
             ! allocate indices; that way we don't have to modify the list of nodes
             allocate(indices(t%pop))
             indices = [(i, i=1_int64, t%pop)]
@@ -73,7 +73,7 @@ submodule(KdTreeFortran) KdTreeModders
                 end if
             end if
 
-            ! realloc nodePool — serialized: nodePool pointer, pop, 
+            ! realloc nodePool ; serialized: nodePool pointer, pop,
             ! and currNodeId are all shared state
             !$OMP CRITICAL (tree_mutate)
             pop = numNodeToAdd + this%pop
@@ -92,7 +92,7 @@ submodule(KdTreeFortran) KdTreeModders
                 nodePoolTmp(i)%lch                  =  0_int64
                 nodePoolTmp(i)%rch                  =  0_int64
                 nodePoolTmp(i)%treeId               = tid
-                if (nodePoolTmp(i)%hasData) then 
+                if (nodePoolTmp(i)%hasData) then
                     nodePoolTmp(i)%data = dataList(i-this%pop)
                 end if
             end do
@@ -101,7 +101,7 @@ submodule(KdTreeFortran) KdTreeModders
             this%pop = pop
             !$OMP END CRITICAL (tree_mutate)
 
-            ! rebuild decision and tree mutation 
+            ! rebuild decision and tree mutation
             ! serialized: modifications, rootIdx, and lch/rch are shared state
             !$OMP CRITICAL (tree_mutate)
             if (this%modifications + numNodeToAdd                     &
@@ -109,7 +109,7 @@ submodule(KdTreeFortran) KdTreeModders
                 this%rebuildRatio * (this%pop - numNodeToAdd)         &
             ) then
                 call rebuild(this)
-            
+
             else
 
                 ! no need for rebuild; insert new nodes at leaves.
@@ -120,7 +120,7 @@ submodule(KdTreeFortran) KdTreeModders
                     do
 
                         ! search left subtree
-                        if (this%nodePool(i)%coords(this%nodePool(currIdx)%splitAxis)       & 
+                        if (this%nodePool(i)%coords(this%nodePool(currIdx)%splitAxis)       &
                             .le.                                                            &
                             this%nodePool(currIdx)%coords(this%nodePool(currIdx)%splitAxis) &
                         ) then
@@ -151,13 +151,18 @@ submodule(KdTreeFortran) KdTreeModders
 
         end procedure addNodes
 
-
         module procedure rmvNodes
-            logical                      :: isInit, hasIds, hasEps, hasRad, hasCrd
-            integer                      :: sizeRad, sizeCrd, sizeDim, sizeIds, buffSze
-            integer(int64)               :: dim
-            character(len=9)             :: mtr
-            type(KdNodePtr), allocatable :: foundNodes(:)
+            logical                         :: isInit, hasIds, hasEps, hasRad, hasCrd, resIsPtr
+            integer                         :: sizeRad, sizeCrd, sizeDim, sizeIds, buffSze
+            integer(int64)                  :: dim
+            character(len=9)                :: mtr
+            type(KdNodePtr), allocatable    :: foundNodes(:)
+            type(KdNodeBucket), allocatable :: foundNodesBucket(:)
+            ! compaction variables
+            integer(int64), allocatable     :: rmvIds(:)
+            logical, allocatable            :: keepMask(:)
+            type(KdNode), pointer           :: newPool(:)
+            integer(int64)                  :: i, j, k, numRmvIds, newPop
 
             ! state variables
             call this%getInitState(isInit)
@@ -167,33 +172,35 @@ submodule(KdTreeFortran) KdTreeModders
             hasRad = present(radii)
             dim    = this%dim
             if (.not.hasRad) then; sizeRad=0; else; sizeRad=size(radii);        end if
-            if (.not.hasCrd) then; sizeCrd=0; else; sizeCrd=size(coordsList,1); end if
-            if (.not.hasCrd) then; sizeDim=0; else; sizeDim=size(coordsList,2); end if
-            if (.not.hasIds) then; sizeIds=0; else; sizeIds=size(ids);          end if 
+            if (.not.hasCrd) then; sizeCrd=0; else; sizeCrd=size(coordsList,2); end if
+            if (.not.hasCrd) then; sizeDim=0; else; sizeDim=size(coordsList,1); end if
+            if (.not.hasIds) then; sizeIds=0; else; sizeIds=size(ids);          end if
 
             ! assertion checks
-            if (.not. isInit) then 
+            if (.not. isInit) then
                 error stop "rmvNodes: tree uninitialized (call this%build() first?)"
-            else if (hasRad .and. .not. hasCrd) then 
-                error stop "rmvNodes: radii must be supplied with a list of coordinates"  
-            else if (hasRad .and. sizeRad .ne. sizeCrd) then 
+            else if (hasRad .and. .not. hasCrd) then
+                error stop "rmvNodes: radii must be supplied with a list of coordinates"
+            else if (hasRad .and. sizeRad .ne. sizeCrd) then
                 error stop "rmvNodes: number of radii must match number of coordinates"
-            else if (hasCrd .and. ((sizeDim .eq. 0) .or. (sizeCrd .eq. 0))) then 
+            else if (hasCrd .and. ((sizeDim .eq. 0) .or. (sizeCrd .eq. 0))) then
                 error stop "rmvNodes: coordsList is empty"
-            else if (hasCrd .and. (sizeDim .ne. dim)) then 
+            else if (hasCrd .and. (sizeDim .ne. dim)) then
                 error stop "rmvNodes: dimension of coordinates must match dimension of tree"
-            else if (hasIds .and. (sizeIds .eq. 0)) then 
+            else if (hasIds .and. (sizeIds .eq. 0)) then
                 error stop "rmvNodes: ids is empty"
-            else if (.not. (hasIds .or. hasCrd)) then 
+            else if (.not. (hasIds .or. hasCrd)) then
                 error stop "rmvNodes: must supply ids or coordsList"
+            else if (hasCrd .and. hasIds .and. (.not. hasRad) .and. (sizeCrd .ne. sizeIds)) then
+                error stop "rmvNodes: when coordsList and ids are passed without radii, sizes must match"
             end if
-            if (present(bufferSize)) then 
-                if (bufferSize .le. 0) then 
+            if (present(bufferSize)) then
+                if (bufferSize .le. 0) then
                     error stop "rmvNodes: invalid bufferSize"
-                else 
+                else
                     buffSze = bufferSize
-                end if 
-            else 
+                end if
+            else
                 buffSze = 1000
             end if
 
@@ -208,48 +215,99 @@ submodule(KdTreeFortran) KdTreeModders
                 end select
             end if
 
-            ! if only ids present, must do linear scan for ids. 
-            ! least efficient method O(n*size(ids)), worst case is O(n^2)
-            if (hasIds .and. (.not. hasCrd)) then 
-                foundNodes = rmvNodes_FindLinearScan(this, ids)
+            ! search + compaction serialized together: the search reads this%nodePool,
+            ! which another thread's critical section can deallocate and replace.
+            ! keeping the search inside the same critical avoids that use-after-free.
+            !$OMP CRITICAL (tree_mutate)
+
+            if (hasIds .and. (.not. hasCrd)) then
+                foundNodes = this%linScan(ids)
+                resIsPtr = .true.
+
+            else if (hasIds .and. hasCrd .and. (.not. hasRad)) then
+                foundNodesBucket = this%rNN_Ids(coordsList, ids, metric, epsilon, bufferSize)
+                resIsPtr = .false.
+
+            else if ((.not. hasIds) .and. (.not. hasRad) .and. hasCrd) then
+                foundNodesBucket = this%rNN_Coords(coordsList, metric, epsilon, bufferSize)
+                resIsPtr = .false.
+
+            else if ((.not. hasIds) .and. hasRad .and. hasCrd) then
+                foundNodesBucket = this%rNN_Rad(coordsList, radii, metric, bufferSize)
+                resIsPtr = .false.
+
+            else
+                foundNodesBucket = this%rNN_RadIds(coordsList, radii, ids, metric, bufferSize)
+                resIsPtr = .false.
             end if
+
+            ! collect nodeIds of all candidates found by the search
+            if (resIsPtr) then
+                numRmvIds = int(size(foundNodes), int64)
+                allocate(rmvIds(numRmvIds))
+                do j = 1_int64, numRmvIds
+                    rmvIds(j) = foundNodes(j)%p%nodeId
+                end do
+            else
+                numRmvIds = 0_int64
+                do i = 1_int64, int(size(foundNodesBucket), int64)
+                    numRmvIds = numRmvIds + int(size(foundNodesBucket(i)%nodes), int64)
+                end do
+                allocate(rmvIds(numRmvIds))
+                k = 0_int64
+                do i = 1_int64, int(size(foundNodesBucket), int64)
+                    do j = 1_int64, int(size(foundNodesBucket(i)%nodes), int64)
+                        k = k + 1_int64
+                        rmvIds(k) = foundNodesBucket(i)%nodes(j)%p%nodeId
+                    end do
+                end do
+            end if
+
+            ! build keep mask: mark pool nodes whose nodeId appears in rmvIds
+            ! re-check against the current pool inside the critical section so
+            ! concurrent rmvNodes calls that already removed a node are handled correctly
+            allocate(keepMask(this%pop))
+            keepMask(:) = .true.
+            do i = 1_int64, this%pop
+                do j = 1_int64, numRmvIds
+                    if (this%nodePool(i)%nodeId .eq. rmvIds(j)) then
+                        keepMask(i) = .false.
+                        exit
+                    end if
+                end do
+            end do
+
+            numRmv = count(.not. keepMask)
+
+            if (numRmv .gt. 0) then
+                newPop = this%pop - int(numRmv, int64)
+                if (newPop .gt. 0_int64) then
+                    allocate(newPool(newPop))
+                    k = 0_int64
+                    do i = 1_int64, this%pop
+                        if (keepMask(i)) then
+                            k = k + 1_int64
+                            newPool(k) = this%nodePool(i)
+                        end if
+                    end do
+                    deallocate(this%nodePool)
+                    this%nodePool => newPool
+                    this%pop      = newPop
+                    this%numRemoves = this%numRemoves + int(numRmv, int64)
+                    call rebuild(this)
+                else
+                    ! all nodes removed ; tree is structurally empty but still initialized
+                    deallocate(this%nodePool)
+                    this%nodePool   => null()
+                    this%pop        = 0_int64
+                    this%rootIdx    = 0_int64
+                    this%modifications = 0_int64
+                    this%numRemoves = this%numRemoves + int(numRmv, int64)
+                end if
+            end if
+
+            !$OMP END CRITICAL (tree_mutate)
 
         end procedure rmvNodes
 
-        function rmvNodes_FindLinearScan(t, ids) result(foundNodes)
-            type(KdTree), intent(in)     :: t
-            integer(int64), intent(in)   :: ids(:)
-            type(KdNodePtr), allocatable :: foundNodes(:)
-            
-            type(KdNode), pointer        :: copy
-            integer(int64)               :: i, j, numFound
-
-            ! Count exact matches to determine final array size
-            numFound = 0_int64
-            do i = 1_int64, t%pop 
-                do j = 1_int64, size(ids)
-                    if (t%nodePool(i)%nodeId == ids(j)) then
-                        numFound = numFound + 1_int64
-                        exit
-                    end if
-                end do 
-            end do
-
-            ! Allocate the final array 
-            allocate(foundNodes(numFound))
-
-            ! Allocate and populate the final pointers directly
-            numFound = 0_int64
-            do i = 1_int64, t%pop 
-                do j = 1_int64, size(ids)
-                    if (t%nodePool(i)%nodeId == ids(j)) then
-                        numFound = numFound + 1_int64
-                        allocate(copy, source=t%nodePool(i))
-                        foundNodes(numFound)%p => copy
-                        exit
-                    end if
-                end do 
-            end do
-
-        end function rmvNodes_FindLinearScan
 end submodule KdTreeModders

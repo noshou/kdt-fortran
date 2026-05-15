@@ -40,7 +40,7 @@ Multithreaded tests hardcode `NUM_THREADS(4)` in their `!$OMP PARALLEL DO` direc
 OMP_NUM_THREADS=4 ctest --test-dir build -R "MULTITHREAD" --output-on-failure
 ```
 
-On machines with fewer than 4 physical threads the tests still pass — OpenMP over-subscribes transparently — but runtime will be higher.
+On machines with fewer than 4 physical threads the tests still pass -> OpenMP over-subscribes transparently -> but runtime will be higher.
 
 ## CMake framework
 
@@ -53,7 +53,7 @@ add_kdtest(TestName WILL_FAIL)    # inverted test: passes on non-zero exit
 
 Each call creates a standalone executable from `TestName.f90`, links it against `kdtree`, and registers it with CTest. The executable name and the CTest test name are both `TestName`.
 
-Use `add_kdtest_omp` when the test program itself contains `!$OMP` directives. The `kdtree` library links OpenMP privately (it is not propagated to dependents), so test executables that use OpenMP must link it explicitly via this macro. Tests that only call the library — even if the library uses OpenMP internally — do not need `add_kdtest_omp` and should use `add_kdtest` instead.
+Use `add_kdtest_omp` when the test program itself contains `!$OMP` directives. The `kdtree` library links OpenMP privately (it is not propagated to dependents), so test executables that use OpenMP must link it explicitly via this macro. Tests that only call the library -> even if the library uses OpenMP internally -> do not need `add_kdtest_omp` and should use `add_kdtest` instead.
 
 `WILL_FAIL` is used for tests that verify error guards, where the program is expected to call `error stop`. CTest inverts the pass/fail logic: the test passes only when the program exits non-zero.
 
