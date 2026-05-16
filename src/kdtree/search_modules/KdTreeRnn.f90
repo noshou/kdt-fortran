@@ -99,7 +99,7 @@ submodule(KdTreeFortran) KdTreeRnn
             end if
 
             if(.not. present(bufferSize)) then
-                is = 1000
+                is = DEFAULT_BUFFER_SIZE
             else
                 if (bufferSize .le. 0) then
                     error stop "rNN_Node: invalid bufferSize"
@@ -109,7 +109,7 @@ submodule(KdTreeFortran) KdTreeRnn
             end if
 
             if (.not. present(metric)) then
-                m = 'euclidean'
+                m = DEFAULT_METRIC
             else
                 select case (metric)
                 case ('euclidean')
@@ -190,7 +190,7 @@ submodule(KdTreeFortran) KdTreeRnn
             end if
 
             if(.not. present(bufferSize)) then
-                is = 1000
+                is = DEFAULT_BUFFER_SIZE
             else
                 if (bufferSize .le. 0) then
                     error stop "rNN_Centroid: invalid bufferSize"
@@ -200,7 +200,7 @@ submodule(KdTreeFortran) KdTreeRnn
             end if
 
             if (.not. present(metric)) then
-                m = 'euclidean'
+                m = DEFAULT_METRIC
             else
                 select case (metric)
                 case ('euclidean')
@@ -316,13 +316,13 @@ submodule(KdTreeFortran) KdTreeRnn
             if (present(epsilon)) then
                 e = epsilon
             else
-                e = 1e-15_real64
+                e = DEFAULT_EPSILON
             end if
 
             if (present(bufferSize)) then
                 bs = bufferSize
             else
-                bs = 1000
+                bs = DEFAULT_BUFFER_SIZE
             end if
 
             allocate(res(size(coords, 2)))
@@ -364,13 +364,13 @@ submodule(KdTreeFortran) KdTreeRnn
             if (present(epsilon)) then
                 e = epsilon
             else
-                e = 1e-15_real64
+                e = DEFAULT_EPSILON
             end if
 
             if (present(bufferSize)) then
                 bs = bufferSize
             else
-                bs = 1000
+                bs = DEFAULT_BUFFER_SIZE
             end if
 
             res = this%rNN_Coords(coords, metric, e, bs)
@@ -406,7 +406,7 @@ submodule(KdTreeFortran) KdTreeRnn
             if (present(bufferSize)) then
                 bs = bufferSize
             else
-                bs = 1000
+                bs = DEFAULT_BUFFER_SIZE
             end if
 
             allocate(res(size(coords, 2)))

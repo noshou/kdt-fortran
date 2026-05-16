@@ -4,7 +4,17 @@ module KdTreeFortran
     implicit none
     private
     public                  :: KdTree, KdNode, KdNodePtr, KdNodeBucket
+    public                  :: DEFAULT_BUFFER_SIZE, DEFAULT_METRIC, DEFAULT_EPSILON
     integer(int64), save    :: nextTreeId = 0_int64
+
+    !> Default buffer size for search functions
+    integer,          parameter :: DEFAULT_BUFFER_SIZE = 1000
+
+    !> Default metric for search functions
+    character(len=9), parameter :: DEFAULT_METRIC      = 'euclidean'
+    
+    !> Default epsilon value for floating point comparisons
+    real(real64),     parameter :: DEFAULT_EPSILON      = 1.0e-15_real64
 
     type :: KdNode
         private
@@ -40,6 +50,7 @@ module KdTreeFortran
             final             :: finalizerNodePtr
     end type KdNodePtr
 
+    !> Container for a "bucket" -> array of KdNodePtr
     type :: KdNodeBucket
         type(KdNodePtr), allocatable :: nodes(:)
         contains
@@ -520,12 +531,11 @@ module KdTreeFortran
         !!                        if omitted, matching uses epsilon tolerance
         !! @param[in] ids         node ids to filter by; paired with coordsList
         !!                        when radii is absent, treated as a set otherwise
-        !! @param[in] epsilon     coordinate-match tolerance (default 1e-15);
+        !! @param[in] epsilon     coordinate-match tolerance (default DEFAULT_EPSILON);
         !!                        used only when radii is absent
-        !! @param[in] metric      distance metric: 'euclidean' (default),
-        !!                        'manhattan', or 'chebyshev'
+        !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !! @param[in] bufferSize  initial match-list capacity before reallocation
-        !!                        (default 1000)
+        !!                        (default DEFAULT_BUFFER_SIZE)
         !!
         !! @return    numRmv      total number of nodes removed
         !!
@@ -568,7 +578,7 @@ module KdTreeFortran
         !! @param[in]    radius   search radius
         !! @param[inout] res      result buffer; doubles in size when full
         !! @param[inout] arrSize  number of results written into res so far
-        !! @param[in]    metric   'euclidean', (default) 'manhattan', 'chebyshev'
+        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         module subroutine rNN( &
             target,            &
             currIdx,           &
@@ -590,12 +600,11 @@ module KdTreeFortran
         !> Performs radius nearest neighbour search on a target node
         !!
         !! Searches for nodes within a given radius of target node;
-        !! defaults to euclidean metric, and including target node in results.
+        !! Includes target node in results by default.
         !! @param[in] target        the target node
         !! @param[in] radius        the search radius; error stop if negative
-        !! @param[in] bufferSize    optional initial result buffer size; defaults to 1000;
-        !!                          doubles when full; error stop if <= 0
-        !! @param[in] metric        'euclidean', (default) 'manhattan', 'chebyshev'
+        !! @param[in] bufferSize    initial result buffer size; doubles when full; default DEFAULT_BUFFER_SIZE; error stop if <= 0
+        !! @param[in] metric        'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !! @param[in] excludeTarget if .true., removes the target node from the returned list
         !!
         !! @return list of nodes within the search radius
@@ -619,12 +628,10 @@ module KdTreeFortran
         !> Performs radius nearest neighbour search on a centroid
         !!
         !! Searches for nodes within a given radius of an arbitrary point;
-        !! defaults to euclidean metric.
         !! @param[in] centroid    the centre of the search sphere; must match the tree dimension
         !! @param[in] radius      the search radius; error stop if negative
-        !! @param[in] bufferSize  optional initial result buffer size; defaults to 1000;
-        !!                        doubles when full; error stop if <= 0
-        !! @param[in] metric     'euclidean', (default) 'manhattan', 'chebyshev'
+        !! @param[in] bufferSize  initial result buffer size; doubles when full; default DEFAULT_BUFFER_SIZE; error stop if <= 0
+        !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !!
         !! @return list of nodes within the search radius
         module function rNN_Centroid(   &
@@ -649,9 +656,9 @@ module KdTreeFortran
         !! nodes within epsilon of coords(:,i). If no match is found for query i,
         !! res(i) is empty (size 0).
         !!
-        !! @param metric     distance metric: 'euclidean' (default) or 'manhattan'
-        !! @param epsilon    match radius (default 1e-15)
-        !! @param bufferSize initial capacity of each bucket before reallocation (default 1000)
+        !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param epsilon    match radius; default DEFAULT_EPSILON
+        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Coords( &
@@ -677,9 +684,9 @@ module KdTreeFortran
         !! id equals ids(i). Returns a parallel array res(nQuery) of KdNodeBucket;
         !! res(i) is empty if no node satisfies both criteria.
         !!
-        !! @param metric     distance metric: 'euclidean' (default) or 'manhattan'
-        !! @param epsilon    match radius (default 1e-15)
-        !! @param bufferSize initial capacity of each bucket before reallocation (default 1000)
+        !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param epsilon    match radius; default DEFAULT_EPSILON
+        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Ids( &
@@ -705,8 +712,8 @@ module KdTreeFortran
         !! list of radii to search for. Returns a parallel array res(nQuery) of KdNodeBucket;
         !! res(i) is empty if no node satisfies criteria.
         !!
-        !! @param metric     distance metric: 'euclidean' (default) or 'manhattan'
-        !! @param bufferSize initial capacity of each bucket before reallocation (default 1000)
+        !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Rad( &
@@ -736,9 +743,8 @@ module KdTreeFortran
         !! @param[in] radii       nQuery radii, paired with coordsList columns
         !! @param[in] ids         unordered set of node ids to filter by;
         !!                        not paired with coordsList
-        !! @param[in] metric      distance metric: 'euclidean' (default) or 'manhattan'
-        !! @param[in] bufferSize  initial capacity of each bucket before reallocation
-        !!                        (default 1000)
+        !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param[in] bufferSize  initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
         !!
         !! @return    res         res(nQuery) of KdNodeBucket; res(i) contains all
         !!                        nodes within radii(i) of coordsList(:,i) whose id
@@ -782,6 +788,32 @@ module KdTreeFortran
 
         !==========================================================================!
 
+        !===================================================!
+        !========= search_modules/KdTreeDBSCAN.f90 =========!
+        !===================================================!
+
+        !> Density-based spatial clustering (DBSCAN).
+        !!
+        !! Returns an array of KdNodeBucket, one bucket per cluster found.
+        !! Noise points (not belonging to any cluster) are not included.
+        !!
+        !! @param[in] minPts      minimum neighbourhood size to classify a point as a core point
+        !! @param[in] radius      neighbourhood search radius (eps)
+        !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param[in] bufferSize  initial rNN result buffer size; default DEFAULT_BUFFER_SIZE
+        !!
+        !! @return res  array of KdNodeBucket, one per cluster; res(i) holds all nodes in cluster i
+        module function DBSCAN(this, minPts, radius, metric, bufferSize) result(res)
+            class(KdTree),      intent(in)           :: this
+            integer,            intent(in)           :: minPts
+            real(real64),       intent(in)           :: radius
+            character(len=*),   intent(in), optional :: metric
+            integer,            intent(in), optional :: bufferSize
+            type(KdNodeBucket), allocatable          :: res(:)
+        end function DBSCAN
+
+        !==========================================================!
+    
     end interface
 
 end module KdTreeFortran

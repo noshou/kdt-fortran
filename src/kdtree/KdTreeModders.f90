@@ -201,11 +201,11 @@ submodule(KdTreeFortran) KdTreeModders
                     buffSze = bufferSize
                 end if
             else
-                buffSze = 1000
+                buffSze = DEFAULT_BUFFER_SIZE
             end if
 
             if (.not. present(metric)) then
-                mtr = 'euclidean'
+                mtr = DEFAULT_METRIC
             else
                 select case (metric)
                     case ('euclidean'); mtr = 'euclidean'
