@@ -1,6 +1,6 @@
 program Testv040_FIND_NODES_IDS_ZERO_EPSILON
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call findNodesIdsZeroEpsilon()
     contains
@@ -10,9 +10,10 @@ program Testv040_FIND_NODES_IDS_ZERO_EPSILON
             type(KdTree) :: t
             type(KdNodeBucket), allocatable :: res(:)
             real(real64)   :: coords(2, 1) = reshape([3.0_real64, 4.0_real64], [2, 1])
-            integer(int64) :: ids(1) = [1_int64]
+            type(NodeId)   :: ids(1)
 
             call t%build(coords)
+            ids(1)%node_id = 1
             res = t%rNN_Ids(coords, ids, epsilon=0.0_real64)
 
             if (size(res(1)%nodes) .ne. 1) then

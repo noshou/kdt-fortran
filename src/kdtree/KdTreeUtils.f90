@@ -15,8 +15,8 @@ submodule(KdTreeFortran) KdTreeUtils
         end procedure printTree
 
         module procedure isMember
-            integer(int64) :: i
-            ! Step 1: uninitialized NodePtr or wrong tree entirely
+            integer(int64) :: i, hint
+            ! Step 1: null pointer or wrong tree
             if (.not. associated(target)) then
                 res = .false.
                 return
@@ -25,17 +25,19 @@ submodule(KdTreeFortran) KdTreeUtils
                 res = .false.
                 return
             end if
-            ! Step 2: no removals since this copy was dispatched -> node must still exist
-            if (target%numRemovesSnapshot .eq. this%numRemoves) then
-                res = .true.
-                return
+            ! Step 2: use pool_idx hint for O(1) fast path
+            hint = target%nodeId%pool_idx
+            if (hint .ge. 1_int64 .and. hint .le. this%pop) then
+                if (this%nodePool(hint)%nodeId%node_id .eq. target%nodeId%node_id) then
+                    res = .true.
+                    return
+                end if
             end if
-            ! Step 3: removals have occurred; scan pool for the node's unique id
+            ! Step 3: hint stale or slot reused; fall back to O(n) scan
             res = .false.
             do i = 1_int64, this%pop
-                if (this%nodePool(i)%nodeId .eq. target%nodeId) then
+                if (this%nodePool(i)%nodeId%node_id .eq. target%nodeId%node_id) then
                     res = .true.
-                    target%numRemovesSnapshot = this%numRemoves
                     return
                 end if
             end do
@@ -192,7 +194,6 @@ submodule(KdTreeFortran) KdTreeUtils
             this%initialized    = .false.
             this%modifications  = 0_int64
             this%rebuildRatio   = 0.25_real64
-            this%numRemoves     = 0_int64
             this%currNodeId     = 0_int64
         end procedure destroy
 

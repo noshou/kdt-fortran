@@ -17,7 +17,7 @@ program Testv050_RMV_NODES_LIFECYCLE_RMV_ON_EMPTY
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
             real(real64)                 :: query(2, 1)  = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)                 :: radii(1)     = [100.0_real64]
-            integer(int64)               :: ids(1)       = [1_int64]
+            type(NodeId)                 :: ids(1)
             type(KdNodePtr), allocatable :: res(:)
             integer                      :: numRmv
             integer(int64)               :: pop

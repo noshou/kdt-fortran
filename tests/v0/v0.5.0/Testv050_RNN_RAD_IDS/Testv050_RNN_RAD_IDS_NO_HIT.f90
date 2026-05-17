@@ -33,7 +33,7 @@ program Testv050_RNN_RAD_IDS_NO_HIT
             if (size(farNode) .ne. 1) then
                 write(*, '(A)') '--- RNN_RAD_IDS_NO_HIT: setup failed'; stop 1
             end if
-            farId(1) = farNode(1)%p%getId()
+            farId(1) = farNode(1)%p%getNodeId()
 
             res = t%rNN_RadIds(q, r_tiny, farId)
             if (size(res(1)%nodes) .ne. 0) then

@@ -144,7 +144,7 @@ submodule(KdTreeFortran) KdTreeRnn
             ! remove target node from list of found nodes
             if (present(excludeTarget) .and. excludeTarget) then
                 do i = 1, arrSize
-                    if (res(i)%p%nodeId .eq. target%p%nodeId) then
+                    if (res(i)%p%nodeId%node_id .eq. target%p%nodeId%node_id) then
                         call res(i)%destroy()
                         do j = i, arrSize - 1
                             res(j)%p   => res(j+1)%p
@@ -165,12 +165,6 @@ submodule(KdTreeFortran) KdTreeRnn
                     call move_alloc(from=tmp, to=res)
                 end if
             end if
-
-            ! stamp each dispatched copy with the current removal counter so
-            ! the fast path in isMember fires on subsequent calls
-            do i = 1, size(res)
-                if (associated(res(i)%p)) res(i)%p%numRemovesSnapshot = this%numRemoves
-            end do
 
         end procedure rNN_Node
 
@@ -243,13 +237,6 @@ submodule(KdTreeFortran) KdTreeRnn
                 call move_alloc(from=tmp, to=res)
             end if
 
-            ! stamp each dispatched copy with the current removal counter
-            do i = 1, size(res)
-                if (associated(res(i)%p)) then
-                    res(i)%p%numRemovesSnapshot = this%numRemoves
-                end if
-            end do
-
         end procedure rNN_Centroid
 
         subroutine assert_rNN(t, coords, epsilon, metric, name, bufferSize, ids)
@@ -258,7 +245,7 @@ submodule(KdTreeFortran) KdTreeRnn
             character(len=*),  intent(in)           :: name
             character(len=*),  intent(in), optional :: metric
             real(real64),      intent(in), optional :: epsilon
-            integer(int64),    intent(in), optional :: ids(:)
+            type(NodeId),      intent(in), optional :: ids(:)
             integer,           intent(in), optional :: bufferSize
 
             if (.not. t%initialized) then
@@ -380,7 +367,7 @@ submodule(KdTreeFortran) KdTreeRnn
                 currSize = 0
                 allocate(nptrsTmp(size(res(i)%nodes)))
                 do j = 1, size(res(i)%nodes)
-                    if (res(i)%nodes(j)%p%nodeId == ids(i)) then
+                    if (res(i)%nodes(j)%p%nodeId%node_id == ids(i)%node_id) then
                         currSize = currSize + 1
                         nptrsTmp(currSize) = res(i)%nodes(j)
                     end if
@@ -457,7 +444,7 @@ submodule(KdTreeFortran) KdTreeRnn
                 nMatch = 0
                 do j = 1, size(resTmp(i)%nodes)
                     do k = 1, size(ids)
-                        if (resTmp(i)%nodes(j)%p%nodeId .eq. ids(k)) then
+                        if (resTmp(i)%nodes(j)%p%nodeId%node_id .eq. ids(k)%node_id) then
                             nMatch = nMatch + 1
                             nptrTmp(nMatch) = resTmp(i)%nodes(j)
                             exit

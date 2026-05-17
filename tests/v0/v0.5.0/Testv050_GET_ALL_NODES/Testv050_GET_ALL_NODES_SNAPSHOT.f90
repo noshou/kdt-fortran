@@ -4,10 +4,10 @@ program Testv050_GET_ALL_NODES_SNAPSHOT
     implicit none
     call getAllNodesSnapshot()
     contains
-        !> getAllNodes stamps numRemovesSnapshot so isMember takes the fast path.
-        !! Observable effect: after a removal, every node from getAllNodes must
-        !! be a member without needing a pool scan. Verified by calling isMember
-        !! immediately after getAllNodes -> all must return true.
+        !> getAllNodes returns nodes with pool_idx set to current positions,
+        !! so isMember takes the O(1) fast path for each node.
+        !! Observable effect: after a removal+add cycle, every node from
+        !! getAllNodes must be a member. Verified by calling isMember on each.
         !!
         !! Also verifies that getAllNodes after addNodes reflects the updated pop.
         subroutine getAllNodesSnapshot()

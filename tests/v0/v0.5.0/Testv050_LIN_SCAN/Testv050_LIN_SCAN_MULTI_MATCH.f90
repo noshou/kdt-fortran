@@ -18,9 +18,9 @@ program Testv050_LIN_SCAN_MULTI_MATCH
 
             call t%build(coords)
             allNodes   = t%getAllNodes()
-            targets(1) = allNodes(1)%p%getId()
-            targets(2) = allNodes(3)%p%getId()
-            targets(3) = allNodes(5)%p%getId()
+            targets(1) = allNodes(1)%p%getNodeId()
+            targets(2) = allNodes(3)%p%getNodeId()
+            targets(3) = allNodes(5)%p%getNodeId()
 
             res = t%linScan(targets)
 
@@ -31,12 +31,12 @@ program Testv050_LIN_SCAN_MULTI_MATCH
             end if
 
             do i = 1, size(res)
-                found = (res(i)%p%getId() == targets(1) .or. &
-                         res(i)%p%getId() == targets(2) .or. &
-                         res(i)%p%getId() == targets(3))
+                found = (res(i)%p%getNodeId() == targets(1) .or. &
+                         res(i)%p%getNodeId() == targets(2) .or. &
+                         res(i)%p%getNodeId() == targets(3))
                 if (.not. found) then
                     write(*, '(A)')    '--- Testv050_LIN_SCAN_MULTI_MATCH ---'
-                    write(*, '(A,I0)') 'result has unexpected id: ', res(i)%p%getId()
+                    write(*, '(A,I0)') 'result has unexpected id: ', res(i)%p%getNodeId()
                     stop 1
                 end if
             end do

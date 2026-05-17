@@ -25,9 +25,19 @@ submodule(KdTreeFortran) KdTreeGetters
             numMods = this%modifications
         end procedure getNumMods
 
-        module procedure getNumRemoves
-            numRemoves = this%numRemoves
-        end procedure getNumRemoves
+        module procedure getAllNodeIds
+            integer(int64) :: i
+            logical        :: init
+            call this%getInitState(init)
+            if (.not. init .or. this%pop .eq. 0_int64) then
+                allocate(ids(0))
+                return
+            end if
+            allocate(ids(this%pop))
+            do i = 1_int64, this%pop
+                ids(i) = this%nodePool(i)%nodeId
+            end do
+        end procedure getAllNodeIds
 
         module procedure getAllNodes
             type(KdNode), pointer  :: copy       
@@ -42,7 +52,6 @@ submodule(KdTreeFortran) KdTreeGetters
             allocate(nodes(this%pop))
             do i = 1, this%pop
                 allocate(copy, source=this%nodePool(i))
-                copy%numRemovesSnapshot = this%numRemoves
                 nodes(i)%p => copy
             end do
         end procedure getAllNodes

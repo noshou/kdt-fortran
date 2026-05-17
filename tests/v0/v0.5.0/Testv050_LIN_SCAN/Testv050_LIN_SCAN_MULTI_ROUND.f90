@@ -28,8 +28,8 @@ program Testv050_LIN_SCAN_MULTI_ROUND
             ! --- Round 1 ---
             call t%build(coordsAB)
             pool = t%getAllNodes()
-            idA  = pool(1)%p%getId()
-            idB  = pool(2)%p%getId()
+            idA  = pool(1)%p%getNodeId()
+            idB  = pool(2)%p%getNodeId()
 
             res = t%linScan([idA, idB])
             if (size(res) .ne. 2) then
@@ -42,11 +42,11 @@ program Testv050_LIN_SCAN_MULTI_ROUND
             ! C and D are the 2 nodes with ids beyond idA,idB
             idC = 0_int64; idD = 0_int64
             do i = 1, size(pool)
-                if (pool(i)%p%getId() .ne. idA .and. pool(i)%p%getId() .ne. idB) then
+                if (pool(i)%p%getNodeId() .ne. idA .and. pool(i)%p%getNodeId() .ne. idB) then
                     if (idC == 0_int64) then
-                        idC = pool(i)%p%getId()
+                        idC = pool(i)%p%getNodeId()
                     else
-                        idD = pool(i)%p%getId()
+                        idD = pool(i)%p%getNodeId()
                     end if
                 end if
             end do
@@ -68,9 +68,9 @@ program Testv050_LIN_SCAN_MULTI_ROUND
             pool = t%getAllNodes()
             idE  = 0_int64
             do i = 1, size(pool)
-                if (pool(i)%p%getId() .ne. idB .and. pool(i)%p%getId() .ne. idC .and. &
-                    pool(i)%p%getId() .ne. idD) then
-                    idE = pool(i)%p%getId()
+                if (pool(i)%p%getNodeId() .ne. idB .and. pool(i)%p%getNodeId() .ne. idC .and. &
+                    pool(i)%p%getNodeId() .ne. idD) then
+                    idE = pool(i)%p%getNodeId()
                 end if
             end do
 

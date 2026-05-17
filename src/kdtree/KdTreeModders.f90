@@ -22,15 +22,17 @@ submodule(KdTreeFortran) KdTreeModders
             integer(int64), allocatable :: indices(:)
             integer(int64)              :: i
 
-            ! allocate indices; that way we don't have to modify the list of nodes
+            ! sync pool_idx hints to current pool positions before rebuilding
+            do i = 1_int64, t%pop
+                t%nodePool(i)%nodeId%pool_idx = i
+            end do
+
             allocate(indices(t%pop))
             indices = [(i, i=1_int64, t%pop)]
             t%rootIdx = 0_int64
 
-            ! build tree
             call buildSubtree(t, t%rootIdx, 0_int64, indices, 1_int64, t%pop)
 
-            ! set number of modifications to zero
             t%modifications = 0_int64
 
         end subroutine rebuild
@@ -83,15 +85,15 @@ submodule(KdTreeFortran) KdTreeModders
             do i = this%pop + 1, pop
                 allocate(nodePoolTmp(i)%coords(dim))
                 !$OMP ATOMIC CAPTURE
-                this%currNodeId       = this%currNodeId + 1_int64
-                nodePoolTmp(i)%nodeId = this%currNodeId
+                this%currNodeId                   = this%currNodeId + 1_int64
+                nodePoolTmp(i)%nodeId%node_id     = this%currNodeId
                 !$OMP END ATOMIC
-                nodePoolTmp(i)%numRemovesSnapshot   = this%numRemoves
-                nodePoolTmp(i)%coords(:)            =  coordsList(:, i-this%pop)
-                nodePoolTmp(i)%hasData              =  hasData
-                nodePoolTmp(i)%lch                  =  0_int64
-                nodePoolTmp(i)%rch                  =  0_int64
-                nodePoolTmp(i)%treeId               = tid
+                nodePoolTmp(i)%nodeId%pool_idx    = i
+                nodePoolTmp(i)%coords(:)          =  coordsList(:, i-this%pop)
+                nodePoolTmp(i)%hasData            =  hasData
+                nodePoolTmp(i)%lch                =  0_int64
+                nodePoolTmp(i)%rch                =  0_int64
+                nodePoolTmp(i)%treeId             = tid
                 if (nodePoolTmp(i)%hasData) then
                     nodePoolTmp(i)%data = dataList(i-this%pop)
                 end if
@@ -158,6 +160,7 @@ submodule(KdTreeFortran) KdTreeModders
             character(len=9)                :: mtr
             type(KdNodePtr), allocatable    :: foundNodes(:)
             type(KdNodeBucket), allocatable :: foundNodesBucket(:)
+            
             ! compaction variables
             integer(int64), allocatable     :: rmvIds(:)
             logical, allocatable            :: keepMask(:)
@@ -246,7 +249,7 @@ submodule(KdTreeFortran) KdTreeModders
                 numRmvIds = int(size(foundNodes), int64)
                 allocate(rmvIds(numRmvIds))
                 do j = 1_int64, numRmvIds
-                    rmvIds(j) = foundNodes(j)%p%nodeId
+                    rmvIds(j) = foundNodes(j)%p%nodeId%node_id
                 end do
             else
                 numRmvIds = 0_int64
@@ -258,7 +261,7 @@ submodule(KdTreeFortran) KdTreeModders
                 do i = 1_int64, int(size(foundNodesBucket), int64)
                     do j = 1_int64, int(size(foundNodesBucket(i)%nodes), int64)
                         k = k + 1_int64
-                        rmvIds(k) = foundNodesBucket(i)%nodes(j)%p%nodeId
+                        rmvIds(k) = foundNodesBucket(i)%nodes(j)%p%nodeId%node_id
                     end do
                 end do
             end if
@@ -270,7 +273,7 @@ submodule(KdTreeFortran) KdTreeModders
             keepMask(:) = .true.
             do i = 1_int64, this%pop
                 do j = 1_int64, numRmvIds
-                    if (this%nodePool(i)%nodeId .eq. rmvIds(j)) then
+                    if (this%nodePool(i)%nodeId%node_id .eq. rmvIds(j)) then
                         keepMask(i) = .false.
                         exit
                     end if
@@ -287,13 +290,13 @@ submodule(KdTreeFortran) KdTreeModders
                     do i = 1_int64, this%pop
                         if (keepMask(i)) then
                             k = k + 1_int64
-                            newPool(k) = this%nodePool(i)
+                            newPool(k)                    = this%nodePool(i)
+                            newPool(k)%nodeId%pool_idx    = k
                         end if
                     end do
                     deallocate(this%nodePool)
                     this%nodePool => newPool
                     this%pop      = newPop
-                    this%numRemoves = this%numRemoves + int(numRmv, int64)
                     call rebuild(this)
                 else
                     ! all nodes removed ; tree is structurally empty but still initialized
@@ -302,7 +305,6 @@ submodule(KdTreeFortran) KdTreeModders
                     this%pop        = 0_int64
                     this%rootIdx    = 0_int64
                     this%modifications = 0_int64
-                    this%numRemoves = this%numRemoves + int(numRmv, int64)
                 end if
             end if
 

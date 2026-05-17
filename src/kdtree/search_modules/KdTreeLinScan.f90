@@ -3,7 +3,8 @@ submodule (KdTreeFortran) KdTreeLinScan
     contains
         module procedure linScan
             type(KdNode), pointer :: copy
-            integer(int64)        :: i, j, numFound
+            type(KdNodePtr), allocatable :: tmp(:)
+            integer(int64) :: i, j, numFound, hint
 
             if (.not. this%initialized) then
                 error stop "linScan: tree is not initialized (call build first)"
@@ -13,32 +14,42 @@ submodule (KdTreeFortran) KdTreeLinScan
                 return
             end if
 
-            ! Count exact matches to determine final array size
+            allocate(res(size(ids)))
             numFound = 0_int64
-            do i = 1_int64, this%pop
-                do j = 1_int64, size(ids)
-                    if (this%nodePool(i)%nodeId == ids(j)) then
+
+            do j = 1_int64, size(ids)
+                ! O(1) fast path: use pool_idx hint
+                hint = ids(j)%pool_idx
+                if (hint .ge. 1_int64 .and. hint .le. this%pop) then
+                    if (this%nodePool(hint)%nodeId%node_id .eq. ids(j)%node_id) then
                         numFound = numFound + 1_int64
-                        exit
+                        allocate(copy, source=this%nodePool(hint))
+                        res(numFound)%p => copy
+                        cycle
                     end if
-                end do
-            end do
-
-            allocate(res(numFound))
-
-            ! Populate result, stamping each copy with current removal counter
-            numFound = 0_int64
-            do i = 1_int64, this%pop
-                do j = 1_int64, size(ids)
-                    if (this%nodePool(i)%nodeId == ids(j)) then
+                end if
+                ! O(n) fallback: hint stale or unknown
+                do i = 1_int64, this%pop
+                    if (this%nodePool(i)%nodeId%node_id .eq. ids(j)%node_id) then
                         numFound = numFound + 1_int64
                         allocate(copy, source=this%nodePool(i))
-                        copy%numRemovesSnapshot = this%numRemoves
                         res(numFound)%p => copy
                         exit
                     end if
                 end do
             end do
+
+            if (numFound .eq. 0_int64) then
+                deallocate(res)
+                allocate(res(0))
+            else if (numFound .lt. int(size(res), int64)) then
+                allocate(tmp(numFound))
+                do i = 1_int64, numFound
+                    tmp(i)%p    => res(i)%p
+                    res(i)%p    => null()
+                end do
+                call move_alloc(from=tmp, to=res)
+            end if
         end procedure linScan
 
 end submodule KdTreeLinScan

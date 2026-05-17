@@ -9,7 +9,7 @@ program Testv050_RMV_NODES_IDS_NO_MATCH
             type(KdTree)   :: t
             real(real64)   :: coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
-            integer(int64) :: targetIds(1) = [9999_int64]
+            type(NodeId)   :: targetIds(1)
             integer        :: numRmv
             integer(int64) :: pop
 

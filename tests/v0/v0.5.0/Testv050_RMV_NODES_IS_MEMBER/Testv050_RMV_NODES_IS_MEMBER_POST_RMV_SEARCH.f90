@@ -5,11 +5,11 @@ program Testv050_RMV_NODES_IS_MEMBER_POST_RMV_SEARCH
     call rmvNodesIsMemberPostRmvSearch()
     contains
         !> After rmvNodes removes one node, find a surviving node via rNN_Centroid.
-        !! The returned KdNodePtr has numRemovesSnapshot stamped to the current
-        !! numRemoves, so isMember takes the fast path (no pool scan) and returns true.
+        !! The returned KdNodePtr has pool_idx pointing to the current pool position,
+        !! so isMember takes the O(1) fast path and returns true.
         !!
         !! This is distinct from IS_MEMBER_SURVIVING which finds the node BEFORE
-        !! removal and exercises the slow path.
+        !! removal and exercises the O(n) fallback.
         subroutine rmvNodesIsMemberPostRmvSearch()
             type(KdTree)                 :: t
             real(real64)                 :: coords(2, 3) = reshape( &

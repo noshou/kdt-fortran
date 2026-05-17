@@ -1,9 +1,10 @@
 module KdTreeFortran
     
     use iso_fortran_env, only: int64, real64, output_unit
+    use iso_c_binding,   only: c_int64_t
     implicit none
     private
-    public                  :: KdTree, KdNode, KdNodePtr, KdNodeBucket
+    public                  :: KdTree, KdNode, KdNodePtr, KdNodeBucket, NodeId
     public                  :: DEFAULT_BUFFER_SIZE, DEFAULT_METRIC, DEFAULT_EPSILON
     integer(int64), save    :: nextTreeId = 0_int64
 
@@ -16,13 +17,23 @@ module KdTreeFortran
     !> Default epsilon value for floating point comparisons
     real(real64),     parameter :: DEFAULT_EPSILON      = 1.0e-15_real64
 
+    !> 128-bit composite node identifier.
+    !! node_id is stable for the lifetime of the node.
+    !! pool_idx is a mutable hint to the node's current position in the pool;
+    !! it may go stale after removes or additions.
+    type, bind(c) :: NodeId
+        integer(c_int64_t) :: node_id  = 0
+        integer(c_int64_t) :: pool_idx = 0
+    end type NodeId
+
+    !> A node for a kd-tree
     type :: KdNode
         private
         logical                         :: hasData = .false. !> flagged true if node contains data
         class(*), allocatable           :: data
         real(kind=real64), allocatable  :: coords(:)
-        integer(int64)                  :: splitAxis        !> tracks which index in coords is the splitting plane
-        integer(int64)                  :: numRemovesSnapshot = 0_int64, nodeId = 0_int64
+        integer(int64)                  :: splitAxis !> tracks which index in coords is the splitting plane
+        type(NodeId)                    :: nodeId
         integer(int64)                  :: lch = 0_int64, rch = 0_int64  !> indices into nodePool; 0 = no child
         integer(int64)                  :: treeId
         contains    
@@ -32,7 +43,7 @@ module KdTreeFortran
             procedure                   :: euclideanDistPoint
             procedure                   :: getCoords
             procedure                   :: getData
-            procedure                   :: getId
+            procedure                   :: getNodeId
             procedure                   :: getSplitAxis
             procedure                   :: manhattanDist
             procedure                   :: manhattanDistPoint
@@ -44,7 +55,7 @@ module KdTreeFortran
     !! p is always a pointer to a heap-allocated copy; call destroy() or let it
     !! go out of scope to free the copy.
     type :: KdNodePtr
-        type(KdNode), pointer :: p    => null()
+        type(KdNode), pointer :: p => null()
         contains
             procedure         :: destroy => destroyNodePtr
             final             :: finalizerNodePtr
@@ -62,7 +73,7 @@ module KdTreeFortran
     type :: KdTree
     private
     integer(int64)        :: dim = 0_int64, pop = 0_int64, TreeId = 0_int64
-    integer(int64)        :: currNodeId = 0_int64, numRemoves = 0_int64
+    integer(int64)        :: currNodeId = 0_int64
     logical               :: initialized = .false.       !> true iff tree%build() is called successfully
     type(KdNode), pointer :: nodePool(:) => null()       !> pool of allocated nodes
     integer(int64)        :: rootIdx = 0_int64           !> index into nodePool for the root; 0 = empty
@@ -76,12 +87,12 @@ module KdTreeFortran
             procedure     :: associatedRoot
             procedure     :: build
             procedure     :: destroy
+            procedure     :: getAllNodeIds
             procedure     :: getAllNodes
             procedure     :: getAllCoords
             procedure     :: getDim
             procedure     :: getInitState
             procedure     :: getNumMods
-            procedure     :: getNumRemoves
             procedure     :: getPop
             procedure     :: getRebuildRatio
             procedure     :: getTreeId
@@ -111,14 +122,14 @@ module KdTreeFortran
         !! Use a select type construct 
         !! to compare or assign the value.
         module function getData(this) result(data)
-            class(KdNode), intent(in) :: this
-            class(*), allocatable     :: data
+            class(KdNode), intent(in)  :: this
+            class(*),      allocatable :: data
         end function getData
 
         !> Returns the coordinates of this node
         module function getCoords(this) result(coords)
-            class(KdNode), intent(in) :: this
-            real(real64), allocatable :: coords(:)
+            class(KdNode), intent(in)  :: this
+            real(real64),  allocatable :: coords(:)
         end function getCoords
 
         !> Returns the splitting axis of this node
@@ -127,11 +138,14 @@ module KdTreeFortran
             integer(int64)            :: splitAxs
         end function getSplitAxis
 
-        !> Returns the node id
-        module function getId(this) result(id)
-            class(KdNode), intent(in)  :: this
-            integer(int64)             :: id
-        end function getId
+        !> Returns the composite node id.
+        !! node_id is the stable identifier; pool_idx is a mutable hint
+        !! to the node's current pool position (may go stale after mutations).
+        !! Pass the returned NodeId to id-based search and remove functions.
+        module function getNodeId(this) result(id)
+            class(KdNode), intent(in) :: this
+            type(NodeId)              :: id
+        end function getNodeId
 
         !=================================================!
 
@@ -144,9 +158,9 @@ module KdTreeFortran
         !!
         !! @return The euclidean distance between two Nodes
         module function euclideanDist(this, that) result(dist)
-            class(KdNode), intent(in) :: this
-            type(KdNode), intent(in)  :: that
-            real(kind=real64)       :: dist
+            class(KdNode), intent(in)  :: this
+            type(KdNode),  intent(in)  :: that
+            real(kind=real64)          :: dist
         end function euclideanDist
 
         !> Calculates the euclidean distance between this node 
@@ -155,7 +169,7 @@ module KdTreeFortran
         !! 
         !! @return the euclidean distance from the node to the point
         module function euclideanDistPoint(this, point) result(dist)
-            class(KdNode), intent(in)             :: this
+            class(KdNode),             intent(in) :: this
             real(real64), allocatable, intent(in) :: point(:)
             real(kind=real64)                     :: dist
         end function euclideanDistPoint
@@ -165,9 +179,9 @@ module KdTreeFortran
         !!
         !! @return The Manhattan distance between two Nodes
         module function manhattanDist(this, that) result(dist)
-            class(KdNode), intent(in) :: this
-            type(KdNode), intent(in)  :: that
-            real(kind=real64)       :: dist
+            class(KdNode), intent(in)  :: this
+            type(KdNode),  intent(in)  :: that
+            real(kind=real64)          :: dist
         end function manhattanDist
 
         !> Calculates the Manhattan (L1) distance between this node
@@ -176,7 +190,7 @@ module KdTreeFortran
         !!
         !! @return the Manhattan distance from the node to the point
         module function manhattanDistPoint(this, point) result(dist)
-            class(KdNode), intent(in)             :: this
+            class(KdNode),             intent(in) :: this
             real(real64), allocatable, intent(in) :: point(:)
             real(kind=real64)                     :: dist
         end function manhattanDistPoint
@@ -187,7 +201,7 @@ module KdTreeFortran
         !! @return The Chebyshev distance between two Nodes
         module function chebyshevDist(this, that) result(dist)
             class(KdNode), intent(in) :: this
-            type(KdNode), intent(in)  :: that
+            type(KdNode),  intent(in) :: that
             real(kind=real64)         :: dist
         end function chebyshevDist
 
@@ -197,7 +211,7 @@ module KdTreeFortran
         !!
         !! @return the Chebyshev distance from the node to the point
         module function chebyshevDistPoint(this, point) result(dist)
-            class(KdNode), intent(in)             :: this
+            class(KdNode),             intent(in) :: this
             real(real64), allocatable, intent(in) :: point(:)
             real(kind=real64)                     :: dist
         end function chebyshevDistPoint
@@ -212,10 +226,10 @@ module KdTreeFortran
         !! @param[in] depth the depth of this Node
         !! @param[in] unit  optional output unit (defaults to stdout)
         module recursive subroutine printNode(this, depth, nodePool, unit)
-            class(KdNode), intent(in)              :: this
-            integer(int64), intent(in)             :: depth
-            type(KdNode),     intent(in)           :: nodePool(:)
-            integer,        intent(in), optional   :: unit
+            class(KdNode),  intent(in)           :: this
+            integer(int64), intent(in)           :: depth
+            type(KdNode),   intent(in)           :: nodePool(:)
+            integer,        intent(in), optional :: unit
         end subroutine printNode
 
         !> Prints the current node, but not its subtree
@@ -223,8 +237,8 @@ module KdTreeFortran
         !! Use: printNode(depth) for the full subtree
         !! @param[in] unit  optional output unit (defaults to stdout)
         module subroutine printNodeSingle(this, unit)
-            class(KdNode), intent(in)     :: this
-            integer, intent(in), optional :: unit
+            class(KdNode), intent(in)           :: this
+            integer,       intent(in), optional :: unit
         end subroutine printNodeSingle
 
         !> Frees the owned node copy and nulls p.
@@ -234,7 +248,7 @@ module KdTreeFortran
 
         !> Frees the owned node copy when NodePtr goes out of scope.
         module subroutine finalizerNodePtr(this)
-            type(KdNodePtr), intent(inout)  :: this
+            type(KdNodePtr), intent(inout) :: this
         end subroutine finalizerNodePtr
 
         !> Frees node ptrs in node bucket.
@@ -244,7 +258,7 @@ module KdTreeFortran
 
         !> Frees node ptrs in node bucket when bucket goes out of scope.
         module subroutine finalizerNodeBucket(this)
-            type(KdNodeBucket), intent(inout)  :: this
+            type(KdNodeBucket), intent(inout) :: this
         end subroutine finalizerNodeBucket
 
 
@@ -270,7 +284,7 @@ module KdTreeFortran
         !! param[inout] isInit the state of the tree
         module subroutine getInitState(this, isInit)
             class(KdTree), intent(in)    :: this
-            logical,     intent(inout)   :: isInit
+            logical,       intent(inout) :: isInit
         end subroutine getInitState
 
         !> Returns the unique integer ID assigned to this tree at build time
@@ -296,16 +310,19 @@ module KdTreeFortran
             integer(int64)            :: numMods
         end function getNumMods
 
-        !> Returns the total number of nodes removed from this tree.
-        !! Incremented by numRmv after each successful rmvNodes call;
-        !! reset to 0 by destroy().
-        module function getNumRemoves(this) result(numRemoves)
-            class(KdTree), intent(in) :: this
-            integer(int64)            :: numRemoves
-        end function getNumRemoves
+        !> Returns the NodeId of every node currently in the pool, in pool order.
+        !! Each NodeId has pool_idx set to the node's current position, so
+        !! linScan takes the O(1) fast path immediately on all returned ids.
+        !! Returns a zero-length array when pop=0 (tree initialized but empty).
+        !!
+        !! @return ids  NodeId array of length pop
+        module function getAllNodeIds(this) result(ids)
+            class(KdTree), intent(in)   :: this
+            type(NodeId),  allocatable  :: ids(:)
+        end function getAllNodeIds
 
         !> Returns deep copies of every node currently in the tree pool.
-        !! Each copy has numRemovesSnapshot stamped to the current numRemoves,
+        !! Each copy has pool_idx stamped to the current pool position,
         !! so isMember takes the fast path immediately on all returned nodes.
         !! Returns a zero-length array when pop=0 (tree initialized but empty).
         !!
@@ -336,8 +353,8 @@ module KdTreeFortran
         !> Prints the entire tree in post-order.
         !! @param[in] unit  optional output unit (defaults to stdout)
         module subroutine printTree(this, unit)
-            class(KdTree), intent(in)       :: this
-            integer, intent(in), optional   :: unit
+            class(KdTree), intent(in)           :: this
+            integer,       intent(in), optional :: unit
         end subroutine printTree
 
         !> Checks if a target node is a member of this tree instance
@@ -345,9 +362,9 @@ module KdTreeFortran
         !!
         !! @return true if a member, false if not
         module function isMember(this, target) result(res)
-            class(KdTree), intent(in)            :: this
-            type(KdNode), pointer, intent(inout) :: target
-            logical                              :: res
+            class(KdTree),         intent(in) :: this
+            type(KdNode), pointer, intent(in) :: target
+            logical                           :: res
         end function isMember
 
         !> Compares t%printTree output against expected as a sorted
@@ -428,9 +445,9 @@ module KdTreeFortran
         !! @param[in] rebuildRatio If this%modifications > this%rebuildRatio * this%pop,
         !!                         then a tree rebuild is triggered. Defaulted to 0.25.
         module subroutine build(this, coords, data, rebuildRatio)
-            class(KdTree), intent(inout)            :: this
+            class(KdTree),     intent(inout)        :: this
             real(kind=real64), intent(in)           :: coords(:,:)
-            class(*), intent(in), optional          :: data(:)
+            class(*),          intent(in), optional :: data(:)
             real(kind=real64), intent(in), optional :: rebuildRatio
         end subroutine build
 
@@ -486,9 +503,9 @@ module KdTreeFortran
         !! @param[in] coordsList  (k, n) array of coordinates to add
         !! @param[in] dataList    optional rank-1 array of n data values
         module subroutine addNodes(this, coordsList, dataList)
-            class(KdTree),  intent(inout)   :: this
-            real(real64), intent(in)        :: coordsList(:,:)
-            class(*), intent(in), optional  :: dataList(:)
+            class(KdTree),intent(inout)        :: this
+            real(real64), intent(in)           :: coordsList(:,:)
+            class(*),     intent(in), optional :: dataList(:)
         end subroutine addNodes
 
         !> Removes nodes from the pool according to one or more optional filters.
@@ -502,7 +519,7 @@ module KdTreeFortran
         !!
         !!  - ids alone:
         !!      removes all nodes whose id appears anywhere in ids.
-        !!      NOTE: requires a linear scan of the node pool; O(n * size(ids)).
+        !!      Uses pool_idx for O(1) fast path; falls back to O(n) scan if stale.
         !!
         !!  - coordsList + ids (no radii):
         !!      ids and coordsList are treated as paired: removes nodes where
@@ -529,8 +546,8 @@ module KdTreeFortran
         !! @param[in] coordsList  (dim, n) array of target coordinates
         !! @param[in] radii       n radii paired with coordsList columns;
         !!                        if omitted, matching uses epsilon tolerance
-        !! @param[in] ids         node ids to filter by; paired with coordsList
-        !!                        when radii is absent, treated as a set otherwise
+        !! @param[in] ids         NodeIds to filter by (obtain via getNodeId());
+        !!                        paired with coordsList when radii is absent, treated as a set otherwise
         !! @param[in] epsilon     coordinate-match tolerance (default DEFAULT_EPSILON);
         !!                        used only when radii is absent
         !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
@@ -555,7 +572,7 @@ module KdTreeFortran
             class(KdTree),    intent(inout)        :: this
             real(real64),     intent(in), optional :: radii(:)
             real(real64),     intent(in), optional :: coordsList(:,:)
-            integer(int64),   intent(in), optional :: ids(:)
+            type(NodeId),     intent(in), optional :: ids(:)
             real(real64),     intent(in), optional :: epsilon
             character(len=*), intent(in), optional :: metric
             integer,          intent(in), optional :: bufferSize
@@ -578,7 +595,8 @@ module KdTreeFortran
         !! @param[in]    radius   search radius
         !! @param[inout] res      result buffer; doubles in size when full
         !! @param[inout] arrSize  number of results written into res so far
-        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param[in]    metric   'euclidean', 'manhattan', 'chebyshev'; 
+        !!                        default DEFAULT_METRIC
         module subroutine rNN( &
             target,            &
             currIdx,           &
@@ -603,8 +621,10 @@ module KdTreeFortran
         !! Includes target node in results by default.
         !! @param[in] target        the target node
         !! @param[in] radius        the search radius; error stop if negative
-        !! @param[in] bufferSize    initial result buffer size; doubles when full; default DEFAULT_BUFFER_SIZE; error stop if <= 0
-        !! @param[in] metric        'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
+        !! @param[in] bufferSize    initial result buffer size; doubles when full; 
+        !!                           default DEFAULT_BUFFER_SIZE; error stop if <= 0
+        !! @param[in] metric        'euclidean', 'manhattan', 'chebyshev'; 
+        !!                          default DEFAULT_METRIC
         !! @param[in] excludeTarget if .true., removes the target node from the returned list
         !!
         !! @return list of nodes within the search radius
@@ -616,13 +636,13 @@ module KdTreeFortran
             metric,               &
             excludeTarget         &
         ) result(res)
-            class(KdTree), intent(inout)           :: this
-            type(KdNodePtr), intent(inout)         :: target
-            real(kind=real64), intent(in)          :: radius
-            integer, intent(in), optional          :: bufferSize
-            character(len=*), intent(in), optional :: metric
-            logical, intent(in), optional          :: excludeTarget
-            type(KdNodePtr), allocatable           :: res(:)
+            class(KdTree),       intent(in)            :: this
+            type(KdNodePtr),     intent(in)            :: target
+            real(kind=real64),   intent(in)            :: radius
+            integer,             intent(in), optional  :: bufferSize
+            character(len=*),    intent(in), optional  :: metric
+            logical,             intent(in), optional  :: excludeTarget
+            type(KdNodePtr),     allocatable           :: res(:)
         end function rNN_Node
 
         !> Performs radius nearest neighbour search on a centroid
@@ -630,7 +650,8 @@ module KdTreeFortran
         !! Searches for nodes within a given radius of an arbitrary point;
         !! @param[in] centroid    the centre of the search sphere; must match the tree dimension
         !! @param[in] radius      the search radius; error stop if negative
-        !! @param[in] bufferSize  initial result buffer size; doubles when full; default DEFAULT_BUFFER_SIZE; error stop if <= 0
+        !! @param[in] bufferSize  initial result buffer size; doubles when full; 
+        !!                        default DEFAULT_BUFFER_SIZE; error stop if <= 0
         !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !!
         !! @return list of nodes within the search radius
@@ -641,11 +662,11 @@ module KdTreeFortran
             bufferSize,                 &
             metric                      &
         ) result(res)
-            class(KdTree), intent(in)              :: this
-            real(kind=real64), intent(in)          :: radius, centroid(:)
-            integer, intent(in), optional          :: bufferSize
-            character(len=*), intent(in), optional :: metric 
-            type(KdNodePtr), allocatable           :: res(:)
+            class(KdTree),     intent(in)           :: this
+            real(kind=real64), intent(in)           :: radius, centroid(:)
+            integer,           intent(in), optional :: bufferSize
+            character(len=*),  intent(in), optional :: metric 
+            type(KdNodePtr),   allocatable          :: res(:)
 
         end function rNN_Centroid
 
@@ -658,7 +679,8 @@ module KdTreeFortran
         !!
         !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !! @param epsilon    match radius; default DEFAULT_EPSILON
-        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
+        !! @param bufferSize initial capacity of each bucket before reallocation; 
+        !!                   default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Coords( &
@@ -686,7 +708,8 @@ module KdTreeFortran
         !!
         !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !! @param epsilon    match radius; default DEFAULT_EPSILON
-        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
+        !! @param bufferSize initial capacity of each bucket before reallocation; 
+        !!                   default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Ids( &
@@ -699,8 +722,8 @@ module KdTreeFortran
         ) result(res)
             class(KdTree),      intent(in)           :: this
             real(real64),       intent(in)           :: coords(:,:)
-            integer(int64),     intent(in)           :: ids(:)
-            character(len=*),   intent(in), optional :: metric 
+            type(NodeId),       intent(in)           :: ids(:)
+            character(len=*),   intent(in), optional :: metric
             real(real64),       intent(in), optional :: epsilon
             integer,            intent(in), optional :: bufferSize
             type(KdNodeBucket), allocatable          :: res(:)
@@ -713,7 +736,8 @@ module KdTreeFortran
         !! res(i) is empty if no node satisfies criteria.
         !!
         !! @param metric     'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
-        !! @param bufferSize initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
+        !! @param bufferSize initial capacity of each bucket before reallocation; 
+        !!                   default DEFAULT_BUFFER_SIZE
         !!
         !! @return res a NodeBucket containing results
         module function rNN_Rad( &
@@ -741,10 +765,11 @@ module KdTreeFortran
         !!
         !! @param[in] coordsList  (dim, nQuery) array of query coordinates
         !! @param[in] radii       nQuery radii, paired with coordsList columns
-        !! @param[in] ids         unordered set of node ids to filter by;
-        !!                        not paired with coordsList
+        !! @param[in] ids         unordered set of NodeIds to filter by;
+        !!                        not paired with coordsList; obtain via getNodeId()
         !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
-        !! @param[in] bufferSize  initial capacity of each bucket before reallocation; default DEFAULT_BUFFER_SIZE
+        !! @param[in] bufferSize  initial capacity of each bucket before reallocation; 
+        !!                        default DEFAULT_BUFFER_SIZE
         !!
         !! @return    res         res(nQuery) of KdNodeBucket; res(i) contains all
         !!                        nodes within radii(i) of coordsList(:,i) whose id
@@ -759,11 +784,10 @@ module KdTreeFortran
         ) result(res)
             class(KdTree),      intent(in)           :: this
             real(real64),       intent(in)           :: coords(:,:), radii(:)
-            integer(int64),     intent(in)           :: ids(:)
-            character(len=*),   intent(in), optional :: metric 
+            type(NodeId),       intent(in)           :: ids(:)
+            character(len=*),   intent(in), optional :: metric
             integer,            intent(in), optional :: bufferSize
             type(KdNodeBucket), allocatable          :: res(:)
-
         end function rNN_RadIds
 
         !======================================================================================!
@@ -772,18 +796,18 @@ module KdTreeFortran
         !========= search_modules/KdTreeLinScan.f90 =========!
         !====================================================!
 
-        !> Performs a linear scan of the node pool, returning all nodes whose id
-        !! appears in ids. O(n × size(ids)) -> prefer coordinate-based lookup when
-        !! location is known.
+        !> Looks up nodes by NodeId, using pool_idx for an O(1) fast path.
+        !! Falls back to O(n) scan only when the pool_idx hint is stale.
         !!
         !! Returns a zero-length array when pop=0 or ids is empty.
         !!
-        !! @param[in] ids  node ids to find (unordered set)
+        !! @param[in] ids  NodeIds to find (unordered set); obtain via getNodeId()
+        !!
         !! @return    res  KdNodePtr array of matched nodes; empty if no match
         module function linScan(this, ids) result(res)
-            class(KdTree),      intent(in)           :: this
-            integer(int64),     intent(in)           :: ids(:)
-            type(KdNodePtr), allocatable             :: res(:)
+            class(KdTree),   intent(in)  :: this
+            type(NodeId),    intent(in)  :: ids(:)
+            type(KdNodePtr), allocatable :: res(:)
         end function linScan
 
         !==========================================================================!
@@ -795,14 +819,15 @@ module KdTreeFortran
         !> Density-based spatial clustering (DBSCAN).
         !!
         !! Returns an array of KdNodeBucket, one bucket per cluster found.
-        !! Noise points (not belonging to any cluster) are not included.
         !!
         !! @param[in] minPts      minimum neighbourhood size to classify a point as a core point
         !! @param[in] radius      neighbourhood search radius (eps)
         !! @param[in] metric      'euclidean', 'manhattan', 'chebyshev'; default DEFAULT_METRIC
         !! @param[in] bufferSize  initial rNN result buffer size; default DEFAULT_BUFFER_SIZE
         !!
-        !! @return res  array of KdNodeBucket, one per cluster; res(i) holds all nodes in cluster i
+        !! @return res  array of KdNodeBucket; res(1:n-1) contains buckets for each cluster,
+        !!                       res(n) contains "noise". If tree is empty, then res(1) will be 
+        !!                       empty and res(2) will also be empty.
         module function DBSCAN(this, minPts, radius, metric, bufferSize) result(res)
             class(KdTree),      intent(in)           :: this
             integer,            intent(in)           :: minPts
@@ -812,7 +837,7 @@ module KdTreeFortran
             type(KdNodeBucket), allocatable          :: res(:)
         end function DBSCAN
 
-        !==========================================================!
+        !======================================================================================!
     
     end interface
 

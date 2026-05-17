@@ -21,7 +21,7 @@ program Testv050_LIN_SCAN_LIFECYCLE
 
             ! Record the id of the node at the origin (will be removed)
             allNodes      = t%getAllNodes()
-            removedId(1)  = allNodes(1)%p%getId()
+            removedId(1)  = allNodes(1)%p%getNodeId()
 
             ! linScan must find it now
             res = t%linScan(removedId)
@@ -51,7 +51,7 @@ program Testv050_LIN_SCAN_LIFECYCLE
             call t%addNodes(extra)
             allNodes = t%getAllNodes()
             do i = 1, size(allNodes)
-                if (i .le. 2) newIds(i) = allNodes(size(allNodes) - 2 + i)%p%getId()
+                if (i .le. 2) newIds(i) = allNodes(size(allNodes) - 2 + i)%p%getNodeId()
             end do
 
             ! linScan must find the 2 new nodes

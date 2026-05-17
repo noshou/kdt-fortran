@@ -1,6 +1,6 @@
 program Testv050_RMV_NODES_IDS_EMPTY
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call rmvNodesIdsEmpty()
     contains
@@ -9,7 +9,7 @@ program Testv050_RMV_NODES_IDS_EMPTY
             type(KdTree)               :: t
             real(real64)               :: init(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
-            integer(int64), allocatable :: bad_ids(:)
+            type(NodeId),   allocatable :: bad_ids(:)
             integer                    :: numRmv
             allocate(bad_ids(0))
             call t%build(init)

@@ -10,9 +10,10 @@ program Testv040_FIND_NODES_IDS_SINGLE_HIT
             type(KdTree) :: t
             type(KdNodeBucket), allocatable :: res(:)
             real(real64)   :: coords(2, 1) = reshape([3.0_real64, 4.0_real64], [2, 1])
-            integer(int64) :: ids(1) = [1_int64]
+            type(NodeId)   :: ids(1)
 
             call t%build(coords)
+            ids(1)%node_id = 1
             res = t%rNN_Ids(coords, ids, epsilon=1e-10_real64)
 
             if (size(res) .ne. 1) then

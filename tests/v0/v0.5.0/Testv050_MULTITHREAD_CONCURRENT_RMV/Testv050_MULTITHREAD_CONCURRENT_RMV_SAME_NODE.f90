@@ -8,15 +8,15 @@ program Testv050_MULTITHREAD_CONCURRENT_RMV_SAME_NODE
         !! The critical section re-checks the pool, so only the first thread
         !! that enters the critical section performs the removal; the remaining
         !! 3 find the node already gone and remove nothing.
-        !! Result: numRemoves=1, pop=4.
+        !! Result: pop=4.
         subroutine concurrentRmvSameNode()
             type(KdTree)                 :: t
             real(real64)                 :: coords(2, 5) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 2.0_real64, 0.0_real64, &
                  0.0_real64, 1.0_real64, 1.0_real64, 1.0_real64], [2, 5])
             type(KdNodePtr), allocatable :: res(:)
-            integer(int64)               :: targetId(1)
-            integer(int64)               :: pop, numRemoves
+            type(NodeId)                 :: targetId(1)
+            integer(int64)               :: pop
             integer                      :: i
 
             call t%build(coords)
@@ -26,7 +26,7 @@ program Testv050_MULTITHREAD_CONCURRENT_RMV_SAME_NODE
                 write(*, '(A,I0)') 'expected 1 node at origin, got: ', size(res)
                 stop 1
             end if
-            targetId(1) = res(1)%p%getId()
+            targetId(1) = res(1)%p%getNodeId()
 
             !$OMP PARALLEL DO NUM_THREADS(4) SCHEDULE(STATIC, 1) SHARED(t, targetId)
             do i = 1, 4
@@ -37,17 +37,11 @@ program Testv050_MULTITHREAD_CONCURRENT_RMV_SAME_NODE
             end do
             !$OMP END PARALLEL DO
 
-            pop        = t%getPop()
-            numRemoves = t%getNumRemoves()
+            pop = t%getPop()
 
             if (pop .ne. 4_int64) then
                 write(*, '(A)')    '--- Testv050_MULTITHREAD_CONCURRENT_RMV_SAME_NODE ---'
                 write(*, '(A,I0)') 'expected pop=4 (only 1 of 4 threads removes the node), got: ', pop
-                stop 1
-            end if
-            if (numRemoves .ne. 1_int64) then
-                write(*, '(A)')    '--- Testv050_MULTITHREAD_CONCURRENT_RMV_SAME_NODE ---'
-                write(*, '(A,I0)') 'expected numRemoves=1 (deduplication), got: ', numRemoves
                 stop 1
             end if
         end subroutine concurrentRmvSameNode

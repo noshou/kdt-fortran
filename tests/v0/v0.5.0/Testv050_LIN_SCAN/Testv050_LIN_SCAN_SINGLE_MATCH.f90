@@ -15,7 +15,7 @@ program Testv050_LIN_SCAN_SINGLE_MATCH
 
             call t%build(coords)
             allNodes  = t%getAllNodes()
-            target(1) = allNodes(1)%p%getId()
+            target(1) = allNodes(1)%p%getNodeId()
             res       = t%linScan(target)
 
             if (size(res) .ne. 1) then
@@ -23,7 +23,7 @@ program Testv050_LIN_SCAN_SINGLE_MATCH
                 write(*, '(A,I0)') 'expected 1 match, got: ', size(res)
                 stop 1
             end if
-            if (res(1)%p%getId() .ne. target(1)) then
+            if (res(1)%p%getNodeId() .ne. target(1)) then
                 write(*, '(A)')    '--- Testv050_LIN_SCAN_SINGLE_MATCH ---'
                 write(*, '(A)')    'returned node has wrong id'
                 stop 1

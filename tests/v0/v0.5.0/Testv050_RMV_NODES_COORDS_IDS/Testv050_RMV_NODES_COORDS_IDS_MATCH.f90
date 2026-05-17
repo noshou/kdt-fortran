@@ -12,7 +12,7 @@ program Testv050_RMV_NODES_COORDS_IDS_MATCH
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
             type(KdNodePtr), allocatable :: res(:)
             real(real64)                 :: query(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
-            integer(int64)               :: targetIds(1)
+            type(NodeId)                 :: targetIds(1)
             integer                      :: numRmv
             integer(int64)               :: pop
 
@@ -23,7 +23,7 @@ program Testv050_RMV_NODES_COORDS_IDS_MATCH
                 write(*, '(A)') 'expected 1 node at origin'
                 stop 1
             end if
-            targetIds(1) = res(1)%p%getId()
+            targetIds(1) = res(1)%p%getNodeId()
 
             numRmv = t%rmvNodes(coordsList=query, ids=targetIds)
             pop    = t%getPop()

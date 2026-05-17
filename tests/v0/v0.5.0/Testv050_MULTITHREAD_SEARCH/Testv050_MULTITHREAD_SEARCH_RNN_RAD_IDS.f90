@@ -1,6 +1,6 @@
 program Testv050_MULTITHREAD_SEARCH_RNN_RAD_IDS
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     use omp_lib
     implicit none
     call multithreadRnnRadIds()
@@ -15,7 +15,7 @@ program Testv050_MULTITHREAD_SEARCH_RNN_RAD_IDS
             real(real64)                    :: q(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)                    :: r(1)    = [1.1_real64]
             type(KdNodePtr), allocatable    :: origin(:)
-            integer(int64)                  :: ids(1)
+            type(NodeId)                    :: ids(1)
             type(KdNodeBucket), allocatable :: res(:)
             integer                         :: errors
 
@@ -25,7 +25,7 @@ program Testv050_MULTITHREAD_SEARCH_RNN_RAD_IDS
                 write(*, '(A)') '--- Testv050_MULTITHREAD_SEARCH_RNN_RAD_IDS: setup failed'
                 stop 1
             end if
-            ids(1) = origin(1)%p%getId()
+            ids(1) = origin(1)%p%getNodeId()
             errors = 0
 
             !$OMP PARALLEL DEFAULT(NONE) SHARED(t, q, r, ids, errors) NUM_THREADS(4) &

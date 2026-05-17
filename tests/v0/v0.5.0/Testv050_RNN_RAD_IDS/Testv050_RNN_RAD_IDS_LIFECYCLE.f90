@@ -25,7 +25,7 @@ program Testv050_RNN_RAD_IDS_LIFECYCLE
             if (size(originNode) .ne. 1) then
                 write(*, '(A)') '--- Testv050_RNN_RAD_IDS_LIFECYCLE: setup failed'; stop 1
             end if
-            originId(1) = originNode(1)%p%getId()
+            originId(1) = originNode(1)%p%getNodeId()
 
             ! Before removal: origin is in radius and in ids → 1 result
             res = t%rNN_RadIds(q, r, originId)

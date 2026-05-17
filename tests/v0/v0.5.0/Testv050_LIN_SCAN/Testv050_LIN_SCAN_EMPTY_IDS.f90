@@ -1,6 +1,6 @@
 program Testv050_LIN_SCAN_EMPTY_IDS
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call linScanEmptyIds()
     contains
@@ -9,7 +9,7 @@ program Testv050_LIN_SCAN_EMPTY_IDS
             type(KdTree)                 :: t
             real(real64)                 :: coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
-            integer(int64)               :: ids(0)
+            type(NodeId)                 :: ids(0)
             type(KdNodePtr), allocatable :: res(:)
 
             call t%build(coords)

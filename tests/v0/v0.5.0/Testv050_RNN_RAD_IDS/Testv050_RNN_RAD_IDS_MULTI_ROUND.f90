@@ -29,7 +29,7 @@ program Testv050_RNN_RAD_IDS_MULTI_ROUND
             call t%build(coordsAB)
             pA = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.01_real64)
             pB = t%rNN_Centroid([1.0_real64, 0.0_real64], 0.01_real64)
-            idA = pA(1)%p%getId(); idB = pB(1)%p%getId()
+            idA = pA(1)%p%getNodeId(); idB = pB(1)%p%getNodeId()
 
             ! Round 1
             res = t%rNN_RadIds(q, r, [idA, idB])
@@ -41,7 +41,7 @@ program Testv050_RNN_RAD_IDS_MULTI_ROUND
             ! Round 2a: add C
             call t%addNodes(coordsC)
             pC = t%rNN_Centroid([2.0_real64, 0.0_real64], 0.01_real64)
-            idC = pC(1)%p%getId()
+            idC = pC(1)%p%getNodeId()
 
             res = t%rNN_RadIds(q, r, [idB, idC])
             if (size(res(1)%nodes) .ne. 2) then
@@ -60,7 +60,7 @@ program Testv050_RNN_RAD_IDS_MULTI_ROUND
             ! Round 3: add D, remove B
             call t%addNodes(coordsD)
             pD = t%rNN_Centroid([3.0_real64, 0.0_real64], 0.01_real64)
-            idD = pD(1)%p%getId()
+            idD = pD(1)%p%getNodeId()
             numRmv = t%rmvNodes(coordsList=rmvB)
 
             res = t%rNN_RadIds(q, r, [idC, idD])

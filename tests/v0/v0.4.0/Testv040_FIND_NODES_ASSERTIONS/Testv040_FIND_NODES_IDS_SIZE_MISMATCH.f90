@@ -1,6 +1,6 @@
 program Testv040_FIND_NODES_IDS_SIZE_MISMATCH
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call findNodesIdsSizeMismatch()
     contains
@@ -12,7 +12,7 @@ program Testv040_FIND_NODES_IDS_SIZE_MISMATCH
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
             real(real64) :: query(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 3])
-            integer(int64) :: ids(2) = [1_int64, 2_int64]
+            type(NodeId)   :: ids(2)
 
             call t%build(coords)
             res = t%rNN_Ids(query, ids)

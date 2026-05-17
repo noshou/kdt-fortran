@@ -18,9 +18,9 @@ program Testv050_MULTITHREAD_SEARCH_LIN_SCAN
 
             call t%build(coords)
             pool       = t%getAllNodes()
-            targets(1) = pool(1)%p%getId()
-            targets(2) = pool(3)%p%getId()
-            targets(3) = pool(5)%p%getId()
+            targets(1) = pool(1)%p%getNodeId()
+            targets(2) = pool(3)%p%getNodeId()
+            targets(3) = pool(5)%p%getNodeId()
             errors     = 0
 
             !$OMP PARALLEL DEFAULT(NONE) SHARED(t, targets, errors) NUM_THREADS(4) &

@@ -1,6 +1,6 @@
 program Testv050_RMV_NODES_COORDS_IDS_SIZE_MISMATCH
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call rmvNodesCoordsIdsSizeMismatch()
     contains
@@ -12,7 +12,7 @@ program Testv050_RMV_NODES_COORDS_IDS_SIZE_MISMATCH
                  2.0_real64, 0.0_real64, 0.0_real64, 1.0_real64], [2, 4])
             real(real64)   :: query(2, 2) = reshape( &
                 [0.0_real64, 0.0_real64, 1.0_real64, 0.0_real64], [2, 2])
-            integer(int64) :: ids(3) = [1_int64, 2_int64, 3_int64]
+            type(NodeId)   :: ids(3)
             integer        :: numRmv
             call t%build(init)
             numRmv = t%rmvNodes(coordsList=query, ids=ids)

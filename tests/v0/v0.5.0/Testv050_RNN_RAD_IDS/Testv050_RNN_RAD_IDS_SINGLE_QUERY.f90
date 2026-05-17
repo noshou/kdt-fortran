@@ -1,6 +1,6 @@
 program Testv050_RNN_RAD_IDS_SINGLE_QUERY
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call rnnRadIdsSingleQuery()
     contains
@@ -13,15 +13,16 @@ program Testv050_RNN_RAD_IDS_SINGLE_QUERY
             real(real64)                    :: q(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
             real(real64)                    :: r(1)    = [1.1_real64]
             type(KdNodePtr), allocatable    :: centre(:)
-            integer(int64)                  :: ids(1)
+            type(NodeId)                    :: ids(1)
             type(KdNodeBucket), allocatable :: res(:)
+            type(NodeId)                    :: tmp
 
             call t%build(coords)
             centre = t%rNN_Centroid([0.0_real64, 0.0_real64], 0.01_real64)
             if (size(centre) .ne. 1) then
                 write(*, '(A)') '--- Testv050_RNN_RAD_IDS_SINGLE_QUERY: setup failed'; stop 1
             end if
-            ids(1) = centre(1)%p%getId()
+            ids(1) = centre(1)%p%getNodeId()
 
             res = t%rNN_RadIds(q, r, ids)
 
@@ -30,7 +31,8 @@ program Testv050_RNN_RAD_IDS_SINGLE_QUERY
                     size(res(1)%nodes)
                 stop 1
             end if
-            if (res(1)%nodes(1)%p%getId() .ne. ids(1)) then
+            tmp = res(1)%nodes(1)%p%getNodeId()
+            if (tmp%node_id .ne. ids(1)%node_id) then
                 write(*, '(A)') '--- Testv050_RNN_RAD_IDS_SINGLE_QUERY: wrong node returned'
                 stop 1
             end if

@@ -1,6 +1,6 @@
 program Testv040_FIND_NODES_IDS_UNINITIALIZED
     use KdTreeFortran
-    use iso_fortran_env, only: real64, int64
+    use iso_fortran_env, only: real64
     implicit none
     call findNodesIdsUninitialized()
     contains
@@ -9,7 +9,7 @@ program Testv040_FIND_NODES_IDS_UNINITIALIZED
             type(KdTree) :: t
             type(KdNodeBucket), allocatable :: res(:)
             real(real64)   :: query(2, 1) = reshape([0.0_real64, 0.0_real64], [2, 1])
-            integer(int64) :: ids(1) = [1_int64]
+            type(NodeId)   :: ids(1)
 
             res = t%rNN_Ids(query, ids)
             write(*, '(A)') '--- Testv040_FIND_NODES_IDS_UNINITIALIZED ---'

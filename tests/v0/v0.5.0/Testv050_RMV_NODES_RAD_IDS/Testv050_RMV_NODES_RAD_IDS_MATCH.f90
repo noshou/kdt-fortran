@@ -28,7 +28,7 @@ program Testv050_RMV_NODES_RAD_IDS_MATCH
                 write(*, '(A)') 'expected 1 node at center (1,1)'
                 stop 1
             end if
-            centerIds(1) = res(1)%p%getId()
+            centerIds(1) = res(1)%p%getNodeId()
 
             numRmv = t%rmvNodes(coordsList=query, radii=radii, ids=centerIds)
             pop    = t%getPop()

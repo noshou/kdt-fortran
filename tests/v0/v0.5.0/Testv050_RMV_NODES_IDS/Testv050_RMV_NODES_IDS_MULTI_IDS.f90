@@ -11,7 +11,7 @@ program Testv050_RMV_NODES_IDS_MULTI_IDS
             real(real64)                 :: coords(2, 3) = reshape( &
                 [0.0_real64, 0.0_real64, 5.0_real64, 0.0_real64, 0.0_real64, 5.0_real64], [2, 3])
             type(KdNodePtr), allocatable :: res1(:), res2(:)
-            integer(int64)               :: targetIds(2)
+            type(NodeId)                 :: targetIds(2)
             integer                      :: numRmv
             integer(int64)               :: pop
 
@@ -23,8 +23,8 @@ program Testv050_RMV_NODES_IDS_MULTI_IDS
                 write(*, '(A)') 'expected 1 node at each query point'
                 stop 1
             end if
-            targetIds(1) = res1(1)%p%getId()
-            targetIds(2) = res2(1)%p%getId()
+            targetIds(1) = res1(1)%p%getNodeId()
+            targetIds(2) = res2(1)%p%getNodeId()
 
             numRmv = t%rmvNodes(ids=targetIds)
             pop    = t%getPop()

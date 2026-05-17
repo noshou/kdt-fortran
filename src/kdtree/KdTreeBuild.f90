@@ -29,9 +29,9 @@ submodule(KdTreeFortran) KdTreeBuild
                     allocate(this%nodePool(i)%data, source=data(i))
                     this%nodePool(i)%hasData = .true.
                 end if
-                this%nodePool(i)%numRemovesSnapshot = this%numRemoves
-                this%currNodeId = this%currNodeId + 1_int64
-                this%nodePool(i)%nodeId = this%currNodeId
+                this%currNodeId                   = this%currNodeId + 1_int64
+                this%nodePool(i)%nodeId%node_id  = this%currNodeId
+                this%nodePool(i)%nodeId%pool_idx = i
             end do
 
             ! allocate indices; that way we don't have to modify the list of nodes
